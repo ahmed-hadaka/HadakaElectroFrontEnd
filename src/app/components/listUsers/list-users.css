@@ -1,0 +1,17 @@
+.table{
+  width: 100%;
+  max-width: -webkit-fill-available;
+  margin: 20px;
+}
+.action{
+ white-space: nowrap;
+}
+
+th, td{
+  text-align: center;
+  vertical-align: middle;
+}
+.form-check{
+  display: flex;
+  justify-content: center;
+}

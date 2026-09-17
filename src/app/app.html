@@ -1,0 +1,18 @@
+<app-nav-bar></app-nav-bar>
+<!-- Global Banner Notification -->
+@if (notification.notification(); as notifyMessage) {
+  <div class="container mt-3">
+    <div [class]="'alert alert-' + notifyMessage.type + ' alert-dismissible fade show shadow-sm'" role="alert">
+      <strong>{{ notifyMessage.type === 'danger' ? 'Error: ' : '' }}</strong>
+      {{ notifyMessage.text }}
+      <button type="button" class="btn-close" (click)="notification.clear()" aria-label="Close"></button>
+    </div>
+  </div>
+}
+
+<main>
+  <router-outlet/>
+</main>
+<footer style="display: flex; justify-content: center;">
+  <p>Hadaka Electro Shop &copy; 2026</p>
+</footer>

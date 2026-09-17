@@ -1,0 +1,108 @@
+<div class="formContainer">
+  <h1>Edit Users | Create New User</h1>
+  @let userDto =  userDtoSignal() ;
+
+<form class="form" [formGroup]="userForm" (ngSubmit)="onSubmit()" ngNativeValidate>
+  <input type="hidden" formControlName="id">
+
+  <div class="mb-2">
+    <label for="email" class="form-label">Email</label>
+    @if(userDto){
+      <input type="email" class="form-control" id="email" readonly formControlName="email"  aria-describedby="emailHelp">
+    }@else{
+      <input type="email" class="form-control" id="email" required formControlName="email"  aria-describedby="emailHelp">
+    }
+    <div class="form-text">Email can not be modified.</div>
+
+  </div>
+
+  <div class="mb-2">
+    <label for="firstName" class="form-label">First Name</label>
+    <input type="text" class="form-control" required formControlName="firstName" id="firstName">
+  </div>
+
+  <div class="mb-2">
+    <label for="lastName" class="form-label">Last Name</label>
+    <input type="text" class="form-control" required formControlName="lastName" id="lastName">
+  </div>
+
+  <div class="mb-2">
+    <label for="password" class="form-label">Password</label>
+    @if(userDto){
+      <input type="password" class="form-control" formControlName="password" id="password">
+      <div class="form-text">Enter a new password or leave as it was.</div>
+    } @else {
+      <input type="password" class="form-control" required formControlName="password" id="password">
+    }
+
+  </div>
+
+  <div class="roles-container">
+    <label>Roles:</label>
+  <div class="roles" formGroupName="rolesGroup">
+    <div class="mb-1 form-check">
+      <input type="checkbox" name="role" [checked]="hasRole(APP_ROLES[0].id)" formControlName="admin" class="form-check-input" id="admin">
+      <label class="form-check-label" for="admin">{{ APP_ROLES[0].name }}: {{APP_ROLES[0].description}}</label>
+    </div>
+
+    <div class="mb-1 form-check">
+      <input type="checkbox" name="role" formControlName="salesPerson"  class="form-check-input" id="salesperson">
+      <label class="form-check-label" for="salesperson">{{ APP_ROLES[1].name }}: {{APP_ROLES[1].description}}</label>
+    </div>
+
+    <div class="mb-1 form-check">
+      <input type="checkbox" name="role"  formControlName="editor" class="form-check-input" id="editor">
+      <label class="form-check-label" for="editor">{{ APP_ROLES[2].name }}: {{APP_ROLES[2].description}}</label>
+    </div>
+
+
+    <div class="mb-1 form-check">
+      <input type="checkbox" name="role" formControlName="shipper" class="form-check-input" id="shipper">
+      <label class="form-check-label" for="shipper">{{ APP_ROLES[3].name }}: {{APP_ROLES[3].description}}</label>
+    </div>
+
+    <div class="mb-1 form-check">
+      <input type="checkbox" name="role"  formControlName="assistant" class="form-check-input" id="assistant">
+      <label class="form-check-label" for="assistant">{{ APP_ROLES[4].name }}: {{APP_ROLES[4].description}}</label>
+    </div>
+  </div>
+
+  </div>
+    <div class="mb-1 form-check enabled">
+      <input type="checkbox" name="enabled" class="form-check-input" formControlName="enabled" id="enabled">
+      <label class="form-check-label" for="enabled">Enabled:</label>
+    </div>
+
+    <div class="mb-1 photo">
+      <label for="formFileMultiple" class="form-label">Photos:</label>
+        <div class="mb-2">
+          @if (userDto && userDto.photo) {
+            <img [ngSrc]="userPhotoBasePath +userDto.id+'/'+ userDto.photo"
+               alt="user Photo"
+               class="img-thumbnail object-fit-cover"
+               width="100"
+               height="100"
+               style="max-height: 100px;">
+          }@else{
+            <img [ngSrc]="defaultUserPhotoBasePath +'default-user.png'"
+                 alt="user Photo"
+                 class="img-thumbnail object-fit-cover"
+                 width="100"
+                 height="100"
+                 style="max-height: 100px;">
+          }
+        </div>
+      <input class="form-control" type="file" (change)="onFileUpload($event)" id="formFileMultiple" multiple>
+    </div>
+
+  <div class="btn-container">
+    <button type="submit" class="btn btn-primary">
+      @if (userDtoSignal()) { Update User } @else { Create User }
+    </button>
+    <button type="button" class="btn btn-secondary" routerLink="/users">Cancel</button>
+  </div>
+</form>
+<!--  }@else {-->
+<!--    <div class="alert alert-info">Loading userDto details...</div>-->
+<!--  }-->
+</div>

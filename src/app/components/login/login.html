@@ -1,0 +1,17 @@
+<div class="formContainer">
+<form class="form" [formGroup]="loginReqForm" (ngSubmit)="onSubmit()" ngNativeValidate>
+  <div class="mb-3">
+    <label for="InputEmail1" class="form-label">Email address</label>
+    <input type="email" required formControlName="email" class="form-control" id="InputEmail1" aria-describedby="emailHelp">
+  </div>
+  <div class="mb-3">
+    <label for="InputPassword1" class="form-label">Password</label>
+    <input type="password" required formControlName="password" class="form-control" id="InputPassword1">
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" formControlName="rememberMe" class="form-check-input" id="Check1">
+    <label class="form-check-label" for="Check1">Remember Me</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Login</button>
+</form>
+</div>

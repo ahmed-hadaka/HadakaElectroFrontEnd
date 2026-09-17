@@ -1,0 +1,21 @@
+.table {
+  width: 100%;
+  max-width: -webkit-fill-available;
+  margin: 20px;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+.form-check{
+  display: flex;
+  justify-content: center;
+}
+
+.action{
+  white-space: nowrap;
+}
+.form-check-input {
+  cursor: pointer;
+}

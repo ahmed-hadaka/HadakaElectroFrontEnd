@@ -1,0 +1,120 @@
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2>Users Management</h2>
+    </div>
+    <div class="col-md-4 text-end">
+      <a href="/users/user-details/0" class="btn btn-success">New User</a>
+    </div>
+  </div>
+
+  <!-- Search & Filter Section -->
+  <div class="row mb-3">
+    <div class="col-md-8">
+      <form [formGroup]="searchForm" class="row g-2">
+        <div class="col-md-6">
+          <input type="text" class="form-control" formControlName="keyword" placeholder="By id,first-last name and, email">
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th scope="col">UserId</th>
+    <th scope="col">Photo</th>
+    <th scope="col">First Name</th>
+    <th scope="col">Last Name</th>
+    <th scope="col">Enabled</th>
+    <th scope="col">Roles</th>
+    <th scope="col">Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+
+    @for (userDto of usersPageContent(); track userDto.id) {
+      <tr>
+        <th scope="row">{{ userDto.id }}</th>
+        <td>
+          @if(userDto.photo != null && userDto.photo.length > 0){
+            <img [ngSrc]="userPhotoBasePath +userDto.id+'/'+ userDto.photo" alt="photo"
+                 width="40"
+                 height="40"
+                 class="rounded-circle object-fit-cover"
+            >
+          }@else{
+            <img [ngSrc]="defaultUserPhotoBasePath +'default-user.png'" alt="photo"
+                 width="40"
+                 height="40"
+                 class="rounded-circle object-fit-cover"
+            >
+          }
+        </td>
+        <td>{{ userDto.firstName }}</td>
+        <td>{{ userDto.lastName }}</td>
+        <td>
+          <div class="form-check form-switch">
+          <input type="checkbox" [checked]="userDto.enabled"
+                 class="form-check-input"
+                 (change)="updateEnableStatus(userDto.id)">
+          </div>
+        </td>
+        <td>
+          @for (role of userDto.roles; track role.id; let last = $last) {
+            <span>{{ role.name }}{{ last ? '' : ', ' }}</span>
+          }
+        </td>
+        <td class="action">
+          <button type="button" class="btn btn-primary" [routerLink]="['user-details',userDto.id]">View / Edit</button>&nbsp;&nbsp;&nbsp;
+          <button type="button" class="btn btn-danger" (click)="confirmDelete(userDto.id)">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+
+<!-- Pagination -->
+@if (totalPages() > 1) {
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-outline-primary"
+            [disabled]="currentPage() === 0"
+            (click)="previousPage()">
+      Previous
+    </button>
+    <span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+    <button class="btn btn-outline-primary"
+            [disabled]="currentPage() >= totalPages() - 1"
+            (click)="nextPage()">
+      Next
+    </button>
+  </div>
+}
+
+
+<!-- Bootstrap Confirmation Modal -->
+@if (userIdToDelete(); as userId) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion</h5>
+          <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete user <strong>{{ userId }}</strong>?</p>
+          <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+</div>
