@@ -1,0 +1,84 @@
+
+.settings-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.site-logo-preview {
+  max-height: 80px;
+  max-width: 200px;
+  object-fit: contain;
+  background-color: #fff;
+}
+
+.file-input {
+  max-width: 300px;
+}
+
+.list-box {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  height: 350px;
+  overflow-y: auto;
+  background-color: #fff;
+  padding: 0;
+}
+
+.list-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: #333;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.list-row:hover {
+  background-color: #f8f9fa;
+}
+
+.list-row.active {
+  background-color: #c4c4c4;
+  color: #000;
+}
+
+.small-select {
+  max-width: 120px;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  color: #0d6efd;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 1rem;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: #0a58ca;
+}
+
+.nav-tabs .nav-link.active {
+  color: #495057;
+  background-color: transparent;
+  border: 1px solid #dee2e6;
+  border-bottom-color: #fff;
+  border-radius: 4px 4px 0 0;
+}
+
+.col-form-label {
+  font-weight: normal;
+  color: #333;
+}

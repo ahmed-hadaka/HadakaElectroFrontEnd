@@ -1,61 +1,26 @@
 import { Routes } from '@angular/router';
-import {Login} from './components/login/login';
-import {ListUsers} from './components/listUsers/list-users';
-import {UserDetails} from './components/userDetails/user-details';
-import {ListProducts} from './components/listProducts/list-products';
-import {ListCategories} from './components/listCategories/list-categories';
-import {ListBrands} from './components/listBrands/list-brands';
-import {ProductDetails} from './components/productDetails/product-details';
-import {CategoryDetails} from './components/categoryDetails/category-details';
-import {BrandDetails} from './components/brandDetails/brand-details';
+import {Login} from './internal/components/login/login';
+import {ListUsers} from './internal/components/listUsers/list-users';
+import {UserDetails} from './internal/components/userDetails/user-details';
+import {ListProducts} from './internal/components/listProducts/list-products';
+import {ListCategories} from './internal/components/listCategories/list-categories';
+import {ListBrands} from './internal/components/listBrands/list-brands';
+import {ProductDetails} from './internal/components/productDetails/product-details';
+import {CategoryDetails} from './internal/components/categoryDetails/category-details';
+import {BrandDetails} from './internal/components/brandDetails/brand-details';
+import {InternalLayout} from './internal/components/internal-layout/internal-layout';
+import {CustomerLayout} from './customer/components/customer-layout/customer-layout';
 
 export const routes: Routes = [
   {
-    path:'',
-    component: Login
+    path: 'ElectroInternal',
+    component:InternalLayout,
+    loadChildren: () => import('./internal/internal.routes').then(m => m.INTERNAL_ROUTES)
   },
   {
-    path:'users',
-    component: ListUsers
-  },
-  {
-    path:'users/user-details/:id',
-    component: UserDetails
-  },
-  {
-    path:'products',
-    component: ListProducts
-  },
-  {
-    path:'products/new-product',
-    component: ProductDetails
-  },
-  {
-    path:'products/edit/:id',
-    component: ProductDetails
-  },
-  {
-    path:'categories',
-    component: ListCategories
-  },
-  {
-    path:'categories/new-category',
-    component: CategoryDetails
-  },
-  {
-    path:'categories/edit/:id',
-    component: CategoryDetails
-  },
-  {
-    path:'brands',
-    component: ListBrands
-  },
-  {
-    path:'brands/new-brand',
-    component: BrandDetails
-  },
-  {
-    path:'brands/edit/:id',
-    component: BrandDetails
+    path: 'ElectroCustomer',
+    component:CustomerLayout,
+    loadChildren: () => import('./customer/customer.routes').then(m => m.CUSTOMER_ROUTES)
   }
+
 ];

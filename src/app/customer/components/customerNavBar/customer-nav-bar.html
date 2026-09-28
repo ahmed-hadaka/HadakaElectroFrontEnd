@@ -1,0 +1,61 @@
+<header>
+  <!-- Top Dark Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand me-4" routerLink="/ElectroCustomer">
+        <img src="/siteLogo.png" alt="SiteLogo" width="180" height="45">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="topNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link text-light" href="javascript:void(0)">Careers</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="javascript:void(0)">Payments</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="javascript:void(0)">Shipping & Delivery</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="javascript:void(0)">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Bottom White Bar -->
+  <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2">
+    <div class="container-fluid">
+
+      <div class="d-flex me-4">
+        <input #keywordInput name="keyword" class="form-control me-2 rounded-1" type="search" placeholder="keyword" style="max-width: 250px;"
+               (keyup.enter)="onSearch(keywordInput.value)">
+
+        <button class="btn btn-outline-success rounded-1 px-4" type="button"
+                (click)="onSearch(keywordInput.value)">
+          Search
+        </button>
+      </div>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#bottomNavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="bottomNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center gap-3">
+          @if (isLoggedIn()) {
+            <li class="nav-item"><a class="nav-link fw-bold text-primary" routerLink="/ElectroCustomer/customer-details">{{ userEmail() }}</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" href="javascript:void(0)">Addresses</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" href="javascript:void(0)">Questions</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" href="javascript:void(0)">Reviews</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" href="javascript:void(0)">Orders</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" href="javascript:void(0)">Cart</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" style="cursor: pointer;" (click)="logout()">Logout</a></li>
+          } @else {
+            <li class="nav-item"><a class="nav-link text-primary" routerLink="/ElectroCustomer">Home</a></li>
+            <li class="nav-item"><a class="nav-link text-primary" routerLink="/ElectroCustomer/register">Register</a></li>
+            <li class="nav-item"><a class="btn btn-primary btn-sm ms-2" routerLink="/ElectroCustomer/login">Login</a></li>
+          }
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+

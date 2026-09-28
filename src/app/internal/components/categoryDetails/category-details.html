@@ -1,0 +1,94 @@
+<div class="formContainer">
+  <div class="form-header">
+    @if (categoryDtoSignal(); as category) {
+      <h1>Edit Category: {{ category.name }}</h1>
+    } @else {
+      <h1>Create New Category</h1>
+    }
+  </div>
+
+  <form class="form" [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+    <input type="hidden" formControlName="id">
+
+    <!-- Image Display -->
+      <div class="mb-3">
+        <label class="form-label">Current Image</label>
+        <div class="image-preview">
+          <img [src]="getImagePath()" alt="Category Image" class="img-thumbnail">
+        </div>
+      </div>
+
+    <!-- Image Upload -->
+    <div class="mb-3">
+      <label for="imageFile" class="form-label">
+        @if (categoryDtoSignal()) { Change } @else { Upload } Image
+      </label>
+      <input type="file"
+             class="form-control"
+             id="imageFile"
+             (change)="onFileUpload($event)"
+             accept="image/*"
+             [required]="!categoryDtoSignal()">
+      <small class="form-text text-muted">Supported formats: JPG, PNG, GIF</small>
+    </div>
+
+    <!-- Category Name -->
+    <div class="mb-3">
+      <label for="name" class="form-label">Category Name *</label>
+      <input type="text"
+             class="form-control"
+             id="name"
+             required
+             formControlName="name"
+             placeholder="Enter category name">
+    </div>
+
+    <!-- Category Alias -->
+    <div class="mb-3">
+      <label for="alias" class="form-label">Alias *</label>
+      <input type="text"
+             class="form-control"
+             id="alias"
+             required
+             formControlName="alias"
+             placeholder="e.g., electronics-laptops">
+
+    </div>
+
+    <!-- Parent Category -->
+    <div class="mb-3">
+      <label for="parent" class="form-label">Parent Category</label>
+      <select class="form-select" id="parent" formControlName="parent">
+        <option [ngValue]="null">No Parent (Root Category)</option>
+        @for (parent of parentCategoriesSignal(); track parent.id) {
+            <option [ngValue]="parent">{{ parent.name }}</option>
+        }
+      </select>
+      <small class="form-text text-muted">Select a parent category for subcategories</small>
+    </div>
+
+    <!-- Enabled Status -->
+    <div class="mb-3">
+      <div class="form-check form-switch">
+        <input class="form-check-input"
+               type="checkbox"
+               id="enabled"
+               formControlName="enabled">
+        <label class="form-check-label" for="enabled">
+          Enabled
+        </label>
+      </div>
+      <small class="form-text text-muted">Disabled categories won't be visible to customers</small>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        @if (categoryDtoSignal()) { Update Category } @else { Create Category }
+      </button>
+      <button type="button" class="btn btn-secondary ms-2" routerLink="/ElectroInternal/categories">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

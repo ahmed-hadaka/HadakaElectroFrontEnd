@@ -1,0 +1,72 @@
+
+<div class="formContainer">
+  <form class="form card shadow-sm p-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()" ngNativeValidate>
+    <h2 class="h4 mb-3">Customer Registration</h2>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">First Name</label>
+        <input class="form-control" formControlName="firstName">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Last Name</label>
+        <input class="form-control" formControlName="lastName">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" formControlName="email">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Phone Number</label>
+        <input class="form-control" formControlName="phoneNumber">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" formControlName="password">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Postal Code</label>
+        <input class="form-control" formControlName="postalCode">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address Line 1</label>
+        <input class="form-control" formControlName="addressLine1">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address Line 2</label>
+        <input class="form-control" formControlName="addressLine2">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">City</label>
+        <input class="form-control" formControlName="city">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Country</label>
+        <select class="form-select" formControlName="countryId" (change)="onCountryChange(registerForm.get('countryId')?.value || 0)">
+          @for (country of countries(); track country.id) {
+            <option [ngValue]="country.id">{{ country.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">State</label>
+        @if(states().length === 0){
+          <input id="state" type="text" class="form-control" formControlName="state" placeholder="State / Province">
+        }@else{
+        <select class="form-select" formControlName="state">
+          <option value="">Select state</option>
+          @for (state of states(); track state) {
+            <option [value]="state">{{ state }}</option>
+          }
+        </select>
+        }
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mt-4">Save Customer</button>
+
+    <p class="text-center small mt-3 mb-0">
+      Already have an account? <a routerLink="/ElectroCustomer/login">Login</a>
+    </p>
+  </form>
+</div>

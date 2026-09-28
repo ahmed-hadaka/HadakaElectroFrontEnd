@@ -1,0 +1,48 @@
+/* Container Reset */
+.container {
+  max-width: 1200px;
+  background-color: #fff;
+}
+
+/* Main Image Setup */
+.main-image {
+  max-height: 400px;
+  object-fit: contain;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Thumbnail Gallery Grid */
+.thumbnail-box {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.thumbnail-box img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.thumbnail-box:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.thumbnail-box.active {
+  border: 2px solid #007bff;
+  padding: 3px; /* Prevents layout shift when border gets thicker */
+}
+
+/* Bullet list indent matching the design */
+ul {
+  padding-left: 1.2rem;
+}

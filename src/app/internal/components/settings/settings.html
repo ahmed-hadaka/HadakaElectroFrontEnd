@@ -1,0 +1,345 @@
+<div class="settings-container mt-3">
+  <h1 class="mb-3">Site Settings</h1>
+
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'general'" (click)="setTab('general')">General</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'countries'" (click)="setTab('countries')">Countries</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'states'" (click)="setTab('states')">States</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'mail-server'" (click)="setTab('mail-server')">Mail Server</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'mail-templates'" (click)="setTab('mail-templates')">Mail Templates</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'payment'" (click)="setTab('payment')">Payment</button>
+    </li>
+  </ul>
+
+  @if (activeTab() === 'general') {
+    <form [formGroup]="generalForm" (ngSubmit)="saveGeneralSettings()">
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Site Name:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="siteName">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Copyright:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="copyright">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Site Logo:</label>
+        <div class="col-md-8 d-flex align-items-center flex-wrap gap-3">
+          <img [src]="siteLogoPreviewUrl()" alt="site logo" class="site-logo-preview">
+          <input type="file" class="form-control file-input" (change)="onSiteLogoSelected($event)">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Currency Type:</label>
+        <div class="col-md-8">
+          <select class="form-select" formControlName="currencyId">
+            @for (currency of currenciesSignal(); track currency.id) {
+              <option [value]="currency.id">{{ currency.name }} - {{ currency.code }} - {{ currency.symbol }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Currency Symbol Position:</label>
+        <div class="col-md-8">
+          <select class="form-select" formControlName="currencySymbolPosition">
+            <option value="BEFORE_PRICE">Before price</option>
+            <option value="AFTER_PRICE">After price</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Decimal Point Type:</label>
+        <div class="col-md-8">
+          <select class="form-select" formControlName="decimalPointType">
+            <option value="POINT">Point (.)</option>
+            <option value="COMMA">Comma (,)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Decimal Digits:</label>
+        <div class="col-md-8">
+          <select class="form-select" formControlName="decimalDigits">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-4 align-items-center">
+        <label class="col-md-4 col-form-label">Thousands Point Type:</label>
+        <div class="col-md-8">
+          <select class="form-select" formControlName="thousandsPointType">
+            <option value="COMMA">Comma (,)</option>
+            <option value="POINT">Point (.)</option>
+            <option value="SPACE">Space ( )</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4">Save General Settings</button>
+      </div>
+    </form>
+  }
+
+  @if (activeTab() === 'countries') {
+    <p class="mb-3">Use this page to manage countries that will be displayed in customer registration forms.</p>
+    <button class="btn btn-primary mb-3" type="button" (click)="refreshCountryList()">Refresh Country List</button>
+
+    <div class="list-box mb-3">
+      @for (country of countriesSignal(); track country.id) {
+        <button type="button"
+                class="list-row"
+                [class.active]="selectedCountryIdSignal() === country.id"
+                (click)="selectCountry(country)">
+          {{ country.name }} ({{ country.code }})
+        </button>
+      }
+    </div>
+
+    <form [formGroup]="countryForm">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label">Country Name:</label>
+          <input class="form-control" formControlName="name">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Country Code:</label>
+          <input class="form-control" formControlName="code" maxlength="3" placeholder="e.g. EG">
+        </div>
+        <div class="col-md-4 d-flex gap-2 justify-content-md-end">
+          <button type="button" class="btn btn-primary" (click)="addCountry()">Add</button>
+          <button type="button" class="btn btn-primary" (click)="updateCountry()">Update</button>
+          <button type="button" class="btn btn-danger" (click)="deleteCountry()">Delete</button>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (activeTab() === 'states') {
+    <p class="mb-3">Use this page to manage states/provinces available in customer registration forms.</p>
+    <button class="btn btn-primary mb-3" type="button" (click)="refreshCountryList()">Refresh Country List</button>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-2 d-flex align-items-center">
+        <label class="mb-0">Selected Country:</label>
+      </div>
+      <div class="col-md-10">
+        <select class="form-select"
+                [value]="selectedCountryForStatesSignal() || 0"
+                (change)="onSelectedCountryForStatesChange($any($event.target).value)">
+          <option [value]="0">Select Country</option>
+          @for (country of countriesSignal(); track country.id) {
+            <option [value]="country.id">{{ country.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-2 d-flex align-items-center">
+        <label class="mb-0">All States/Provinces:</label>
+      </div>
+      <div class="col-md-10">
+        <div class="list-box state-box">
+          @for (state of statesSignal(); track state.id) {
+            <button type="button"
+                    class="list-row"
+                    [class.active]="selectedStateIdSignal() === state.id"
+                    (click)="selectState(state)">
+              {{ state.name }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="stateForm">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-2 d-flex align-items-center">
+          <label class="mb-0">Selected State:</label>
+        </div>
+        <div class="col-md-6">
+          <input class="form-control" formControlName="name">
+        </div>
+        <div class="col-md-4 d-flex gap-2 justify-content-md-end">
+<!--          <button type="button" class="btn btn-secondary" (click)="newState()">New</button>-->
+          <button type="button" class="btn btn-primary" (click)="saveState()">Save/Update</button>
+          <button type="button" class="btn btn-danger" (click)="deleteState()">Delete</button>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (activeTab() === 'mail-server') {
+    <form [formGroup]="mailServerForm" (ngSubmit)="saveMailServerSettings()">
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">SMTP Server Host Name:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="mailHost">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Port Number:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="mailPort">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Username:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="mailUsername">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Password:</label>
+        <div class="col-md-8">
+          <input type="password" class="form-control" formControlName="mailPassword">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Server Authentication Required:</label>
+        <div class="col-md-8">
+          <select class="form-select small-select" formControlName="smtpAuth">
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">Server Requires Secured Connection (TLS):</label>
+        <div class="col-md-8">
+          <select class="form-select small-select" formControlName="smtpSecured">
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">From E-mail Address:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="mailFrom">
+        </div>
+      </div>
+
+      <div class="row mb-4 align-items-center">
+        <label class="col-md-4 col-form-label">Sender Name:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="mailSenderName">
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4">Save Mail Server Settings</button>
+      </div>
+    </form>
+  }
+
+  @if (activeTab() === 'mail-templates') {
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <button class="nav-link"
+                [class.active]="activeMailTemplateTab() === 'customer-verification'"
+                (click)="setMailTemplateTab('customer-verification')">Customer Verification</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link"
+                [class.active]="activeMailTemplateTab() === 'customer-reset-password'"
+                (click)="setMailTemplateTab('customer-reset-password')">Customer Reset Password</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link"
+                [class.active]="activeMailTemplateTab() === 'order-confirmation'"
+                (click)="setMailTemplateTab('order-confirmation')">Order Confirmation</button>
+      </li>
+    </ul>
+
+    <form [formGroup]="mailTemplatesForm" (ngSubmit)="saveMailTemplateSettings()">
+      @if (activeMailTemplateTab() === 'customer-verification') {
+        <div class="row mb-3 align-items-center">
+          <label class="col-md-2 col-form-label">E-mail Subject:</label>
+          <div class="col-md-10">
+            <input class="form-control" formControlName="customerVerifySubject">
+          </div>
+        </div>
+        <div class="row mb-4">
+          <label class="col-md-2 col-form-label pt-2">E-mail Content:</label>
+          <div class="col-md-10">
+            <textarea class="form-control" rows="12" formControlName="customerVerifyContent"></textarea>
+          </div>
+        </div>
+      }
+
+      @if (activeMailTemplateTab() === 'customer-reset-password') {
+        <div class="row mb-3 align-items-center">
+          <label class="col-md-2 col-form-label">E-mail Subject:</label>
+          <div class="col-md-10">
+            <input class="form-control" formControlName="customerResetPasswordSubject">
+          </div>
+        </div>
+        <div class="row mb-4">
+          <label class="col-md-2 col-form-label pt-2">E-mail Content:</label>
+          <div class="col-md-10">
+            <textarea class="form-control" rows="12" formControlName="customerResetPasswordContent"></textarea>
+          </div>
+        </div>
+      }
+      @if (activeMailTemplateTab() === 'order-confirmation') {
+        <div class="row mb-3 align-items-center">
+          <label class="col-md-2 col-form-label">E-mail Subject:</label>
+          <div class="col-md-10">
+            <input class="form-control" formControlName="orderConfirmSubject">
+          </div>
+        </div>
+        <div class="row mb-4">
+          <label class="col-md-2 col-form-label pt-2">E-mail Content:</label>
+          <div class="col-md-10">
+            <textarea class="form-control" rows="12" formControlName="orderConfirmContent"></textarea>
+          </div>
+        </div>
+      }
+
+      <div class="text-center mt-2">
+        <button type="submit" class="btn btn-primary px-4">Save</button>
+      </div>
+    </form>
+  }
+
+  @if (activeTab() === 'payment') {
+    <div class="alert alert-info">
+      No internal endpoint is available yet for this section in the current backend.
+    </div>
+  }
+</div>
+

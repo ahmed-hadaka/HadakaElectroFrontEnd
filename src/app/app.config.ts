@@ -1,5 +1,4 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig, inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners
@@ -7,9 +6,9 @@ import {
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {csrfInterceptor} from './interceptors/csrf.interceptor';
-import {CsrfService} from './services/CsrfService/csrf-service';
-import {authInterceptor} from './interceptors/auth.interceptor';
+import {csrfInterceptor} from './core/interceptors/csrf.interceptor';
+import {CsrfService} from './shared/services/CsrfService/csrf-service';
+import {authInterceptor} from './core/interceptors/auth.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -18,8 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([csrfInterceptor, authInterceptor])),
     provideAppInitializer(()=>{
-      const csrfService = inject(CsrfService);
-      return csrfService.getCsrfToken();
+
     })
   ]
 };

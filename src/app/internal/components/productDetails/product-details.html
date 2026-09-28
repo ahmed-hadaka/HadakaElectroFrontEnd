@@ -1,0 +1,288 @@
+<div class="container my-4">
+  <!-- Page Header -->
+  <div class="mb-3">
+    <h2>
+      Manage Products |
+      @if (productDtoSignal(); as product) {
+        Edit Product (ID: {{ product.id }})
+      } @else {
+        Create New Product
+      }
+    </h2>
+  </div>
+
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"
+                role="tab">
+          Overview
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button"
+                role="tab">
+          Description
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
+          Images
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button"
+                role="tab">
+          Details
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button"
+                role="tab">
+          Shipping
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="productTabsContent">
+
+      <!-- ================= 1. OVERVIEW TAB ================= -->
+      <div class="tab-pane fade show active" id="overview" role="tabpanel">
+        <input type="hidden" formControlName="id">
+
+        <!-- Product Name -->
+        <div class="row mb-3 align-items-center">
+          <label for="name" class="col-sm-2 col-form-label fw-semibold">Product Name:</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" formControlName="name">
+          </div>
+        </div>
+
+        <!-- Alias -->
+        <div class="row mb-3 align-items-center">
+          <label for="alias" class="col-sm-2 col-form-label fw-semibold">Alias:</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="alias" formControlName="alias">
+          </div>
+        </div>
+
+        <!-- Brand -->
+        <div class="row mb-3 align-items-center">
+          <label for="brandId" class="col-sm-2 col-form-label fw-semibold">Brand:</label>
+          <div class="col-sm-10">
+            <select class="form-select" id="brandId" formControlName="brandId">
+              <option [ngValue]="0" disabled>-- Select Brand --</option>
+              @for (brand of brandsSignal(); track brand.id) {
+                <option [ngValue]="brand.id">{{ brand.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="row mb-3 align-items-center">
+          <label for="categoryId" class="col-sm-2 col-form-label fw-semibold">Category:</label>
+          <div class="col-sm-10">
+            <select class="form-select" id="categoryId" formControlName="categoryId">
+              <option [ngValue]="0" disabled>-- Select Category --</option>
+              @for (category of categoriesSignal(); track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Enabled -->
+        <div class="row mb-3 align-items-center">
+          <label class="col-sm-2 col-form-label fw-semibold">Enabled:</label>
+          <div class="col-sm-10">
+            <input type="checkbox" class="form-check-input ms-1" formControlName="enabled">
+          </div>
+        </div>
+
+        <!-- In Stock -->
+        <div class="row mb-3 align-items-center">
+          <label class="col-sm-2 col-form-label fw-semibold">In Stock:</label>
+          <div class="col-sm-10">
+            <input type="checkbox" class="form-check-input ms-1" formControlName="inStock">
+          </div>
+        </div>
+
+        <!-- Cost -->
+        <div class="row mb-3 align-items-center">
+          <label for="cost" class="col-sm-2 col-form-label fw-semibold">Cost:</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.01" class="form-control" id="cost" formControlName="cost">
+          </div>
+        </div>
+
+        <!-- List Price -->
+        <div class="row mb-3 align-items-center">
+          <label for="price" class="col-sm-2 col-form-label fw-semibold">List Price:</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.01" class="form-control" id="price" formControlName="price">
+          </div>
+        </div>
+
+        <!-- Discount Percent -->
+        <div class="row mb-3 align-items-center">
+          <label for="discountPercent" class="col-sm-2 col-form-label fw-semibold">Discount:</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.1" class="form-control" id="discountPercent" formControlName="discountPercent">
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 2. DESCRIPTION TAB ================= -->
+      <div class="tab-pane fade" id="description" role="tabpanel">
+        <div class="mb-4">
+          <label for="shortDescription" class="form-label fw-semibold">Short Description:</label>
+          <textarea class="form-control" id="shortDescription" formControlName="shortDescription" rows="6"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="fullDescription" class="form-label fw-semibold">Full Description:</label>
+          <textarea class="form-control" id="fullDescription" formControlName="fullDescription" rows="10"></textarea>
+        </div>
+      </div>
+
+      <!-- ================= 3. IMAGES TAB ================= -->
+      <div class="tab-pane fade" id="images" role="tabpanel">
+        <div class="row g-4">
+
+          <!-- Main Image Box -->
+          <div class="col-md-4">
+            <div class="card h-100 text-center p-3">
+              <label class="form-label fw-bold">
+                Main Image: {{ productForm.get('name')?.value || 'Product Main' }}
+              </label>
+              <div class="border rounded p-2 mb-2 d-flex align-items-center justify-content-center"
+                   style="height: 200px; background-color: #f8f9fa;">
+                <img [src]="getMainImagePath()" alt="Main Product Image" class="img-fluid" style="max-height: 180px;">
+              </div>
+              <input type="file" class="form-control" id="mainImageFile" (change)="onMainImageUpload($event)" accept="image/*">
+            </div>
+          </div>
+
+          <!-- Dynamic Extra Images (Up to 5) -->
+          @for (slot of extraImageSlotsSignal(); track $index) {
+            <div class="col-md-4">
+              <div class="card h-100 text-center p-3 position-relative">
+                <button type="button"
+                        class="btn-close position-absolute top-0 end-0 m-2"
+                        (click)="removeExtraImage($index,slot.name!)"
+                        aria-label="Remove Image"></button>
+
+                <label class="form-label fw-bold">Extra Image #{{ $index + 1 }}</label>
+
+                <div class="border rounded p-2 mb-2 d-flex align-items-center justify-content-center"
+                     style="height: 200px; background-color: #f8f9fa;">
+                  <img [src]="slot.previewUrl || defaultImagePath" class="img-fluid" style="max-height: 180px;">
+                </div>
+
+                <input type="file"
+                       class="form-control"
+                       (change)="onExtraImageChange($event, $index)"
+                       accept="image/*">
+              </div>
+            </div>
+          }
+
+          <!-- "Add Extra Image" Slot Button (Visible if count < 5) -->
+          @if (extraImageSlotsSignal().length < 5) {
+            <div class="col-md-4">
+              <div class="card h-100 text-center p-3 d-flex flex-column align-items-center justify-content-center border-dashed"
+                   style="min-height: 280px; border-style: dashed; background-color: #f8f9fa;">
+                <button type="button" class="btn btn-outline-primary btn-lg" (click)="addExtraImageSlot()">
+                  + Add Extra Image
+                </button>
+                <small class="text-muted mt-2">
+                  {{ 5 - extraImageSlotsSignal().length }} slot(s) remaining
+                </small>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+      <!-- ================= 4. DETAILS TAB ================= -->
+      <div class="tab-pane fade" id="details" role="tabpanel">
+        <div class="mb-3">
+          @for (detail of productDetailsSignal(); track $index) {
+            <div class="row mb-2 align-items-center">
+              <div class="col-md-5">
+                <div class="input-group">
+                  <span class="input-group-text">Name:</span>
+                  <input type="text" class="form-control" [value]="detail.name"
+                         (input)="updateDetailName($event, $index)">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text">Value:</span>
+                  <input type="text" class="form-control" [value]="detail.value"
+                         (input)="updateDetailValue($event, $index)">
+                </div>
+              </div>
+              <div class="col-md-1 text-center">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle"
+                        (click)="removeDetail($index)">
+                  ✕
+                </button>
+              </div>
+            </div>
+          }
+
+          <button type="button" class="btn btn-secondary mt-3" (click)="addDetail()">
+            Add More Detail
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= 5. SHIPPING TAB ================= -->
+      <div class="tab-pane fade" id="shipping" role="tabpanel">
+        <p class="text-muted mb-4">
+          The following information is important to calculate shipping cost for the product.<br>
+          The dimensions (L x W x H) are for the box that is used to package the product - not the product's dimensions.
+        </p>
+
+        <div class="row mb-3 align-items-center">
+          <label for="length" class="col-sm-2 col-form-label fw-semibold">Length (inch):</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.1" class="form-control" id="length" formControlName="length">
+          </div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+          <label for="width" class="col-sm-2 col-form-label fw-semibold">Width (inch):</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.1" class="form-control" id="width" formControlName="width">
+          </div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+          <label for="height" class="col-sm-2 col-form-label fw-semibold">Height (inch):</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.1" class="form-control" id="height" formControlName="height">
+          </div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+          <label for="weight" class="col-sm-2 col-form-label fw-semibold">Weight (pound):</label>
+          <div class="col-sm-10">
+            <input type="number" step="0.1" class="form-control" id="weight" formControlName="weight">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary px-4 me-2">Save</button>
+      <button type="button" class="btn btn-secondary px-4" routerLink="/ElectroInternal/products">Cancel</button>
+    </div>
+  </form>
+</div>

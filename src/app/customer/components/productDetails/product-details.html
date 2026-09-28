@@ -1,0 +1,120 @@
+@if (response(); as data) {
+  <div class="container py-4">
+
+    <!-- Breadcrumb Navigation -->
+    <div class="mb-4 small text-primary">
+      <a routerLink="/ElectroCustomer" class="text-decoration-none">Home</a> /
+      @for (category of data.parentCategories; track category.id) {
+        <a [routerLink]="['/ElectroCustomer/categories', category.id, 'products']" class="text-decoration-none">{{ category.name }}</a> /
+      }
+      <span class="text-muted">{{ data.productDTO.name }}</span>
+    </div>
+
+    <div class="row mb-5">
+      <!-- Left Column: Image Gallery -->
+      <div class="col-md-5">
+        <div class="text-center mb-3">
+          <!-- Defaults to main image if selectedImage is null -->
+          <img [src]="selectedImage() || getImagePath(data.productDTO)"
+               class="img-fluid main-image"
+               [alt]="data.productDTO.name">
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <!-- Main Image Thumbnail -->
+          <div class="thumbnail-box"
+               [class.active]="(selectedImage() || getImagePath(data.productDTO)) === getImagePath(data.productDTO)"
+               (mouseover)="changeMainImage(getImagePath(data.productDTO))">
+            <img [src]="getImagePath(data.productDTO)" class="img-fluid">
+          </div>
+
+          <!-- Extra Images Thumbnails -->
+          @if (data.productDTO.productImages) {
+            @for (img of data.productDTO.productImages; track img.name) {
+              <div class="thumbnail-box"
+                   [class.active]="selectedImage() === getExtraImagePath(data.productDTO.id, img.name)"
+                   (mouseover)="changeMainImage(getExtraImagePath(data.productDTO.id, img.name))">
+                <img [src]="getExtraImagePath(data.productDTO.id, img.name)" class="img-fluid">
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Center Column: Product Info -->
+      <div class="col-md-5">
+        <h4 class="fw-normal text-dark mb-2" style="font-size: 1.5rem; line-height: 1.3;">
+          {{ data.productDTO.name }}
+        </h4>
+
+        <!-- Ratings Placeholder -->
+        <div class="mb-3 small">
+          <span class="text-warning fs-6">☆☆☆☆☆</span>
+          <a href="javascript:void(0)" class="text-decoration-none ms-2">0 ratings 0 answered questions</a>
+        </div>
+
+        <div class="mb-2 small text-muted">
+          Brand: <span class="text-dark">{{ data.productDTO.brandId }}</span>
+        </div>
+
+        <!-- Pricing -->
+        <div class="mb-1 small text-muted">
+          List Price: <span class="text-decoration-line-through">${{ data.productDTO.price | number:'1.2-2' }}</span>
+        </div>
+        <div class="mb-3 small text-muted">
+          Price: <span class="text-danger fw-normal fs-5">${{ getDiscountedPrice(data.productDTO.price, data.productDTO.discountPercent) | number:'1.2-2' }}</span>
+          @if (data.productDTO.discountPercent > 0) {
+            <span> ({{ data.productDTO.discountPercent }}% off)</span>
+          }
+        </div>
+
+        <!-- Short Description -->
+        <div class="mb-3 small text-dark">
+          {{ data.productDTO.shortDescription }}
+        </div>
+
+        <!-- Specifications Bullet List -->
+        @if (data.productDTO.productDetails?.length) {
+          <ul class="small text-dark" style="line-height: 1.8;">
+            @for (detail of data.productDTO.productDetails; track detail.name) {
+              <li><strong>{{ detail.name }}</strong>: {{ detail.value }}</li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Right Column: Add to Cart Widget -->
+      <div class="col-md-2">
+        <div class="p-3 border rounded-1 shadow-sm">
+          <div class="fw-bold mb-3" [ngClass]="data.productDTO.inStock ? 'text-success' : 'text-danger'">
+            {{ data.productDTO.inStock ? 'In Stock' : 'Out of Stock' }}
+          </div>
+
+          @if (data.productDTO.inStock) {
+            <!-- Quantity Selector -->
+            <div class="input-group input-group-sm mb-3">
+              <button class="btn btn-outline-secondary px-2" (click)="decreaseQty()">-</button>
+              <input type="text" class="form-control text-center px-1" [value]="quantity()" readonly>
+              <button class="btn btn-outline-secondary px-2" (click)="increaseQty()">+</button>
+            </div>
+
+            <button class="btn btn-primary btn-sm w-100 rounded-pill shadow-sm">Add to Cart</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Description Section -->
+    @if (data.productDTO.fullDescription) {
+      <div class="mt-4 pt-4 border-top">
+        <h4 class="mb-3 text-dark fw-normal">Product Description:</h4>
+        <div class="small text-dark" style="line-height: 1.6;" [innerHTML]="data.productDTO.fullDescription">
+        </div>
+      </div>
+    }
+
+  </div>
+}
+
+

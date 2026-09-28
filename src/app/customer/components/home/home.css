@@ -1,0 +1,8 @@
+.hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.category-image {
+  height: 180px;
+  object-fit: cover;
+}

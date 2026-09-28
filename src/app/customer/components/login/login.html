@@ -1,0 +1,33 @@
+
+<div class="formContainer">
+  <form class="form card shadow-sm p-4" [formGroup]="loginReqForm" (ngSubmit)="onSubmit()" ngNativeValidate>
+    <h2 class="h4 mb-3">Customer Login</h2>
+    <div class="mb-3">
+      <label for="InputEmail1" class="form-label">Email address</label>
+      <input type="email" required formControlName="email" class="form-control" id="InputEmail1">
+    </div>
+    <div class="mb-3">
+      <label for="InputPassword1" class="form-label">Password</label>
+      <input type="password" required formControlName="password" class="form-control" id="InputPassword1">
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" formControlName="rememberMe" class="form-check-input" id="Check1">
+      <label class="form-check-label" for="Check1">Remember Me</label>
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+
+    <hr>
+
+    <div class="d-flex justify-content-center mb-3">
+      <div id="google-btn-container"></div>
+    </div>
+
+    <div class="text-center mb-3">
+      <a routerLink="/ElectroCustomer/forgot-password">Forgot password?</a>
+    </div>
+
+    <p class="text-center small mb-0">
+      New customer? <a routerLink="/ElectroCustomer/register">Create an account</a>
+    </p>
+  </form>
+</div>

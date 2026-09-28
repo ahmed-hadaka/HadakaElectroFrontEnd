@@ -1,0 +1,12 @@
+
+<div class="container py-5">
+  <div class="card shadow-sm mx-auto verify-card">
+    <div class="card-body text-center p-4">
+      <h2 class="h4 mb-3">Email Verification</h2>
+      <p class="mb-0" [class.text-success]="success()" [class.text-danger]="!success()">
+        {{ message() }}
+      </p>
+      <a routerLink="/ElectroCustomer/login" class="btn btn-primary mt-4">Back to Login</a>
+    </div>
+  </div>
+</div>
