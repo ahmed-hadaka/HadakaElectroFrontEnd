@@ -8,6 +8,7 @@ import {ProductDetails} from './components/productDetails/product-details';
 import {ForgotPassword} from './components/forgotPassword/forgot-password';
 import {ResetPassword} from './components/resetPassword/reset-password';
 import {CustomerDetails} from './components/customerDetails/customer-details';
+import {ShoppingCart} from './components/shopping-cart/shopping-cart';
 
 export const CUSTOMER_ROUTES: Routes = [
   {
@@ -53,5 +54,9 @@ export const CUSTOMER_ROUTES: Routes = [
   {
     path: 'products/p/:id',
     component: ProductDetails
+  },
+  {
+    path: 'cart',
+    component: ShoppingCart
   }
 ]

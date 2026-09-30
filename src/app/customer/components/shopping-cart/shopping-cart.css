@@ -1,0 +1,14 @@
+.cart-thumbnail {
+  max-height: 100px;
+  width: 100%;
+  object-fit: contain;
+  background-color: #fff;
+}
+
+.quantity-group {
+  width: 100px;
+}
+
+.fa-trash-alt:hover {
+  color: #dc3545; /* Turns red on hover */
+}

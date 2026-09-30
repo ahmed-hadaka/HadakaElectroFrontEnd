@@ -28,7 +28,7 @@ export class Login {
   loginReqForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
-    rememberMe: [true],
+    rememberMe: [false],
   });
 
   ngAfterViewInit(): void {

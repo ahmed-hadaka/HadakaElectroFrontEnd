@@ -7,6 +7,7 @@ import { environmentDev } from '../../../../environments/environment.dev';
 import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { ProductDTO } from '../../../shared/Models/ProductDTO';
+import {CartService} from '../../services/CartService/cart-service';
 
 @Component({
   selector: 'app-product-details',
@@ -19,11 +20,11 @@ export class ProductDetails {
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
+  private cartService = inject(CartService);
 
   response = signal<CustomerProductDetailResponse | null>(null);
   productImageBasePath = environmentDev.backendCustomerBaseUrl;
 
-  // Interactive UI State
   selectedImage = signal<string | null>(null);
   quantity = signal<number>(1);
 
@@ -48,7 +49,17 @@ export class ProductDetails {
     });
   }
 
-  // --- UI Action Methods ---
+  addToCart(productId: number) {
+    this.cartService.addProduct(productId, this.quantity()).subscribe({
+      next: (res) => {
+        this.notification.notify(res.message, 'success');
+      },
+      error: (err) => {
+        const message = err.error?.message || err.error?.msg || 'Failed to add product to cart.';
+        this.notification.notify(message, 'danger');
+      }
+    });
+    }
 
   changeMainImage(imageUrl: string) {
     this.selectedImage.set(imageUrl);
@@ -63,8 +74,6 @@ export class ProductDetails {
       this.quantity.update(q => q - 1);
     }
   }
-
-  // --- Helper Methods ---
 
   getDiscountedPrice(price: number, discountPercent: number): number {
     if (!discountPercent || discountPercent <= 0) return price;
