@@ -47,7 +47,7 @@ export class Settings {
   protected generalForm = this.fb.group({
     siteName: ['', Validators.required],
     copyright: ['', Validators.required],
-    currencyId: ['', Validators.required],
+    currencySymbol: ['', Validators.required],
     currencySymbolPosition: ['BEFORE_PRICE', Validators.required],
     decimalPointType: ['POINT', Validators.required],
     decimalDigits: ['2', Validators.required],
@@ -128,7 +128,7 @@ export class Settings {
     this.generalForm.patchValue({
       siteName: getValue('SITE_NAME'),
       copyright: getValue('COPYRIGHT'),
-      currencyId: getValue('CURRENCY_ID'),
+      currencySymbol: getValue('CURRENCY_SYMBOL'),
       currencySymbolPosition: getValue('CURRENCY_SYMBOL_POSITION') || 'BEFORE_PRICE',
       decimalPointType: getValue('DECIMAL_POINT_TYPE') || 'POINT',
       decimalDigits: getValue('DECIMAL_DIGITS') || '2',
@@ -155,7 +155,7 @@ export class Settings {
     const updated: Record<string, string> = {
       SITE_NAME: formValues.siteName || '',
       COPYRIGHT: formValues.copyright || '',
-      CURRENCY_ID: formValues.currencyId || '',
+      CURRENCY_SYMBOL: formValues.currencySymbol || '',
       CURRENCY_SYMBOL_POSITION: formValues.currencySymbolPosition || 'BEFORE_PRICE',
       DECIMAL_POINT_TYPE: formValues.decimalPointType || 'POINT',
       DECIMAL_DIGITS: formValues.decimalDigits || '2',

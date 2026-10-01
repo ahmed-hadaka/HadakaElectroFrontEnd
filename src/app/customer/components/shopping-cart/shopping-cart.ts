@@ -5,6 +5,7 @@ import { CartService } from '../../services/CartService/cart-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { CartItemDTO } from '../../../shared/Models/CartItemDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
+import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -25,7 +26,21 @@ export class ShoppingCart implements OnInit {
     return this.cartItems().reduce((total, item) => total + (item.price * item.quantity), 0);
   });
 
+  currencySymbol = signal<string>('$');
+  currencySymbolPosition = signal<string>('Before price');
+
   ngOnInit() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
     this.loadCart();
   }
 

@@ -2,7 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DecimalPipe, NgIf } from '@angular/common';
 import { CustomerService } from '../../services/CustomerService/customer-service';
-import { CustomerCategoryProductsResponse, CustomerProductListDTO } from '../../../shared/Models/CustomerDTO';
+import {
+  CustomerCategoryProductsResponse,
+  CustomerProductListDTO,
+  GeneralSettingDTO
+} from '../../../shared/Models/CustomerDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 
@@ -25,8 +29,21 @@ export class Products {
   searchKeyword = signal<string | null>(null);
 
   productImageBasePath = environmentDev.backendCustomerBaseUrl;
+  currencySymbol = signal<string>('$');
+  currencySymbolPosition = signal<string>('Before price');
 
   ngOnInit() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
     this.route.paramMap.subscribe((params) => {
       const idParam = params.get('id');
       const keywordParam = params.get('keyword');

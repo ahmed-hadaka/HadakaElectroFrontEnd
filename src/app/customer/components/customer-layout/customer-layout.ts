@@ -21,7 +21,6 @@ export class CustomerLayout {
   private customerService:CustomerService = inject(CustomerService);
   copyrights = signal('');
 
-
   ngOnInit() {
     if(!sessionStorage.getItem("siteSettings")) {
       this.loadSettings();

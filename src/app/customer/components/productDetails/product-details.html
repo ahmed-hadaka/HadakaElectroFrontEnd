@@ -51,10 +51,18 @@
         </div>
 
         <div class="mb-1 small text-muted">
-          List Price: <span class="text-decoration-line-through">${{ data.productDTO.price | number:'1.2-2' }}</span>
+          @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+            List Price: <span class="text-decoration-line-through">{{currencySymbol()}} {{ data.productDTO.price | number:'1.2-2' }}</span>
+          }@else{
+            List Price: <span class="text-decoration-line-through">{{ data.productDTO.price | number:'1.2-2' }} {{currencySymbol()}}</span>
+          }
         </div>
         <div class="mb-3 small text-muted">
-          Price: <span class="text-danger fw-normal fs-5">${{ getDiscountedPrice(data.productDTO.price, data.productDTO.discountPercent) | number:'1.2-2' }}</span>
+          @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+            Price: <span class="text-danger fw-normal fs-5">{{currencySymbol()}} {{ getDiscountedPrice(data.productDTO.price, data.productDTO.discountPercent) | number:'1.2-2' }}</span>
+          }@else{
+            Price: <span class="text-danger fw-normal fs-5">{{ getDiscountedPrice(data.productDTO.price, data.productDTO.discountPercent) | number:'1.2-2' }} {{currencySymbol()}}</span>
+          }
           @if (data.productDTO.discountPercent > 0) {
             <span> ({{ data.productDTO.discountPercent }}% off)</span>
           }

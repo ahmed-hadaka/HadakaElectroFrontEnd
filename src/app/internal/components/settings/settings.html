@@ -49,9 +49,9 @@
       <div class="row mb-3 align-items-center">
         <label class="col-md-4 col-form-label">Currency Type:</label>
         <div class="col-md-8">
-          <select class="form-select" formControlName="currencyId">
+          <select class="form-select" formControlName="currencySymbol">
             @for (currency of currenciesSignal(); track currency.id) {
-              <option [value]="currency.id">{{ currency.name }} - {{ currency.code }} - {{ currency.symbol }}</option>
+              <option [value]="currency.symbol">{{ currency.name }} - {{ currency.code }} - {{ currency.symbol }}</option>
             }
           </select>
         </div>
