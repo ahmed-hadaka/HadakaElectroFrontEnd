@@ -11,6 +11,8 @@ import {UserDetails} from './components/userDetails/user-details';
 import {ListCustomers} from './components/listCustomers/list-customers';
 import {CustomerDetails} from './components/customerDetails/customer-details';
 import {Settings} from './components/settings/settings';
+import {ListShippingRates} from './components/listShippingRate/list-shipping-rate';
+import {ShippingRateDetails} from './components/shippingRateDetails/shipping-rate-details';
 
 export const INTERNAL_ROUTES: Routes = [
   {
@@ -72,5 +74,13 @@ export const INTERNAL_ROUTES: Routes = [
   {
     path:'settings',
     component:Settings
+  },
+  {
+    path:'shipping-rates',
+    component:ListShippingRates
+  },
+  {
+    path:'shipping-rates/rate-details/:id',
+    component:ShippingRateDetails
   }
 ]

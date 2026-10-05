@@ -1,0 +1,75 @@
+<div class="formContainer">
+  @let rateDto = rateDtoSignal();
+
+  @if(rateDto){
+    <h1>Edit Shipping Rate | Update Rate</h1>
+
+  }@else{
+    <h1>Edit Shipping Rate | Create New Rate</h1>
+
+  }
+
+
+  <form class="form" [formGroup]="rateForm" (ngSubmit)="onSubmit()" ngNativeValidate>
+    <input type="hidden" formControlName="id">
+
+    <!-- Destination Country -->
+    <div class="mb-3">
+      <label for="country" class="form-label">Destination Country</label>
+      @if (showCountrySelect()) {
+        <select class="form-select" id="country" formControlName="country" (change)="onCountryChange($event)" required>
+          <option value="">-- Select a Country --</option>
+          @for (country of countriesSignal(); track country.id) {
+            <!-- Using country.name as the value as requested -->
+            <option [value]="country.name">{{ country.name }}</option>
+          }
+        </select>
+      } @else {
+        <input type="text" class="form-control" id="country" formControlName="country" required>
+        <div class="form-text text-warning">This country was not found in the settings database.</div>
+      }
+    </div>
+
+    <!-- Destination State/Province -->
+    <div class="mb-3">
+      <label for="state" class="form-label">Destination State/Province</label>
+      @if (showStateSelect()) {
+        <select class="form-select" id="state" formControlName="state" required>
+          <option value="">-- Select a State --</option>
+          @for (state of statesSignal(); track state.id) {
+            <!-- Using state.name as the value as requested -->
+            <option [value]="state.name">{{ state.name }}</option>
+          }
+        </select>
+      } @else {
+        <input type="text" class="form-control" id="state" formControlName="state" required placeholder="Enter State/Province manually">
+      }
+    </div>
+
+    <!-- Shipping Rate -->
+    <div class="mb-3">
+      <label for="rate" class="form-label">Shipping Rate (per DIM weight)</label>
+      <input type="number" step="0.01" class="form-control" required formControlName="rate" id="rate">
+    </div>
+
+    <!-- Days to Deliver -->
+    <div class="mb-3">
+      <label for="days" class="form-label">Days to Deliver</label>
+      <input type="number" step="1" class="form-control" required formControlName="days" id="days">
+    </div>
+
+    <!-- COD Supported -->
+    <div class="mb-4 form-check enabled">
+      <input type="checkbox" class="form-check-input" formControlName="codSupported" id="codSupported">
+      <label class="form-check-label" for="codSupported">Cash On Delivery (COD) Supported</label>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-container mt-3">
+      <button type="submit" class="btn btn-primary">
+        @if (rateDtoSignal()) { Update Rate } @else { Save Rate }
+      </button>
+      <button type="button" class="btn btn-secondary ms-2" routerLink="/ElectroInternal/shipping-rates">Cancel</button>
+    </div>
+  </form>
+</div>
