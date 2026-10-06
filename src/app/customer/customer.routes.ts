@@ -9,6 +9,8 @@ import {ForgotPassword} from './components/forgotPassword/forgot-password';
 import {ResetPassword} from './components/resetPassword/reset-password';
 import {CustomerDetails} from './components/customerDetails/customer-details';
 import {ShoppingCart} from './components/shopping-cart/shopping-cart';
+import {AddressForm} from './components/address-form/address-form';
+import {AddressBook} from './components/address-book/address-book';
 
 export const CUSTOMER_ROUTES: Routes = [
   {
@@ -58,5 +60,13 @@ export const CUSTOMER_ROUTES: Routes = [
   {
     path: 'cart',
     component: ShoppingCart
+  },
+  {
+    path: 'address-book',
+    component: AddressBook
+  },
+  {
+    path: 'address-book/form/:id',
+    component: AddressForm
   }
 ]

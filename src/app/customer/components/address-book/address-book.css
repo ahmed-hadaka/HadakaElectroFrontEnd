@@ -1,0 +1,10 @@
+.card-header{
+  flex-direction: column;
+}
+.actions{
+  display: flex;
+}
+.card-header1{
+  display: flex;
+  justify-content: space-between;
+}

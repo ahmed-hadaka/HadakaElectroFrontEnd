@@ -13,6 +13,7 @@ import {
 import { CategoryListDTO } from '../../../shared/Models/CategoryDTO';
 import { Page } from '../../../shared/Models/PageModel';
 import {ProductListDTO} from '../../../shared/Models/ProductDTO';
+import {SettingStateDTO} from '../../../shared/Models/SettingDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -120,5 +121,4 @@ export class CustomerService {
     );
   }
 
-  // An unexpected error occurred: No static resource search/Pelican for request '/ElectroCustomer/search/Pelican'.
 }

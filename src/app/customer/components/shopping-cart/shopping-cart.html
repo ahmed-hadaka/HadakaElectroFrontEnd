@@ -16,9 +16,7 @@
 
             <div class="col-1 d-flex flex-column align-items-center text-muted">
               <span class="mb-2">{{ i + 1 }}</span>
-              <button class="btn btn-link text-secondary p-0" (click)="removeProduct(item.productId)" title="Remove from cart">
-                <i class="fas fa-trash-alt fs-5"></i>
-              </button>
+
             </div>
 
             <div class="col-3 col-md-2">
@@ -51,7 +49,11 @@
                 <div class="fw-bold fs-6 mt-1">
                   = {{ (item.price * item.quantity) | number:'1.2-2' }} {{currencySymbol()}}
                 </div>              }
-
+              <div>
+                <button class="btn btn-sm btn-outline-danger mt-4" (click)="removeProduct(item.productId)" title="Remove from cart">
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         }
