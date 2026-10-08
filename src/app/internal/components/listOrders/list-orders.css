@@ -1,0 +1,23 @@
+.table {
+  width: 100%;
+  max-width: -webkit-fill-available;
+  margin: 20px;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.action {
+  white-space: nowrap;
+}
+
+.action a {
+  margin-right: 5px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}

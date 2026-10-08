@@ -1,0 +1,127 @@
+<div class="container my-4">
+  @if (orderSignal(); as order) {
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <h2>Order Details | #{{ order.id }}</h2>
+      </div>
+      <div class="col-md-4 text-end">
+        <button type="button" class="btn btn-danger me-2" (click)="confirmDelete(order.id)">Delete</button>
+        <a routerLink="/ElectroInternal/orders" class="btn btn-secondary">Back</a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Customer Information</div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Name:</strong> {{ order.customerName }}</p>
+            <p class="mb-2"><strong>Email:</strong> {{ order.customerEmail }}</p>
+            <p class="mb-0"><strong>Phone:</strong> {{ order.customerPhoneNumber }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Shipping Information</div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Recipient:</strong> {{ order.recipientName }}</p>
+            <p class="mb-2"><strong>Phone:</strong> {{ order.recipientPhoneNumber }}</p>
+            <p class="mb-2"><strong>Address:</strong> {{ order.addressLine1 }} {{ order.addressLine2 || '' }}</p>
+            <p class="mb-2"><strong>City:</strong> {{ order.city }}</p>
+            <p class="mb-2"><strong>State:</strong> {{ order.state }}</p>
+            <p class="mb-2"><strong>Postal Code:</strong> {{ order.postalCode }}</p>
+            <p class="mb-0"><strong>Country:</strong> {{ order.country }}</p>
+            <p class="mb-2"><strong>Deliver Days:</strong> {{ order.deliverDays }}</p>
+            <p class="mb-0"><strong>Expected Deliver Date:</strong> {{ order.deliverDate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Order Summary</div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Order ID:</strong> {{ order.id}}</p>
+            <p class="mb-2"><strong>Order Placement Time:</strong> {{ order.orderTime | date:'medium' }}</p>
+            <p class="mb-2"><strong>Payment Method:</strong> {{ order.paymentMethod }}</p>
+            <p class="mb-2"><strong>Status:</strong> {{ order.status }}</p>
+            <p class="mb-2"><strong>Shipping Cost:</strong> ${{ order.shippingCost | number:'1.2-2' }}</p>
+            <p class="mb-2"><strong>Product Cost:</strong> ${{ order.productCost | number:'1.2-2' }}</p>
+            <p class="mb-2"><strong>Subtotal:</strong> ${{ order.subtotal | number:'1.2-2' }}</p>
+            <p class="mb-0"><strong>Total:</strong> ${{ order.total | number:'1.2-2' }}</p>
+            <p class="mb-0"><strong>Tax:</strong> ${{ order.tax  | number:'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header fw-semibold">Order Items</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Product ID</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Product Cost</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Shipping Cost</th>
+                    <th scope="col">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of order.orderDetails; track item.productId) {
+                    <tr>
+                      <th scope="row">{{ item.productId }}</th>
+                      <td>
+                        <img [src]="getProductImagePath(item.productId, item.mainImage)"
+                             alt="Product"
+                             width="50"
+                             height="50"
+                             class="rounded object-fit-cover">
+                      </td>
+                      <td><a [routerLink]="['/ElectroInternal/products/edit',item.productId]" >{{ item.productName }}</a></td>
+                      <td>{{ item.quantity }}</td>
+                      <td>${{ item.productCost | number:'1.2-2' }}</td>
+                      <td>${{ item.unitPrice | number:'1.2-2' }}</td>
+                      <td>${{ item.shippingCost | number:'1.2-2' }}</td>
+                      <td>${{ item.subtotal | number:'1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (orderIdToDelete(); as orderId) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete order <strong>{{ orderId }}</strong>?</p>
+            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
