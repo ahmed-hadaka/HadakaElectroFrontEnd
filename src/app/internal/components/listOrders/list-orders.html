@@ -22,23 +22,29 @@
     <div class="table-responsive">
       <table class="table table-striped table-hover">
         <thead class="table-light">
-          <tr>
-            <th scope="col">Order ID</th>
-            <th scope="col">Customer Name</th>
-            <th scope="col">Total</th>
-            <th scope="col">Order Time</th>
-            <th scope="col">Destination</th>
-            <th scope="col">Payment Method</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
+        <tr>
+          <th scope="col">Order ID</th>
+          <th scope="col">Customer Name</th>
+          <th scope="col">Total</th>
+          <th scope="col">Order Time</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Payment Method</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
         </thead>
         <tbody>
           @for (order of orders; track order.id) {
             <tr>
               <th scope="row">{{ order.id }}</th>
               <td>{{ order.customerName }}</td>
-              <td>${{ order.total | number:'1.2-2' }}</td>
+              <td>
+                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                  {{currencySymbol()}} {{ order.total | number:'1.2-2' }}
+                }@else{
+                  {{ order.total | number:'1.2-2' }} {{currencySymbol()}}
+                }
+              </td>
               <td>{{ order.orderTime | date:'medium' }}</td>
               <td>{{ order.destination }}</td>
               <td>{{ order.paymentMethod }}</td>

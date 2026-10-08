@@ -30,17 +30,7 @@ export class ShoppingCart implements OnInit {
   currencySymbolPosition = signal<string>('Before price');
 
   ngOnInit() {
-    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
-    const curSymbolSetting = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL');
-
-    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
-
-    const curSymbolPosition = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
-
-    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
-
+    this.handleCurrencyFormating();
     this.loadCart();
   }
 
@@ -86,5 +76,19 @@ export class ShoppingCart implements OnInit {
   private handleError(err: any, fallbackMessage: string) {
     const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || fallbackMessage;
     this.notification.notify(message, 'danger');
+  }
+
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
   }
 }

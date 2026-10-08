@@ -33,16 +33,7 @@ export class Products {
   currencySymbolPosition = signal<string>('Before price');
 
   ngOnInit() {
-    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
-    const curSymbolSetting = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL');
-
-    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
-
-    const curSymbolPosition = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
-
-    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+    this.handleCurrencyFormating();
 
     this.route.paramMap.subscribe((params) => {
       const idParam = params.get('id');
@@ -113,5 +104,19 @@ export class Products {
       (typeof err.error === 'string' ? err.error : null) ||
       'An unexpected error occurred while loading products';
     this.notification.notify(message, 'danger');
+  }
+
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
   }
 }

@@ -41,7 +41,13 @@
             <th scope="row">{{ rate.id }}</th>
             <td>{{ rate.country }}</td>
             <td>{{ rate.state }}</td>
-            <td>${{ rate.rate | number:'1.2-2' }}</td>
+            <td>
+              @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                {{currencySymbol()}} {{ rate.rate | number:'1.2-2' }}
+              }@else{
+                {{ rate.rate | number:'1.2-2' }} {{currencySymbol()}}
+              }
+            </td>
             <td>{{ rate.days }}</td>
             <td>
               <div class="form-check form-switch">

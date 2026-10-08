@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { OrderService } from '../../services/OrderService/order-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { OrderListDTO } from '../../../shared/Models/OrderDTO';
+import {SettingDTO} from '../../../shared/Models/SettingDTO';
 
 @Component({
   selector: 'app-list-orders',
@@ -30,8 +31,12 @@ export class ListOrders {
 
   searchForm!: FormGroup;
   orderIdToDelete = signal<number | null>(null);
+  currencySymbol = signal<string>('$');
+  currencySymbolPosition = signal<string>('Before price');
+
 
   ngOnInit() {
+    this.handleCurrencyFormating();
     this.initializeForm();
     this.loadOrders();
   }
@@ -108,5 +113,19 @@ export class ListOrders {
         this.notification.notify(message, 'danger');
       }
     });
+  }
+
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as SettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
   }
 }

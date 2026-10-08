@@ -5,6 +5,7 @@ import { ShippingRateDTO } from '../../../shared/Models/ShippingRateDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import {ShippingRateService} from '../../services/shippingRateService/shipping-rate-service';
 import {DecimalPipe} from '@angular/common';
+import {SettingDTO} from '../../../shared/Models/SettingDTO';
 
 @Component({
   imports: [
@@ -29,8 +30,12 @@ export class ListShippingRates {
 
   searchForm!: FormGroup;
   rateIdToDelete = signal<number | null>(null);
+  currencySymbol = signal<string>('$');
+  currencySymbolPosition = signal<string>('Before price');
+
 
   ngOnInit() {
+    this.handleCurrencyFormating();
     this.initializeForm();
     this.loadRates();
   }
@@ -117,5 +122,19 @@ export class ListShippingRates {
         this.notification.notify(message, 'danger');
       }
     });
+  }
+
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as SettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
   }
 }

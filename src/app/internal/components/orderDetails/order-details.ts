@@ -5,6 +5,8 @@ import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { OrderDTO } from '../../../shared/Models/OrderDTO';
 import { OrderService } from '../../services/OrderService/order-service';
+import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
+import {SettingDTO} from '../../../shared/Models/SettingDTO';
 
 @Component({
   selector: 'app-order-details',
@@ -28,7 +30,12 @@ export class OrderDetails {
   protected productImageBasePath = environmentDev.backendInternalBaseUrl + '/product_images/';
   protected defaultProductImagePath = environmentDev.backendInternalBaseUrl + '/default_images/default-product.png';
 
+  currencySymbol = signal<string>('$');
+  currencySymbolPosition = signal<string>('Before price');
+
   ngOnInit() {
+    this.handleCurrencyFormating();
+
     this.route.paramMap.subscribe(params => {
       const orderId = Number(params.get('id'));
 
@@ -95,5 +102,19 @@ export class OrderDetails {
         this.notification.notify(message, 'danger');
       }
     });
+  }
+
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as SettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'BEFORE_PRICE');
+
   }
 }
