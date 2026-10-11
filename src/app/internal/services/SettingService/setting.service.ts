@@ -64,4 +64,12 @@ export class SettingService {
   getMailTemplateSettings(): Observable<SettingDTO[]> {
     return this.http.get<SettingDTO[]>(`${this.settingApiBaseUrl}/mail-templates`);
   }
+
+  getPaymentSettings() {
+    return this.http.get<SettingDTO[]>(`${this.settingApiBaseUrl}/payment-settings`);
+  }
+
+  updatePaymentSettings(payload: SettingDTO[]) {
+    return this.http.post(`${this.settingApiBaseUrl}/update-payment`, payload, { responseType: 'text' });
+  }
 }

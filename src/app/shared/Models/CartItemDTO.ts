@@ -2,6 +2,6 @@ export interface CartItemDTO {
   productId: number;
   productName: string;
   mainImage: string;
-  price: number;
+  unitPrice: number;
   quantity: number;
 }

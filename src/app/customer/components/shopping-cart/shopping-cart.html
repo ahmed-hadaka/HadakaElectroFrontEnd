@@ -37,18 +37,20 @@
               </div>
               @if(currencySymbolPosition() === 'BEFORE_PRICE'){
                 <div class="text-muted small">
-                  X {{currencySymbol()}} {{ item.price | number:'1.2-2' }}
+                  X {{currencySymbol()}} {{ item.unitPrice | number:'1.2-2' }}
                 </div>
                 <div class="fw-bold fs-6 mt-1">
-                  = {{currencySymbol()}} {{ (item.price * item.quantity) | number:'1.2-2' }}
+                  = {{currencySymbol()}} {{ (item.unitPrice * item.quantity) | number:'1.2-2' }}
                 </div>
-              }@else{
+              }
+              @else{
                 <div class="text-muted small">
-                  X {{ item.price | number:'1.2-2' }} {{currencySymbol()}}
+                  X {{ item.unitPrice | number:'1.2-2' }} {{currencySymbol()}}
                 </div>
                 <div class="fw-bold fs-6 mt-1">
-                  = {{ (item.price * item.quantity) | number:'1.2-2' }} {{currencySymbol()}}
-                </div>              }
+                  = {{ (item.unitPrice * item.quantity) | number:'1.2-2' }} {{currencySymbol()}}
+                </div>
+              }
               <div>
                 <button class="btn btn-sm btn-outline-danger mt-4" (click)="removeProduct(item.productId)" title="Remove from cart">
                   Delete
@@ -67,7 +69,14 @@
           }@else{
             <h2 class="mb-4 fw-bold text-dark">{{ estimatedTotal() | number:'1.2-2' }} {{currencySymbol()}}</h2>
           }
-          <button class="btn btn-danger btn-lg w-100 rounded-1" >Check Out</button>
+          @if(availableShipping()){
+            <a routerLink="/ElectroCustomer/checkout">
+            <button class="btn btn-danger btn-lg w-100 rounded-1" >Check Out</button>
+            </a>
+          }@else{
+            <h5 class="mb-4 fw-bold text-warning">No shipping available for your location</h5>
+            <a routerLink="/ElectroCustomer/address-book">Use another shipping address</a>
+          }
         </div>
       </div>
     </div>

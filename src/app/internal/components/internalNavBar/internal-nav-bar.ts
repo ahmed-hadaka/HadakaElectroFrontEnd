@@ -27,7 +27,7 @@ export class InternalNavBar {
 
     sessionStorage.setItem('logoutMessage', data['message']);
 
-    this.router.navigate(['ElectroInternal/']).then(() => {
+    this.router.navigate(['/ElectroInternal']).then(() => {
       window.location.reload();
     });
   }

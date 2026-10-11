@@ -1,0 +1,16 @@
+a{
+  text-decoration: none;
+}
+.up-container{
+  margin:50px;
+  display: flex;
+  justify-content: center;
+}
+.main-container{
+  width: 1000px;
+  display: flex;
+  justify-content: center;
+  border: 2px solid #545b62;
+  padding: 10px;
+}
+

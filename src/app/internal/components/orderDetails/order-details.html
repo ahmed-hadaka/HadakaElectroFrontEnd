@@ -32,9 +32,9 @@
             <p class="mb-2"><strong>City:</strong> {{ order.city }}</p>
             <p class="mb-2"><strong>State:</strong> {{ order.state }}</p>
             <p class="mb-2"><strong>Postal Code:</strong> {{ order.postalCode }}</p>
-            <p class="mb-0"><strong>Country:</strong> {{ order.country }}</p>
+            <p class="mb-2"><strong>Country:</strong> {{ order.country }}</p>
             <p class="mb-2"><strong>Deliver Days:</strong> {{ order.deliverDays }}</p>
-            <p class="mb-0"><strong>Expected Deliver Date:</strong> {{ order.deliverDate }}</p>
+            <p class="mb-0"><strong>Expected Deliver Date:</strong> {{ order.expectedDeliverDate }}</p>
           </div>
         </div>
       </div>
@@ -153,7 +153,7 @@
                         @if(currencySymbolPosition() === 'BEFORE_PRICE'){
                            {{currencySymbol()}} {{ item.subtotal | number:'1.2-2' }}
                         }@else{
-                          {{ item.subtotal | number:'1.2-2' }} {{currencySymbol()}} 
+                          {{ item.subtotal | number:'1.2-2' }} {{currencySymbol()}}
                         }
                       </td>
                     </tr>

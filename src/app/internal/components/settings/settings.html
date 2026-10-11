@@ -331,15 +331,38 @@
       }
 
       <div class="text-center mt-2">
-        <button type="submit" class="btn btn-primary px-4">Save</button>
+        <button type="submit" class="btn btn-primary px-4">Save Mail Template Settings</button>
       </div>
     </form>
   }
 
   @if (activeTab() === 'payment') {
-    <div class="alert alert-info">
-      No internal endpoint is available yet for this section in the current backend.
-    </div>
+    <form [formGroup]="paymentForm" (ngSubmit)="savePaymentSettings()">
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">PayPal Api Base URL:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="paypalBaseUrl">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">PayPal Client ID:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="paypalClientId">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <label class="col-md-4 col-form-label">PayPal Client Secret:</label>
+        <div class="col-md-8">
+          <input class="form-control" formControlName="paypalClientSecret">
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4">Save Payment Settings</button>
+      </div>
+    </form>
   }
 </div>
 

@@ -26,4 +26,9 @@ export class CartService {
   removeProduct(productId: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.baseUrl}/remove/${productId}`);
   }
+
+  checkShippingAvailability() {
+    return this.http.get<{ message: boolean }>(`${this.baseUrl}/check-shipping-availability`);
+
+  }
 }

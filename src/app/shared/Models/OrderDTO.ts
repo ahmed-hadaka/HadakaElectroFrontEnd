@@ -45,6 +45,6 @@ export interface OrderDTO {
   total: number;
   tax:number;
   deliverDays:number;
-  deliverDate:string;
+  expectedDeliverDate:string;
   orderDetails: OrderDetailDTO[];
 }

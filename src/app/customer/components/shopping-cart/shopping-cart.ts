@@ -23,18 +23,41 @@ export class ShoppingCart implements OnInit {
 
   // Automatically calculates the total based on the cartItems array
   estimatedTotal = computed(() => {
-    return this.cartItems().reduce((total, item) => total + (item.price * item.quantity), 0);
+    return this.cartItems().reduce((total, item) => total + (item.unitPrice * item.quantity), 0);
   });
 
   currencySymbol = signal<string>('$');
   currencySymbolPosition = signal<string>('Before price');
+  availableShipping = signal<boolean>(false);
 
   ngOnInit() {
     this.handleCurrencyFormating();
+    this.checkShippingAvailability();
     this.loadCart();
   }
 
-  loadCart() {
+  private handleCurrencyFormating() {
+    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    const curSymbolSetting = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL');
+
+    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
+
+    const curSymbolPosition = settings
+      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
+
+    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
+
+  }
+
+  private checkShippingAvailability(){
+    this.cartService.checkShippingAvailability().subscribe({
+      next: (isShippingAvailable) => this.availableShipping.set(isShippingAvailable.message),
+      error: (err) => this.handleError(err, 'Failed to check shipping availability.')
+    });
+  }
+
+  private loadCart() {
     this.cartService.getCartItems().subscribe({
       next: (items) => this.cartItems.set(items),
       error: (err) => this.handleError(err, 'Failed to load shopping cart.')
@@ -78,17 +101,5 @@ export class ShoppingCart implements OnInit {
     this.notification.notify(message, 'danger');
   }
 
-  private handleCurrencyFormating() {
-    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
-    const curSymbolSetting = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL');
 
-    this.currencySymbol.set(curSymbolSetting ? curSymbolSetting.value : '$');
-
-    const curSymbolPosition = settings
-      .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
-
-    this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
-
-  }
 }

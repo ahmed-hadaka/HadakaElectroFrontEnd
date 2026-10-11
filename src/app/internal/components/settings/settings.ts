@@ -31,6 +31,7 @@ export class Settings {
   protected generalSettingsSignal = signal<SettingDTO[]>([]);
   protected mailServerSettingsSignal = signal<SettingDTO[]>([]);
   protected mailTemplatesSettingsSignal = signal<SettingDTO[]>([]);
+  protected paymentSettingsSignal = signal<SettingDTO[]>([]);
   protected currenciesSignal = signal<CurrencyDTO[]>([]);
 
   protected countriesSignal = signal<SettingCountryDTO[]>([]);
@@ -79,12 +80,16 @@ export class Settings {
   protected mailTemplatesForm = this.fb.group({
     customerVerifySubject: ['', Validators.required],
     customerVerifyContent: ['', Validators.required],
-    orderConfirmSubject: [''],
-    orderConfirmContent: [''],
-    // orderConfirmSubject: ['', Validators.required],
-    // orderConfirmContent: ['', Validators.required],
+    orderConfirmSubject: ['', Validators.required],
+    orderConfirmContent: ['', Validators.required],
     customerResetPasswordSubject: ['', Validators.required],
     customerResetPasswordContent: ['', Validators.required]
+  });
+
+  protected paymentForm = this.fb.group({
+    paypalBaseUrl: ['', Validators.required],
+    paypalClientId: ['', Validators.required],
+    paypalClientSecret: ['', Validators.required]
   });
 
   ngOnInit() {
@@ -92,6 +97,7 @@ export class Settings {
     this.loadCountries();
     this.loadMailServerSettings();
     this.loadMailTemplateSettings();
+    this.loadPaymentSettings();
   }
 
   protected setTab(tab: TabType) {
@@ -496,6 +502,59 @@ export class Settings {
     });
   }
 
+
+  // --- PAYMENT Settings -- //
+
+  private loadPaymentSettings() {
+    this.settingService.getPaymentSettings().subscribe({
+      next: (settings) => {
+        this.paymentSettingsSignal.set(settings || []);
+        this.patchPaymentForm();
+      },
+      error: (err) => {
+        const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load mail templates.';
+        this.notification.notify(message, 'danger');
+      }
+    });
+  }
+
+  private patchPaymentForm() {
+    const getValue = (key: string): string => this.getSettingValue(this.paymentSettingsSignal(), key, '');
+
+    this.paymentForm.patchValue({
+      paypalBaseUrl: getValue('PAYPAL_API_BASE_URL'),
+      paypalClientId: getValue('PAYPAL_CLIENT_ID'),
+      paypalClientSecret: getValue('PAYPAL_CLIENT_SECRET')
+    });
+  }
+
+  protected savePaymentSettings() {
+    if (this.paymentForm.invalid) {
+      this.paymentForm.markAllAsTouched();
+      this.notification.notify('Please provide valid payment content.', 'danger');
+      return;
+    }
+
+    const formValues = this.paymentForm.value;
+    const updated: Record<string, string> = {
+      PAYPAL_API_BASE_URL: formValues.paypalBaseUrl || '',
+      PAYPAL_CLIENT_ID: formValues.paypalClientId || '',
+      PAYPAL_CLIENT_SECRET: formValues.paypalClientSecret || ''
+    };
+
+    const payload = this.buildSettingsPayload(this.paymentSettingsSignal(), updated, 'PAYMENT');
+
+    this.settingService.updatePaymentSettings(payload).subscribe({
+      next: (data) => {
+        this.notification.notify('Payment settings updated successfully', 'success');
+        this.loadPaymentSettings();
+      },
+      error: (err) => {
+        const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update payment settings.';
+        this.notification.notify(message, 'danger');
+      }
+    });
+  }
   // --- UTILS ---
   private buildSettingsPayload(existing: SettingDTO[], updates: Record<string, string>, defaultCategory: string): SettingDTO[] {
     const byKey = new Map(existing.map(setting => [setting.key, setting]));

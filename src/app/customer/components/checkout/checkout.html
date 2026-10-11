@@ -1,0 +1,155 @@
+<div class="container py-4" >
+  <h2 class="text-center mb-4 fw-bold text-dark">Checkout</h2>
+
+  @if (checkoutData(); as data) {
+    <div class="row g-4">
+      <div class="col-lg-8">
+
+        <!-- Shipping Information Panel -->
+        <div class="card mb-4 rounded-0 shadow-sm border-light">
+          <div class="card-header bg-light py-3 fs-5 fw-semibold border-bottom">
+            Shipping information
+          </div>
+          <div class="card-body p-4">
+            <p class="mb-0 text-dark">
+              <strong>Ship to:</strong>
+              {{ data.defaultShippingAddress.firstName }} {{ data.defaultShippingAddress.lastName }},
+              {{ data.defaultShippingAddress.addressLine1 }}<ng-container @if(data.defaultShippingAddress.addressLine2)>, {{ data.defaultShippingAddress.addressLine2 }}</ng-container>,
+              {{ data.defaultShippingAddress.city }}, {{ data.defaultShippingAddress.state }}, {{ data.defaultShippingAddress.countryName }}.
+              Postal code: {{ data.defaultShippingAddress.postalCode }}.
+              Phone number: {{ data.defaultShippingAddress.phoneNumber }}
+              <a routerLink="/ElectroCustomer/address-book" class="text-decoration-none ms-1">[Ship to another address]</a>
+            </p>
+            <br>
+            <p class="mb-0 text-dark">
+              <strong>Delivery Days:</strong>   {{data.orderSummaryInfo.deliverDays}}
+            </p>
+            <p class="mb-0 text-dark">
+              <strong>Expected Delivery Date:</strong>  {{data.orderSummaryInfo.expectedDeliverDate}}
+            </p>
+          </div>
+        </div>
+
+        <!-- Payment Method Panel -->
+        <div class="card rounded-0 shadow-sm border-light">
+          <div class="card-header bg-light py-3 fs-5 fw-semibold border-bottom">
+            Payment Method
+          </div>
+          <div class="card-body p-4">
+
+            @if (data.orderSummaryInfo.CODSupported) {
+              <div class="d-flex align-items-center mb-4">
+                <div class="form-check me-4">
+                  <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD" [(ngModel)]="paymentMethod">
+                  <label class="form-check-label text-dark" for="cod">
+                    Cash On Delivery (COD)
+                  </label>
+                </div>
+
+                <button class="btn btn-primary px-4 py-2 rounded-1"
+                        [disabled]="paymentMethod() !== 'COD'"
+                        (click)="placeOrderCOD()">
+                  Place Order with COD
+                </button>
+              </div>
+            }
+
+<!--            Mock one-->
+            <div class="mx-auto" style="max-width: 400px;">
+              <button class="btn w-100 mb-3 fw-bold rounded-1" style="background-color: #ffc439; color: #003087; height: 45px;">
+                <i class="fab fa-paypal"></i> PayPal
+              </button>
+              <button class="btn btn-dark w-100 mb-2 rounded-1" style="height: 45px;">
+                <i class="far fa-credit-card me-2"></i> Debit or Credit Card
+              </button>
+              <div class="text-center small text-muted mt-2 fst-italic">
+                Powered by <span class="fw-bold text-dark" style="font-style: normal;">PayPal</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="col-lg-4">
+        <div class="card rounded-0 shadow-sm border-light">
+          <div class="card-header bg-light py-3 fs-5 fw-semibold border-bottom">
+            Order Summary
+          </div>
+
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              @for (item of data.orderSummaryInfo.checkoutCartItemDTOS; track item.productId) {
+                <li class="list-group-item d-flex justify-content-between align-items-start p-3">
+                  <div class="me-3">
+                    <span class="text-muted">{{ item.quantity }} x</span>
+                    <a [routerLink]="['/ElectroCustomer/products/p',item.productId]" class="text-decoration-none ms-1">{{ item.productName }}</a>
+                    <div class="small mt-1 text-muted">
+                      Ship:
+                      @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                        {{currencySymbol()}} {{ item.shippingCost | number:'1.2-2' }}
+                      }@else{
+                        {{ item.shippingCost | number:'1.2-2' }} {{currencySymbol()}}
+                      }
+                    </div>
+                  </div>
+                  <span class="text-dark"> Unit Price:
+                    @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                      {{currencySymbol()}} {{ item.unitPrice | number:'1.2-2' }}
+                    }@else{
+                      {{ item.unitPrice | number:'1.2-2' }} {{currencySymbol()}}
+                    }
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="card-footer bg-transparent p-3 border-top-0">
+            <div class="d-flex justify-content-between mb-2 text-dark">
+              <span>Product Total:</span>
+              <span>
+                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                  {{currencySymbol()}} {{ data.orderSummaryInfo.orderTotalPrice | number:'1.2-2' }}
+                }@else{
+                  {{ data.orderSummaryInfo.orderTotalPrice | number:'1.2-2' }} {{currencySymbol()}}
+                }
+              </span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 text-dark">
+              <span>Shipping Total:</span>
+              <span>
+                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                  {{currencySymbol()}} {{ data.orderSummaryInfo.shippingTotalPrice | number:'1.2-2' }}
+                }@else{
+                  {{ data.orderSummaryInfo.shippingTotalPrice | number:'1.2-2' }} {{currencySymbol()}}
+                }
+              </span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 text-dark">
+              <span>Tax:</span>
+              <span>
+                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                  {{currencySymbol()}} {{ data.orderSummaryInfo.tax | number:'1.2-2' }}
+                }@else{
+                  {{ data.orderSummaryInfo.tax | number:'1.2-2' }} {{currencySymbol()}}
+                }
+              </span>
+            </div>
+            <div class="d-flex justify-content-between fw-bold text-dark fs-6 mt-3">
+              <span>Payment Total:</span>
+              <span>
+                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
+                  {{currencySymbol()}} {{ data.orderSummaryInfo.paymentTotal | number:'1.2-2' }}
+                }@else{
+                  {{ data.orderSummaryInfo.paymentTotal | number:'1.2-2' }} {{currencySymbol()}}
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
