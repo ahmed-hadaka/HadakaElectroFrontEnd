@@ -14,7 +14,8 @@ import {Settings} from './components/settings/settings';
 import {ListShippingRates} from './components/listShippingRate/list-shipping-rate';
 import {ShippingRateDetails} from './components/shippingRateDetails/shipping-rate-details';
 import {ListOrders} from './components/listOrders/list-orders';
-import {OrderDetails} from './components/orderDetails/order-details';
+import {ViewOrderDetails} from './components/viewOrderDetails/view-order-details';
+import {EditOrderDetails} from './components/edit-order-details/edit-order-details';
 
 export const INTERNAL_ROUTES: Routes = [
   {
@@ -90,7 +91,11 @@ export const INTERNAL_ROUTES: Routes = [
     component:ListOrders
   },
   {
-    path:'orders/order-details/:id',
-    component:OrderDetails
+    path:'orders/view-order-details/:id',
+    component:ViewOrderDetails
+  },
+  {
+    path:'orders/edit-order-details/:id',
+    component:EditOrderDetails
   }
 ]

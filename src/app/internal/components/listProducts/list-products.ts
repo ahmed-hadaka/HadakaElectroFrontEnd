@@ -1,15 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ProductService } from '../../services/ProductService/product-service';
 import { ProductListDTO } from '../../../shared/Models/ProductDTO';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { CategoryService } from '../../services/CategoryService/category-service';
 import { CategorySelectDTO } from '../../../shared/Models/CategoryDTO';
 
 @Component({
   selector: 'app-list-products',
+  standalone: true,
   templateUrl: './list-products.html',
   styleUrl: './list-products.css',
   imports: [
@@ -17,7 +17,7 @@ import { CategorySelectDTO } from '../../../shared/Models/CategoryDTO';
     RouterLink
   ]
 })
-export class ListProducts {
+export class ListProducts implements OnInit {
   private productService = inject(ProductService);
   protected notification = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -30,20 +30,19 @@ export class ListProducts {
   pageSize = signal(10);
   totalPages = signal(0);
 
+  isIframePicker = signal<boolean>(window.self !== window.top);
+
   searchForm!: FormGroup;
   productIdToDelete = signal<number | null>(null);
-  private roles:string[] = [];
+  private roles: string[] = [];
 
   ngOnInit() {
     this.initializeForm();
     this.loadProducts();
 
-    const roles = JSON.parse(sessionStorage.getItem('userRoles')|| '[]');
-    // Map through the array and extract the string from the 'authority' property
-    this.roles = roles.map((r: any) => r.authority ? r.authority : r);
-      console.log(this.roles)
+    const roles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
+    this.roles = roles.map((r: any) => (r.authority ? r.authority : r));
   }
-
 
   private initializeForm() {
     this.searchForm = this.fb.group({
@@ -52,10 +51,9 @@ export class ListProducts {
     });
   }
 
-
   loadProducts(page: number = 0) {
-    const keyword:string = this.searchForm.get('keyword')?.value || '';
-    const categoryId:number = this.searchForm.get('categoryId')?.value;
+    const keyword: string = this.searchForm.get('keyword')?.value || '';
+    const categoryId: number = this.searchForm.get('categoryId')?.value;
 
     this.productService.listProducts(keyword, categoryId, page, this.pageSize()).subscribe({
       next: (data) => {
@@ -65,12 +63,24 @@ export class ListProducts {
         this.currentPage.set(page);
       },
       error: (err) => {
-        const message = err.error?.message || err.error?.msg ||
+        const message =
+          err.error?.message ||
+          err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
     });
+  }
+
+  // Sends the chosen productId from the iframe to the parent EditOrderDetails component
+  selectProductForOrder(productId: number): void {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_PRODUCT', productId },
+        window.location.origin
+      );
+    }
   }
 
   onSearch() {
@@ -115,7 +125,9 @@ export class ListProducts {
         this.loadProducts(this.currentPage());
       },
       error: (err) => {
-        const message = err.error?.message || err.error?.msg ||
+        const message =
+          err.error?.message ||
+          err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
@@ -130,7 +142,9 @@ export class ListProducts {
         this.loadProducts(this.currentPage());
       },
       error: (err) => {
-        const message = err.error?.message || err.error?.msg ||
+        const message =
+          err.error?.message ||
+          err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
@@ -145,10 +159,8 @@ export class ListProducts {
     return `${this.productImageBasePath}${productId}/${imageName}`;
   }
 
-
-  protected hasRole(roleName:string){
-    const role = this.roles.find(role => role === roleName) || null;
-    console.log(role)
+  protected hasRole(roleName: string) {
+    const role = this.roles.find((r) => r === roleName) || null;
     return role !== null;
   }
 }

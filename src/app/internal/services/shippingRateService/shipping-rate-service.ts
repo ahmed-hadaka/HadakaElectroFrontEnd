@@ -27,6 +27,14 @@ export class ShippingRateService {
     return this.http.get<ShippingRateDTO>(`${this.baseUrl}/${id}`);
   }
 
+  getShippingByCountryAndState(country:string, state:string):Observable<ShippingRateDTO>{
+    let params = new HttpParams()
+      .set('country', country)
+      .set('state', state);
+
+    return this.http.get<ShippingRateDTO>(`${this.baseUrl}/get-by-country-and-state`,{params});
+  }
+
   saveShippingRate(shippingRate: ShippingRateDTO): Observable<string> {
     return this.http.post(`${this.baseUrl}/save`, shippingRate, { responseType: 'text' });
   }

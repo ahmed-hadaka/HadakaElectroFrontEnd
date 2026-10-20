@@ -10,15 +10,15 @@ import {SettingDTO} from '../../../shared/Models/SettingDTO';
 
 @Component({
   selector: 'app-order-details',
-  templateUrl: './order-details.html',
-  styleUrl: './order-details.css',
+  templateUrl: './view-order-details.html',
+  styleUrl: './view-order-details.css',
   imports: [
     RouterLink,
     DatePipe,
     DecimalPipe
   ]
 })
-export class OrderDetails {
+export class ViewOrderDetails {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);

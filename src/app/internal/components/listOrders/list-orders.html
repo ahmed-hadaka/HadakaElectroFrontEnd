@@ -50,7 +50,8 @@
               <td>{{ order.paymentMethod }}</td>
               <td>{{ order.status }}</td>
               <td class="action">
-                <a [routerLink]="['/ElectroInternal/orders/order-details', order.id]" class="btn btn-primary">View Details</a>
+                <a [routerLink]="['/ElectroInternal/orders/view-order-details', order.id]" class="btn btn-primary">View</a>
+                <a [routerLink]="['/ElectroInternal/orders/edit-order-details', order.id]" class="btn btn-primary">Edit</a>
                 <button type="button" class="btn btn-danger" (click)="confirmDelete(order.id)">Delete</button>
               </td>
             </tr>

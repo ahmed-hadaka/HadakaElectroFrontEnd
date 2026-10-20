@@ -48,9 +48,9 @@ export class ProductService {
     return this.http.post(`${this.productApiBaseUrl}/save-product`, formData,{responseType:'text'});
   }
 
-  // getProductById(id: number): Observable<ProductDTO> {
-  //   return this.http.get<ProductDTO>(`${this.productApiBaseUrl}/${id}`);
-  // }
+  getProductById(id: number): Observable<ProductDTO> {
+    return this.http.get<ProductDTO>(`${this.productApiBaseUrl}/${id}`);
+  }
 
   getEditProductData(id: number): Observable<{ product: ProductDTO; brands: BrandSelectDTO[],categories:CategorySelectDTO[] }> {
     return this.http.get<{ product: ProductDTO; brands: BrandSelectDTO[],categories:CategorySelectDTO[] }>(`${this.productApiBaseUrl}/edit/${id}`);

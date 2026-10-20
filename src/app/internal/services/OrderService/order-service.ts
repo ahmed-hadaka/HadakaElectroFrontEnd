@@ -3,7 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { Page } from '../../../shared/Models/PageModel';
-import { OrderDTO, OrderListDTO } from '../../../shared/Models/OrderDTO';
+import {OrderDTO, OrderListDTO} from '../../../shared/Models/OrderDTO';
+
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,10 @@ export class OrderService {
 
   deleteOrder(id: number): Observable<string> {
     return this.http.delete(`${this.orderApiBaseUrl}/delete/${id}`, { responseType: 'text' });
+  }
+
+
+  updateOrderDetails(orderDTO: OrderDTO): Observable<string> {
+    return this.http.post(`${this.orderApiBaseUrl}/update-order`, orderDTO, { responseType: 'text' });
   }
 }
