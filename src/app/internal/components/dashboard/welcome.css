@@ -1,0 +1,55 @@
+.welcome-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+}
+
+.role-badge {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 500;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.hero-graphic {
+  width: 130px;
+  height: 130px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.module-card {
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #ffffff;
+}
+
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.12) !important;
+}
+
+.module-card:hover .arrow-icon {
+  transform: translateX(4px);
+  color: #2563eb !important;
+}
+
+.arrow-icon {
+  transition: transform 0.2s ease, color 0.2s ease;
+  font-size: 1.2rem;
+}
+
+.module-icon {
+  width: 52px;
+  height: 52px;
+}
+
+/* Soft tinted icon backgrounds */
+.icon-indigo  { background-color: #e0e7ff; }
+.icon-teal    { background-color: #ccfbf1; }
+.icon-amber   { background-color: #fef3c7; }
+.icon-blue    { background-color: #dbeafe; }
+.icon-emerald { background-color: #d1fae5; }
+.icon-cyan    { background-color: #cffafe; }
+.icon-purple  { background-color: #f3e8ff; }
+.icon-rose    { background-color: #ffe4e6; }

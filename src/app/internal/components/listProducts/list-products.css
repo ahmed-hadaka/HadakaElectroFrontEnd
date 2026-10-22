@@ -13,7 +13,7 @@ th, td {
   white-space: nowrap;
 }
 
-.action a{
+.action a {
   margin-right: 5px;
 }
 
@@ -31,4 +31,36 @@ th, td {
   justify-content: center;
   gap: 10px;
   margin: 20px 0;
+}
+
+@media (max-width: 575.98px) {
+  .table {
+    min-width: 620px;
+    width: max-content;
+    margin: 0;
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+  }
+
+  .action {
+    white-space: normal;
+  }
+
+  .action .btn,
+  .action a,
+  .action button {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }

@@ -13,6 +13,7 @@ import {NgOptimizedImage} from '@angular/common';
 import {UserDTO, Role, APP_ROLES} from '../../../shared/Models/PageModel';
 import {environmentDev} from '../../../../environments/environment.dev';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
+import {RoleService} from '../../services/role-service';
 
 export const atLeastOneRoleValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const admin = control.get('admin')?.value;
@@ -42,6 +43,7 @@ export const atLeastOneRoleValidator: ValidatorFn = (control: AbstractControl): 
 export class UserDetails {
   private router = inject(Router);
   private userService = inject(UserService);
+  private roleService = inject(RoleService);
   // userId = signal<number | null>(null);
   private route = inject(ActivatedRoute);
   userPhotoBasePath =environmentDev.backendInternalBaseUrl+ '/user_photos/';
@@ -76,10 +78,47 @@ export class UserDetails {
       const userId = Number(params.get('id'));
 
       if (userId !== null && userId > 0) {
-        this.loadUser(userId);
+        if(!this.roleService.hasRole('Admin')){
+          this.getCurUser();
+        }else{
+          this.loadUser(userId);
+        }
       }else {
         this.userForm.reset();
         this.userDtoSignal.set(null)
+      }
+    })
+  }
+
+  private getCurUser(){
+    this.userService.getCurUser().subscribe({
+      next: (data) => {
+        this.userDtoSignal.set(data)
+        // Patch values into the reactive form once data arrives
+        this.userForm.patchValue({
+          id: "" + data.id,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          enabled: data.enabled,
+          photo: data.photo,
+          rolesGroup: {
+            admin: this.hasRole(1),
+            salesPerson: this.hasRole(2),
+            editor: this.hasRole(3),
+            shipper: this.hasRole(4),
+            assistant: this.hasRole(5)
+          }
+        });
+      },
+      error: (err) => {
+        const message =
+          err.error?.message ||
+          err.error?.msg ||
+          (typeof err.error === 'string' ? err.error : null) ||
+          'An unexpected error occurred.';
+
+        this.notification.notify(message,'danger')
       }
     })
   }

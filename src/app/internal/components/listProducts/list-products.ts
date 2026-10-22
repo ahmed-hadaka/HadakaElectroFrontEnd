@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { CategorySelectDTO } from '../../../shared/Models/CategoryDTO';
+import {RoleService} from '../../services/role-service';
 
 @Component({
   selector: 'app-list-products',
@@ -21,7 +22,7 @@ export class ListProducts implements OnInit {
   private productService = inject(ProductService);
   protected notification = inject(NotificationService);
   private fb = inject(FormBuilder);
-
+  protected roleService = inject(RoleService);
   productsPageContent = signal<ProductListDTO[] | null>(null);
   categories = signal<CategorySelectDTO[]>([]);
   productImageBasePath = environmentDev.backendInternalBaseUrl + '/product_images/';
@@ -34,14 +35,10 @@ export class ListProducts implements OnInit {
 
   searchForm!: FormGroup;
   productIdToDelete = signal<number | null>(null);
-  private roles: string[] = [];
 
   ngOnInit() {
     this.initializeForm();
     this.loadProducts();
-
-    const roles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
-    this.roles = roles.map((r: any) => (r.authority ? r.authority : r));
   }
 
   private initializeForm() {
@@ -157,10 +154,5 @@ export class ListProducts implements OnInit {
       return environmentDev.backendInternalBaseUrl + '/default_images/default-product.png';
     }
     return `${this.productImageBasePath}${productId}/${imageName}`;
-  }
-
-  protected hasRole(roleName: string) {
-    const role = this.roles.find((r) => r === roleName) || null;
-    return role !== null;
   }
 }

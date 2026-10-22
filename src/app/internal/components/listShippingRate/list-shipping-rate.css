@@ -1,0 +1,44 @@
+.table {
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.card {
+  border: 1px solid #d6d8da;
+}
+
+@media (max-width: 575.98px) {
+  .table {
+    min-width: 620px;
+    width: max-content;
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+  }
+
+  .action {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .action .btn,
+  .action a,
+  .action button {
+    width: 100%;
+    display: block;
+    margin: 0;
+  }
+}

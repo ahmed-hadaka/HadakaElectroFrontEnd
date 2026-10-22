@@ -19,17 +19,9 @@ import {GeneralAndCurrencySettingsResponse, SettingDTO} from '../../../shared/Mo
 export class InternalLayout {
   notification = inject(NotificationService)
   private  csrfService:CsrfService = inject(CsrfService);
-  private settingService = inject(SettingService);
-  copyrights = signal('');
+
 
   ngOnInit() {
-
-    if(!sessionStorage.getItem("siteSettings")) {
-      this.loadSettings();
-    }
-
-    this.loadCopyrights();
-
     this.csrfService.getCsrfToken('INTERNAL')?.subscribe();
 
     const pendingMessage = sessionStorage.getItem('logoutMessage');
@@ -40,27 +32,4 @@ export class InternalLayout {
     }
   }
 
-  private loadSettings() {
-    this.settingService.getGeneralAndCurrencySettings().subscribe({
-      next: (settings:GeneralAndCurrencySettingsResponse) => {
-        sessionStorage.setItem('siteSettings', JSON.stringify(settings.generalSettings));
-      },
-      error: (err) => {
-        const message = err.error?.message || err.error?.msg ||
-          (typeof err.error === 'string' ? err.error : null) ||
-          'An unexpected error occurred while loading settings.';
-        this.notification.notify(message, 'danger');
-      }
-    });
-  }
-
-  private loadCopyrights() {
-    const settings: SettingDTO[] = JSON.parse(sessionStorage.getItem('siteSettings')!);
-
-    const copyrightSetting = settings?.find(setting => setting.key === 'COPYRIGHT');
-
-    if (copyrightSetting) {
-      this.copyrights.set(copyrightSetting.value);
-    }
-  }
 }

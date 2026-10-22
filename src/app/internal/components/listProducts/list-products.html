@@ -4,7 +4,7 @@
       <div class="col-md-8">
         <h2>Products Management</h2>
       </div>
-      @if (hasRole('Admin') || hasRole('Editor')) {
+      @if (roleService.hasRole('Admin') || roleService.hasRole('Editor')) {
         <div class="col-md-4 text-end">
           <a [routerLink]="['/ElectroInternal/products/new-product']" class="btn btn-success">New Product</a>
         </div>
@@ -45,7 +45,7 @@
           <th scope="col">Product Name</th>
           <th scope="col">Category Name</th>
           <th scope="col">Brand Name</th>
-          @if (!isIframePicker()) {
+          @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
             <th scope="col">Status</th>
           }
           <th scope="col">Actions</th>
@@ -76,7 +76,7 @@
               <td>{{ product.categoryName }}</td>
               <td>{{ product.brandName }}</td>
 
-              @if (!isIframePicker()) {
+              @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
                 <td>
                   <div class="form-check form-switch">
                     <input type="checkbox"
@@ -96,11 +96,12 @@
                     Select
                   </button>
                 } @else {
-                  @if (hasRole('Admin') || hasRole('Editor') || hasRole('Salesperson')) {
+                  @if (roleService.hasRole('Admin') || roleService.hasRole('Editor') || roleService.hasRole('Salesperson')) {
                     <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary me-1">View/Edit</a>
-                  }
-                  @if (hasRole('Admin') || hasRole('Editor')) {
+                  }@if (roleService.hasRole('Admin') || roleService.hasRole('Editor')) {
                     <button type="button" class="btn btn-danger" (click)="confirmDelete(product.id)">Delete</button>
+                  }@if(roleService.hasRole('Shipper')){
+                    <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary me-1">View</a>
                   }
                 }
               </td>

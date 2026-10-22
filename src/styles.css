@@ -1,1 +1,94 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
+
+:root {
+  --mobile-table-min-width: 620px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 575.98px) {
+  .container,
+  .container-fluid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border-radius: 0.5rem;
+  }
+
+  .table {
+    min-width: var(--mobile-table-min-width);
+    width: max-content;
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .action,
+  .action .d-flex,
+  .action > .d-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    white-space: normal;
+  }
+
+  .action .btn,
+  .action > .btn,
+  .action a,
+  .action button,
+  .action .btn-sm {
+    width: 100%;
+    display: block;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .btn {
+    white-space: normal;
+  }
+
+  .row.g-2 > [class*='col-'],
+  .row > [class*='col-'] {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+  .d-flex.justify-content-between.align-items-center,
+  .pagination-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .d-flex.justify-content-between.align-items-center > *,
+  .pagination-controls > * {
+    width: 100%;
+  }
+
+  .form-control,
+  .form-select,
+  .btn {
+    min-height: 44px;
+  }
+}
+

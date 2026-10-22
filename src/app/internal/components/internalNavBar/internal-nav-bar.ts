@@ -71,8 +71,8 @@ export class InternalNavBar {
 
   protected getLoggedUser() {
     this.userService.getCurUser().subscribe({
-      next: (userId) => {
-        this.router.navigate(['ElectroInternal/users/user-details/', userId])
+      next: (user) => {
+        this.router.navigate(['ElectroInternal/users/user-details/', user?.id])
       },
       error: (err) => {
         const message =

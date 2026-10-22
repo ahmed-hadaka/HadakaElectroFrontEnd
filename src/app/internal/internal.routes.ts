@@ -16,6 +16,8 @@ import {ShippingRateDetails} from './components/shippingRateDetails/shipping-rat
 import {ListOrders} from './components/listOrders/list-orders';
 import {ViewOrderDetails} from './components/viewOrderDetails/view-order-details';
 import {EditOrderDetails} from './components/edit-order-details/edit-order-details';
+import {internalRoleGuard} from './internal-role-guard';
+import {Welcome} from './components/dashboard/welcome';
 
 export const INTERNAL_ROUTES: Routes = [
   {
@@ -23,79 +25,138 @@ export const INTERNAL_ROUTES: Routes = [
     component: Login
   },
   {
+    path:'dashboard',
+    component: Welcome,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor','Salesperson','Shipper','Assistant'] }
+  },
+  {
     path:'users',
-    component: ListUsers
+    component: ListUsers,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin'] }
   },
   {
     path:'users/user-details/:id',
-    component: UserDetails
+    component: UserDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor','Salesperson','Shipper','Assistant'] }
   },
   {
     path:'products',
-    component: ListProducts
+    component: ListProducts,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor','Salesperson','Shipper'] }
   },
   {
     path:'products/new-product',
-    component: ProductDetails
+    component: ProductDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor','Salesperson']}
   },
   {
     path:'products/edit/:id',
-    component: ProductDetails
+    component: ProductDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor','Salesperson','Shipper'] }
   },
   {
     path:'categories',
-    component: ListCategories
+    component: ListCategories,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
+
   },
   {
     path:'categories/new-category',
-    component: CategoryDetails
+    component: CategoryDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
+
   },
   {
     path:'categories/edit/:id',
-    component: CategoryDetails
+    component: CategoryDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
+
   },
   {
     path:'brands',
-    component: ListBrands
+    component: ListBrands,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
   },
   {
     path:'brands/new-brand',
-    component: BrandDetails
+    component: BrandDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
   },
   {
     path:'brands/edit/:id',
-    component: BrandDetails
+    component: BrandDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Editor'] }
   },
   {
     path:'customers',
-    component:ListCustomers
+    component:ListCustomers,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
   },
   {
     path:'customers/customer-details/:id',
-    component:CustomerDetails
+    component:CustomerDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
   },
   {
     path:'settings',
-    component:Settings
+    component:Settings,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin'] }
+  },
+  {
+    path:'settings/general',
+    component:Settings,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin', 'Shipper'] }
+  },
+  {
+    path:'settings/countries',
+    component:Settings,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin', 'Shipper'] }
   },
   {
     path:'shipping-rates',
-    component:ListShippingRates
+    component:ListShippingRates,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
   },
   {
     path:'shipping-rates/rate-details/:id',
-    component:ShippingRateDetails
+    component:ShippingRateDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
   },
   {
     path:'orders',
-    component:ListOrders
+    component:ListOrders,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson','Shipper'] }
   },
   {
     path:'orders/view-order-details/:id',
-    component:ViewOrderDetails
+    component:ViewOrderDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson','Shipper'] }
   },
   {
     path:'orders/edit-order-details/:id',
-    component:EditOrderDetails
+    component:EditOrderDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
   }
 ]

@@ -10,11 +10,38 @@ th, td {
 }
 
 .action {
-  white-space: nowrap; /* Prevents buttons from wrapping to a second line */
+  white-space: nowrap;
 }
 
 .action .btn {
   display: inline-block;
-  margin-right: 8px; /* Adds space between the two buttons */
+  margin-right: 8px;
+}
+
+@media (max-width: 575.98px) {
+  .table {
+    min-width: 620px;
+    width: max-content;
+    margin: 0;
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+  }
+
+  .action {
+    white-space: normal;
+  }
+
+  .action .btn,
+  .action a,
+  .action button {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
 }
 

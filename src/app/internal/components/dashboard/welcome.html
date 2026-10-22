@@ -1,0 +1,67 @@
+<div class="container py-4">
+  <!-- Hero Welcome Banner -->
+  <div class="welcome-hero rounded-4 p-4 p-md-5 mb-4 text-white shadow-sm position-relative overflow-hidden">
+    <div class="row align-items-center position-relative z-1">
+      <div class="col-lg-8">
+        <div class="d-inline-flex align-items-center bg-white bg-opacity-10 rounded-pill px-3 py-1 mb-3 small">
+          <span class="me-2">📅</span>
+          <span>{{ currentDate | date:'EEEE, MMMM d, y' }}</span>
+        </div>
+
+        <h1 class="display-6 fw-bold mb-2">
+          {{ greeting() }}, {{ userName() }}!
+        </h1>
+        <p class="lead mb-3 text-white-50">
+          Welcome to the <strong>Hadaka Electro</strong> Internal Control Panel. Select a workspace module below to get started.
+        </p>
+
+        <!-- Role Badges -->
+        @if (userRoles().length > 0) {
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <span class="small text-white-50 me-1">Active Roles:</span>
+            @for (role of userRoles(); track role) {
+              <span class="badge rounded-pill role-badge px-3 py-2">
+                🛡️ {{ role }}
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="col-lg-4 d-none d-lg-flex justify-content-end">
+        <div class="hero-graphic d-flex align-items-center justify-content-center rounded-circle">
+          <span class="display-2">⚡</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access Section Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold text-dark mb-0">Your Workspace Modules</h5>
+    <span class="text-muted small">{{ accessibleModules().length }} available</span>
+  </div>
+
+  <!-- Role-Filtered Module Cards Grid -->
+  <div class="row g-4">
+    @for (mod of accessibleModules(); track mod.route) {
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+        <a [routerLink]="mod.route" class="card module-card h-100 border-0 shadow-sm text-decoration-none">
+          <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="module-icon rounded-3 d-flex align-items-center justify-content-center {{ mod.colorClass }}">
+                <span class="fs-3">{{ mod.icon }}</span>
+              </div>
+              <span class="arrow-icon text-muted">→</span>
+            </div>
+
+            <h6 class="card-title fw-bold text-dark mb-2">{{ mod.title }}</h6>
+            <p class="card-text text-secondary small mb-0 flex-grow-1">
+              {{ mod.description }}
+            </p>
+          </div>
+        </a>
+      </div>
+    }
+  </div>
+</div>

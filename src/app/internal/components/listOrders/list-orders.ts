@@ -4,8 +4,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { OrderService } from '../../services/OrderService/order-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { OrderListDTO } from '../../../shared/Models/OrderDTO';
+import {OrderListDTO, OrderStatus} from '../../../shared/Models/OrderDTO';
 import {SettingDTO} from '../../../shared/Models/SettingDTO';
+import {RoleService} from '../../services/role-service';
 
 @Component({
   selector: 'app-list-orders',
@@ -22,6 +23,7 @@ export class ListOrders {
   private orderService = inject(OrderService);
   private fb = inject(FormBuilder);
   protected notification = inject(NotificationService);
+  public roleService = inject(RoleService);
 
   ordersPageContent = signal<OrderListDTO[] | null>(null);
 
@@ -128,4 +130,51 @@ export class ListOrders {
     this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'Before price');
 
   }
+
+  // -------------- shipper section ------
+  pendingStatusUpdate = signal<{ orderId: number; status: OrderStatus;note:string } | null>(null);
+  private readonly shipperStatusHierarchy = ['PICKED', 'SHIPPING', 'DELIVERED'];
+
+  hasReachedStatus(currentStatus: string, targetStatus: string): boolean {
+    if (currentStatus === targetStatus) return true;
+    const currentIndex = this.shipperStatusHierarchy.indexOf(currentStatus);
+    const targetIndex = this.shipperStatusHierarchy.indexOf(targetStatus);
+
+    return currentIndex !== -1 && targetIndex !== -1 && currentIndex >= targetIndex;
+  }
+
+  confirmStatusUpdate(orderId: number, status: OrderStatus, note:string): void {
+    this.pendingStatusUpdate.set({ orderId, status, note });
+  }
+
+  cancelStatusUpdate(): void {
+    this.pendingStatusUpdate.set(null);
+  }
+
+  executeStatusUpdate(): void {
+    const update = this.pendingStatusUpdate();
+    if (!update) return;
+
+    this.orderService.updateOrderStatus(update.orderId, update.status,update.note).subscribe({
+      next: () => {
+        this.notification.notify(
+          `Order #${update.orderId} status updated to ${update.status.toString()}.`,
+          'success'
+        );
+        this.pendingStatusUpdate.set(null);
+        this.loadOrders(this.currentPage());
+      },
+      error: (err) => {
+        const message =
+          err.error?.message ||
+          err.error?.msg ||
+          (typeof err.error === 'string' ? err.error : null) ||
+          'Failed to update order status.';
+        this.notification.notify(message, 'danger');
+        this.pendingStatusUpdate.set(null);
+      },
+    });
+  }
+
+  protected readonly OrderStatus = OrderStatus;
 }

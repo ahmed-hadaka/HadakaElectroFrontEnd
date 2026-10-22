@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
@@ -6,6 +6,7 @@ import {ProductDetail} from '../../../shared/Models/ProductDTO';
 import {ProductService} from '../../services/ProductService/product-service';
 import {environmentDev} from '../../../../environments/environment.dev';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
+import {RoleService} from '../../services/role-service';
 
 export interface ExtraImageSlot {
   id?: number;
@@ -27,7 +28,7 @@ export class ProductDetails {
 
   productForm!: FormGroup;
 
-  // Signals
+  protected roleService = inject(RoleService);
   protected productDtoSignal = signal<any | null>(null);
   protected brandsSignal = signal<any[]>([]);
   protected categoriesSignal = signal<any[]>([]);
@@ -35,7 +36,6 @@ export class ProductDetails {
   protected extraImageSlotsSignal = signal<ExtraImageSlot[]>([]);
   protected removedImagesNamesSignal = signal<string[]>([]);
 
-  // Image handling properties
   protected mainImageFile: File | null = null;
   protected mainImagePreviewUrl: string | null = null;
   protected defaultImagePath = environmentDev.backendInternalBaseUrl + '/default_images/default-product.png';
@@ -57,7 +57,11 @@ export class ProductDetails {
     // Check if editing an existing product or creating a new one
     const productId = this.route.snapshot.params['id'];
     if (productId) {
-      this.loadProductForEdit(productId);
+      if(this.roleService.hasRole("Shipper")){
+        this.loadProductForView(productId);
+      }else{
+        this.loadProductForEdit(productId);
+      }
     } else {
       this.loadDropdownDataForNewProduct();
     }
@@ -153,6 +157,57 @@ export class ProductDetails {
       }
     });
   }
+
+  private loadProductForView(id: number): void {
+    this.productService.getProductById(id).subscribe({
+      next: (productDTO) => {
+        const product = productDTO;
+
+        // Patch reactive form values
+        this.productForm.patchValue({
+          id: product.id,
+          name: product.name,
+          alias: product.alias,
+          brandId: product.brandId,
+          categoryId: product.categoryId,
+          enabled: product.enabled,
+          inStock: product.inStock,
+          cost: product.cost,
+          price: product.price,
+          mainImage:product.mainImage,
+          discountPercent: product.discountPercent,
+          shortDescription: product.shortDescription,
+          fullDescription: product.fullDescription,
+          length: product.length,
+          width: product.width,
+          height: product.height,
+          weight: product.weight
+        });
+
+        // Populate Product Details
+        if (product.productDetails) {
+          this.productDetailsSignal.set(product.productDetails);
+        }
+
+        // Populate Existing Extra Images
+        if (product.productImages && product.productImages.length > 0) {
+          const existingSlots: ExtraImageSlot[] = product.productImages.map((img: any) => ({
+            id: img.id,
+            name: img.name,
+            previewUrl: `${this.productImageBasePath}${product.id}/extras/${img.name}`
+          }));
+          this.extraImageSlotsSignal.set(existingSlots);
+        }
+      },
+      error: (err) => {
+        const message = err.error?.message || err.error?.msg ||
+          (typeof err.error === 'string' ? err.error : null) ||
+          'Error fetching product for editing';
+        this.notification.notify(message, 'danger');
+      }
+    });
+  }
+
 
   // --- Main Image Methods ---
   protected onMainImageUpload(event: Event): void {

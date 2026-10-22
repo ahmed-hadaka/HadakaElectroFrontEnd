@@ -33,7 +33,7 @@ export class UserService {
 
   getCurUser(){
     const getUserUrl = this.usersBaseUrl+'/me';
-    return this.httpClient.get<number>(getUserUrl);
+    return this.httpClient.get<UserDTO>(getUserUrl);
   }
 
   saveUser(userDto:UserDTO, photoFile:File|null){

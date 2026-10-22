@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { Page } from '../../../shared/Models/PageModel';
-import {OrderDTO, OrderListDTO} from '../../../shared/Models/OrderDTO';
+import {OrderDTO, OrderListDTO, OrderStatus} from '../../../shared/Models/OrderDTO';
 
 
 @Injectable({
@@ -45,5 +45,15 @@ export class OrderService {
 
   updateOrderDetails(orderDTO: OrderDTO): Observable<string> {
     return this.http.post(`${this.orderApiBaseUrl}/update-order`, orderDTO, { responseType: 'text' });
+  }
+
+  updateOrderStatus(orderId: number, status: OrderStatus, note:string) {
+    let params = new HttpParams()
+      .set('orderId', orderId)
+      .set('status', status)
+      .set('note', note);
+
+    return this.http.patch(`${this.orderApiBaseUrl}/update-order-status`,null, {params});
+
   }
 }

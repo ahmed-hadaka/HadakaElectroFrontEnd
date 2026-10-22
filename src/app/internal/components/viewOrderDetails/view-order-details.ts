@@ -7,6 +7,7 @@ import { OrderDTO } from '../../../shared/Models/OrderDTO';
 import { OrderService } from '../../services/OrderService/order-service';
 import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 import {SettingDTO} from '../../../shared/Models/SettingDTO';
+import {RoleService} from '../../services/role-service';
 
 @Component({
   selector: 'app-order-details',
@@ -23,6 +24,7 @@ export class ViewOrderDetails {
   private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);
   private notification = inject(NotificationService);
+  public roleService = inject(RoleService);
 
   protected orderSignal = signal<OrderDTO | null>(null);
   protected orderIdToDelete = signal<number | null>(null);
@@ -35,7 +37,6 @@ export class ViewOrderDetails {
 
   ngOnInit() {
     this.handleCurrencyFormating();
-
     this.route.paramMap.subscribe(params => {
       const orderId = Number(params.get('id'));
 
@@ -115,6 +116,5 @@ export class ViewOrderDetails {
       .find(setting => setting.key === 'CURRENCY_SYMBOL_POSITION');
 
     this.currencySymbolPosition.set(curSymbolPosition ? curSymbolPosition.value : 'BEFORE_PRICE');
-
   }
 }

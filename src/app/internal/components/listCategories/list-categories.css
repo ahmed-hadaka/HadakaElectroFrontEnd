@@ -8,14 +8,43 @@ th, td {
   text-align: center;
   vertical-align: middle;
 }
-.form-check{
+
+.form-check {
   display: flex;
   justify-content: center;
 }
 
-.action{
+.action {
   white-space: nowrap;
 }
+
 .form-check-input {
   cursor: pointer;
+}
+
+@media (max-width: 575.98px) {
+  .table {
+    min-width: 620px;
+    width: max-content;
+    margin: 0;
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+  }
+
+  .action {
+    white-space: normal;
+  }
+
+  .action .btn,
+  .action a,
+  .action button {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
 }

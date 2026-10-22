@@ -43,7 +43,7 @@ export class Login {
 
 
           this.loginReqForm.reset();
-          this.router.navigate(['ElectroInternal/users']).then(()=>{
+          this.router.navigate(['ElectroInternal/dashboard']).then(()=>{
             // Full browser window refresh
             window.location.reload();
           })
