@@ -52,8 +52,22 @@ export class ViewOrderDetails {
 
   private loadOrder(id: number) {
     this.orderService.getOrderById(id).subscribe({
-      next: (data) => {
-        this.orderSignal.set(data);
+      next: (order) => {
+        // sorted from Oldest to Newest
+        const sortedTracks = [...order.orderTracks].sort((a, b) => {
+          const dateA = new Date(a.updatedAt || 0).getTime();
+          const dateB = new Date(b.updatedAt || 0).getTime();
+
+          return dateA - dateB;
+        });
+
+        order.orderTracks = []; // clear
+
+        sortedTracks.forEach((track) => {
+          order.orderTracks.push(track);
+        });
+
+        this.orderSignal.set(order);
       },
       error: (err) => {
         const message =

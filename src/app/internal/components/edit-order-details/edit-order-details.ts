@@ -178,7 +178,16 @@ export class EditOrderDetails implements OnInit {
     }
 
     if (order.orderTracks) {
-      order.orderTracks.forEach((track) => {
+      this.orderTracksArray.clear();
+
+      // sorted from Oldest to Newest
+      const sortedTracks = [...order.orderTracks].sort((a, b) => {
+        const dateA = new Date(a.updatedAt || 0).getTime();
+        const dateB = new Date(b.updatedAt || 0).getTime();
+
+        return dateA - dateB;
+      });
+      sortedTracks.forEach((track) => {
         this.orderTracksArray.push(this.createOrderTrackGroup(track));
       });
     }

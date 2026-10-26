@@ -433,53 +433,53 @@
                       </tr>
                       </thead>
                       <tbody formArrayName="orderTracks">
-                      @for (trackGroup of orderTracksArray.controls; track $index; let i = $index) {
-                        @let isInitialNewTrack = i === 0 && trackGroup.get('orderStatus')?.value === 'NEW';
+                        @for (trackGroup of orderTracksArray.controls; track trackGroup; let i = $index) {
+                          @let isInitialNewTrack = i == 0 && trackGroup.get('orderStatus')?.value === 'NEW';
 
-                        <tr [formGroupName]="i">
-                          <td>
-                            @if (isInitialNewTrack) {
+                          <tr [formGroupName]="i">
+                            <td>
+                              @if (isInitialNewTrack) {
+                                <input
+                                  type="text"
+                                  class="form-control form-control-sm bg-light text-muted"
+                                  [value]="trackGroup.get('orderStatus')?.value"
+                                  readonly />
+                              } @else {
+                                <select class="form-select form-select-sm" formControlName="orderStatus">
+                                  @for (status of orderStatuses; track status) {
+                                    <option [value]="status">{{ status }}</option>
+                                  }
+                                </select>
+                              }
+                            </td>
+                            <td>
                               <input
                                 type="text"
-                                class="form-control form-control-sm bg-light text-muted"
-                                [value]="trackGroup.get('orderStatus')?.value"
-                                readonly />
-                            } @else {
-                              <select class="form-select form-select-sm" formControlName="orderStatus">
-                                @for (status of orderStatuses; track status) {
-                                  <option [value]="status">{{ status }}</option>
-                                }
-                              </select>
-                            }
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              class="form-control form-control-sm"
-                              [class.bg-light]="isInitialNewTrack"
-                              [class.text-muted]="isInitialNewTrack"
-                              formControlName="notes"
-                              [readonly]="isInitialNewTrack"
-                              placeholder="Enter tracking notes..." />
-                          </td>
-                          <td class="text-center">
-                            <button
-                              type="button"
-                              class="btn btn-sm btn-outline-danger"
-                              [disabled]="isInitialNewTrack"
-                              (click)="removeTrackRow(i)">
-                              Remove
-                            </button>
-                          </td>
-                        </tr>
-                      } @empty {
-                        <tr>
-                          <td colspan="3" class="text-center text-muted py-3">
-                            No tracking records available. Click "+ Add Track Record" to add one.
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
+                                class="form-control form-control-sm"
+                                [class.bg-light]="isInitialNewTrack"
+                                [class.text-muted]="isInitialNewTrack"
+                                formControlName="notes"
+                                [readonly]="isInitialNewTrack"
+                                placeholder="Enter tracking notes..." />
+                            </td>
+                            <td class="text-center">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                [disabled]="isInitialNewTrack"
+                                (click)="removeTrackRow(i)">
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="3" class="text-center text-muted py-3">
+                              No tracking records available. Click "+ Add Track Record" to add one.
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
                     </table>
                   </div>
                 </div>
@@ -505,7 +505,6 @@
       </div>
     </form>
   }
-
   <!-- Add Product Modal with <iframe> -->
   @if (showAddProductModal()) {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">

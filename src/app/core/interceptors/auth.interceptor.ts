@@ -17,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // If session expired or unauthorized, redirect to login
         if (error.status === 401 || error.status === 403) {
           notification.notify('Session expired or unauthorized. Redirecting to login...', 'danger')
-          router.navigate(['/ElectroCustomer/login']);
+          router.navigate(['/ElectroCustomer/categories']);
         }
         return throwError(() => error);
       })
@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // If session expired or unauthorized, redirect to login
         if (error.status === 401 || error.status === 403) {
           notification.notify('Session expired or unauthorized. Redirecting to login...', 'danger')
-          router.navigate(['ElectroInternal/']);
+          router.navigate(['ElectroInternal/dashboard']);
         }
         return throwError(() => error);
       })
