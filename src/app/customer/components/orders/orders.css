@@ -1,0 +1,77 @@
+.table {
+  width: 100%;
+  max-width: -webkit-fill-available;
+  margin: 20px;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.action {
+  white-space: nowrap;
+}
+
+.action a {
+  margin-right: 5px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.product-names-list {
+  text-align: left;
+}
+
+.product-names-list li {
+  margin-bottom: 0.25rem;
+}
+
+.product-thumb {
+  max-height: 110px;
+  object-fit: contain;
+}
+
+.track-step {
+  flex: 1 1 0;
+}
+
+@media (max-width: 575.98px) {
+  .table {
+    min-width: 620px;
+    width: max-content;
+    margin: 0;
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+  }
+
+  .action {
+    white-space: normal;
+  }
+
+  .action a,
+  .action button,
+  .btn-sm {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

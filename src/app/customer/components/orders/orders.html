@@ -1,0 +1,611 @@
+<div class="container-fluid mt-4">
+  <!-- Page Title -->
+  <div class="text-center mb-4">
+    <h2>My Orders</h2>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-12 col-md-8 col-lg-6">
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="d-flex align-items-center gap-2 flex-wrap">
+        <label for="orderKeyword" class="col-form-label fw-normal me-1">Filter:</label>
+        <input
+          id="orderKeyword"
+          type="text"
+          class="form-control w-auto flex-grow-1"
+          formControlName="keyword"
+          placeholder="Keyword"
+        />
+        <button type="submit" class="btn btn-primary px-3">Search</button>
+        <button type="button" class="btn btn-secondary px-3" (click)="onClear()">Clear</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th scope="col" (click)="toggleSort('id')" class="sortable-header">
+          ID
+          @if (sortField() === 'id') {
+            <span>{{ sortDir() === 'asc' ? '▲' : '▼' }}</span>
+          }
+        </th>
+        <th scope="col" (click)="toggleSort('orderTime')" class="sortable-header">
+          Order Time
+          @if (sortField() === 'orderTime') {
+            <span>{{ sortDir() === 'asc' ? '▲' : '▼' }}</span>
+          }
+        </th>
+        <th scope="col">Products</th>
+        <th scope="col" (click)="toggleSort('total')" class="sortable-header">
+          Total
+          @if (sortField() === 'total') {
+            <span>{{ sortDir() === 'asc' ? '▲' : '▼' }}</span>
+          }
+        </th>
+        <th scope="col" (click)="toggleSort('status')" class="sortable-header">
+          Status
+          @if (sortField() === 'status') {
+            <span>{{ sortDir() === 'asc' ? '▲' : '▼' }}</span>
+          }
+        </th>
+        <th scope="col"></th>
+      </tr>
+      </thead>
+      <tbody>
+        @if (isLoadingList()) {
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">Loading your orders...</td>
+          </tr>
+        } @else if (ordersPageContent().length === 0) {
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">No orders found.</td>
+          </tr>
+        } @else {
+          @for (order of ordersPageContent(); track order.id) {
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.orderTime | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+              <td class="text-start">
+                <ul class="mb-0 ps-3 product-names-list">
+                  @for (prodName of order.productsNames; track prodName) {
+                    <li>{{ prodName }}</li>
+                  }
+                </ul>
+              </td>
+              <td>
+                @if (currencySymbolPosition() === 'BEFORE_PRICE') {
+                  {{ currencySymbol() }}{{ order.total | number:'1.2-2' }}
+                } @else {
+                  {{ order.total | number:'1.2-2' }} {{ currencySymbol() }}
+                }
+              </td>
+              <td>{{ order.status }}</td>
+              <td class="action">
+                <!-- View Order Details Button (Green File Icon) -->
+                <button
+                  type="button"
+                  class="btn btn-link p-1 text-success me-2"
+                  title="View details of this order"
+                  (click)="openOrderDetailsModal(order.id)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1z"/>
+                  </svg>
+                </button>
+
+                @if (canReturnOrder(order)) {
+                  <button
+                    type="button"
+                    class="btn btn-link p-1 text-secondary"
+                    title="Return this order"
+                    (click)="openReturnModal(order)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 512 512">
+                      <path d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/>
+                    </svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalElements() > 0) {
+    <div class="text-center my-3">
+      <div class="mb-2">
+        Showing orders # {{ startCount() }} to {{ endCount() }} of {{ totalElements() }}
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav aria-label="Orders pagination">
+          <ul class="pagination justify-content-center pagination-controls mb-0">
+            <li class="page-item" [class.disabled]="currentPage() === 0">
+              <button type="button" class="page-link" (click)="firstPage()">First</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage() === 0">
+              <button type="button" class="page-link" (click)="previousPage()">Previous</button>
+            </li>
+            @for (pageIdx of pageNumbers(); track pageIdx) {
+              <li class="page-item" [class.active]="currentPage() === pageIdx">
+                <button type="button" class="page-link" (click)="goToPage(pageIdx)">
+                  {{ pageIdx + 1 }}
+                </button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="currentPage() >= totalPages() - 1">
+              <button type="button" class="page-link" (click)="nextPage()">Next</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage() >= totalPages() - 1">
+              <button type="button" class="page-link" (click)="lastPage()">Last</button>
+            </li>
+          </ul>
+        </nav>
+      }
+    </div>
+  }
+
+
+  @if (selectedOrder(); as order) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);" role="dialog">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Order Details</h4>
+            <button type="button" class="btn-close" (click)="closeOrderDetailsModal()" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link"
+                  [class.active]="activeTab() === 'overview'"
+                  (click)="setTab('overview')"
+                >
+                  Overview
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link"
+                  [class.active]="activeTab() === 'products'"
+                  (click)="setTab('products')"
+                >
+                  Products
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link"
+                  [class.active]="activeTab() === 'shipping'"
+                  (click)="setTab('shipping')"
+                >
+                  Shipping
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link"
+                  [class.active]="activeTab() === 'track'"
+                  (click)="setTab('track')"
+                >
+                  Track
+                </button>
+              </li>
+            </ul>
+
+            <!-- OVERVIEW -->
+            @if (activeTab() === 'overview') {
+              <div class="px-2">
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Order ID:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.id" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Subtotal:</label>
+                  <div class="col-sm-9">
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="currencySymbolPosition() === 'BEFORE_PRICE' ? currencySymbol() + (order.subtotal | number:'1.2-2') : (order.subtotal | number:'1.2-2') + ' ' + currencySymbol()"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Shipping Cost:</label>
+                  <div class="col-sm-9">
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="currencySymbolPosition() === 'BEFORE_PRICE' ? currencySymbol() + (order.shippingCost | number:'1.2-2') : (order.shippingCost | number:'1.2-2') + ' ' + currencySymbol()"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Tax:</label>
+                  <div class="col-sm-9">
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="currencySymbolPosition() === 'BEFORE_PRICE' ? currencySymbol() + (order.tax | number:'1.2-2') : (order.tax | number:'1.2-2') + ' ' + currencySymbol()"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Total:</label>
+                  <div class="col-sm-9">
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="currencySymbolPosition() === 'BEFORE_PRICE' ? currencySymbol() + (order.total | number:'1.2-2') : (order.total | number:'1.2-2') + ' ' + currencySymbol()"
+                      readonly
+                    />
+                    <small class="text-muted d-block mt-1">TOTAL = Subtotal + Shipping Cost + Tax</small>
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Payment Method:</label>
+                  <div class="col-sm-9">
+                    <span>{{ order.paymentMethod }}</span>
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Status:</label>
+                  <div class="col-sm-9">
+                    <span>{{ order.status }}</span>
+                  </div>
+                </div>
+
+                <div class="row mb-2 align-items-center">
+                  <label class="col-sm-3 col-form-label">Order Date:</label>
+                  <div class="col-sm-9">
+                    <span>{{ order.orderTime | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- PRODUCTS -->
+            @if (activeTab() === 'products') {
+              <div class="px-2">
+                @for (detail of order.orderDetails; track detail.productId; let idx = $index) {
+                  <div class="border rounded p-3 mb-3">
+                    <div class="row align-items-center">
+                      <div class="col-12 col-sm-1 mb-2 mb-sm-0 fw-semibold">
+                        {{ idx + 1 }}
+                      </div>
+                      @if (detail.mainImage) {
+                        <div class="col-12 col-sm-3 text-center mb-2 mb-sm-0">
+                          <img
+                            [src]="detail.mainImage"
+                            [alt]="detail.productName"
+                            class="img-fluid product-thumb"
+                          />
+                        </div>
+                      }
+                      <div class="col-12" [class.col-sm-8]="detail.mainImage" [class.col-sm-11]="!detail.mainImage">
+                        <div class="fw-bold text-primary mb-2">
+                          {{ detail.productName }}
+                        </div>
+                        <div>
+                          {{ detail.quantity }} X
+                          @if (currencySymbolPosition() === 'BEFORE_PRICE') {
+                            {{ currencySymbol() }}{{ detail.unitPrice | number:'1.2-2' }}
+                          } @else {
+                            {{ detail.unitPrice | number:'1.2-2' }} {{ currencySymbol() }}
+                          }
+                          =
+                          <strong>
+                            @if (currencySymbolPosition() === 'BEFORE_PRICE') {
+                              {{ currencySymbol() }}{{ detail.subtotal | number:'1.2-2' }}
+                            } @else {
+                              {{ detail.subtotal | number:'1.2-2' }} {{ currencySymbol() }}
+                            }
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- SHIPPING -->
+            @if (activeTab() === 'shipping') {
+              <div class="px-2">
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Deliver Days:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.deliverDays" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Expected Deliver Date:</label>
+                  <div class="col-sm-9">
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="order.expectedDeliverDate | date:'EEE, dd MMM yyyy'"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">First Name:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="recipientFirstName()" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Last Name:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="recipientLastName()" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Phone Number:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.recipientPhoneNumber" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Address Line 1:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.addressLine1" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Address Line 2:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.addressLine2 || ''" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">City:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.city" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">State:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.state" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">Country:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.country" readonly />
+                  </div>
+                </div>
+
+                <div class="row mb-2 align-items-center">
+                  <label class="col-sm-3 col-form-label">Postal Code:</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control bg-light" [value]="order.postalCode" readonly />
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- TRACK -->
+            @if (activeTab() === 'track') {
+              <div class="px-2">
+
+                <div class="d-flex justify-content-around align-items-center text-center my-3 py-2 border-bottom">
+                  <!-- Processing -->
+                  <div class="track-step">
+                    <div
+                      [class.text-success]="hasTrackStatus(OrderStatus.PROCESSING)"
+                      [class.text-secondary]="!hasTrackStatus(OrderStatus.PROCESSING)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 512 512">
+                        <path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/>
+                      </svg>
+                    </div>
+                    <small class="d-block mt-1 text-muted">processing</small>
+                  </div>
+
+                  <!-- Picked -->
+                  <div class="track-step">
+                    <div
+                      [class.text-success]="hasTrackStatus(OrderStatus.PICKED)"
+                      [class.text-secondary]="!hasTrackStatus(OrderStatus.PICKED)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="30" fill="currentColor" viewBox="0 0 640 512">
+                        <path d="M256 48c0-26.5 21.5-48 48-48h32c26.5 0 48 21.5 48 48v96h-128V48zM112 64a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM80 192h64c35.3 0 64 28.7 64 64v64h64v64H160v112c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V352H48c-17.7 0-32-14.3-32-32V256c0-35.3 28.7-64 64-64zm448-128a48 48 0 1 1 0 96 48 48 0 1 1 0-96zm-32 128h64c35.3 0 64 28.7 64 64v64c0 17.7-14.3 32-32 32h-16v144c0 8.8-7.2 16-16 16h-64c-8.8 0-16-7.2-16-16V384H368v-64h64v-64c0-35.3 28.7-64 64-64z"/>
+                      </svg>
+                    </div>
+                    <small class="d-block mt-1 text-muted">picked</small>
+                  </div>
+
+                  <!-- Shipping -->
+                  <div class="track-step">
+                    <div
+                      [class.text-success]="hasTrackStatus(OrderStatus.SHIPPING)"
+                      [class.text-secondary]="!hasTrackStatus(OrderStatus.SHIPPING)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="30" fill="currentColor" viewBox="0 0 640 512">
+                        <path d="M48 0C21.5 0 0 21.5 0 48V368c0 26.5 21.5 48 48 48H64c0 53 43 96 96 96s96-43 96-96H384c0 53 43 96 96 96s96-43 96-96h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V288 256 237.3c0-17-6.7-33.3-18.7-45.3L512 114.7c-12-12-28.3-18.7-45.3-18.7H416V48c0-26.5-21.5-48-48-48H48zM416 160h50.7L544 237.3V256H416V160zM112 416a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm368-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"/>
+                      </svg>
+                    </div>
+                    <small class="d-block mt-1 text-muted">shipping</small>
+                  </div>
+
+                  <!-- Delivered -->
+                  <div class="track-step">
+                    <div
+                      [class.text-success]="hasTrackStatus(OrderStatus.DELIVERED)"
+                      [class.text-secondary]="!hasTrackStatus(OrderStatus.DELIVERED)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="30" fill="currentColor" viewBox="0 0 640 512">
+                        <path d="M58.9 42.1c3-6.1 9.6-9.6 16.3-8.7L320 64 564.8 33.4c6.7-.8 13.3 2.7 16.3 8.7l41.7 83.4c9 17.9-.6 39.6-19.8 45.1L439.6 217.3c-13.9 4-28.8-1.9-36.2-14.3L320 64 236.6 203c-7.4 12.4-22.3 18.3-36.2 14.3L37 170.6c-19.3-5.5-28.8-27.2-19.8-45.1L58.9 42.1zM321.1 128l54.9 91.4c14.9 24.8 44.6 36.6 72.5 28.6L576 211.6v167c0 22-15 41.2-36.4 46.6l-204.1 51c-10.2 2.6-20.9 2.6-31 0l-204.1-51C79 419.7 64 400.5 64 378.5v-167L191.6 248c27.8 8 57.6-3.8 72.5-28.6L318.9 128h2.2z"/>
+                      </svg>
+                    </div>
+                    <small class="d-block mt-1 text-muted">delivered</small>
+                  </div>
+
+                  <!-- Returned (Visible ONLY if the order was returned) -->
+                  @if (hasTrackStatus(OrderStatus.RETURNED)) {
+                    <div class="track-step">
+                      <div class="text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 512 512">
+                          <path d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/>
+                        </svg>
+                      </div>
+                      <small class="d-block mt-1 text-muted">returned</small>
+                    </div>
+                  }
+                </div>
+
+                <!-- Desktop / Tablet Track Table -->
+                <div class="d-none d-sm-block">
+                  <table class="table table-bordered table-striped m-0 w-100">
+                    <thead class="table-dark">
+                    <tr>
+                      <th scope="col">Time</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Notes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      @for (track of sortedOrderTracks(); track track.updatedAt) {
+                        <tr>
+                          <td>{{ track.updatedAt | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                          <td>{{ track.orderStatus }}</td>
+                          <td class="text-start"><i>{{ track.notes }}</i></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Small Screen / Mobile Track List -->
+                <div class="d-block d-sm-none">
+                  @for (track of sortedOrderTracks(); track track.updatedAt) {
+                    <div class="mb-3 pb-2 border-bottom">
+                      <div class="text-secondary small">
+                        {{ track.updatedAt | date:'yyyy-MM-dd HH:mm:ss' }}
+                      </div>
+                      <div class="ps-3 mt-1">
+                        <strong>{{ track.orderStatus }}</strong>: <i>{{ track.notes }}</i>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" (click)="closeOrderDetailsModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (returnOrderTarget(); as returnOrder) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Return Order ID #{{ returnOrder.id }}</h4>
+            <button type="button" class="btn-close" (click)="closeReturnModal()" aria-label="Close"></button>
+          </div>
+
+          @if (!returnRequestSent()) {
+            <!-- Form State -->
+            <form [formGroup]="returnForm" (ngSubmit)="submitReturnRequest()">
+              <div class="modal-body">
+                @if (returnErrorMessage(); as errMsg) {
+                  <div class="alert alert-danger py-2">{{ errMsg }}</div>
+                }
+
+                <div class="mb-3">
+                  <label class="form-label d-block mb-2">Reason:</label>
+                  @for (reasonOption of returnReasons; track reasonOption; let i = $index) {
+                    <div class="form-check mb-1">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        formControlName="reason"
+                        [id]="'returnReason' + i"
+                        [value]="reasonOption"
+                      />
+                      <label class="form-check-label" [for]="'returnReason' + i">
+                        {{ reasonOption }}
+                      </label>
+                    </div>
+                  }
+                </div>
+
+                <div class="mb-2">
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    formControlName="note"
+                    placeholder="Additional information"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button
+                  type="submit"
+                  class="btn btn-success"
+                  [disabled]="isSubmittingReturn() || returnForm.invalid"
+                >
+                  {{ isSubmittingReturn() ? 'Sending...' : 'Send Request' }}
+                </button>
+                <button type="button" class="btn btn-danger" (click)="closeReturnModal()">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          } @else {
+            <!-- Confirmation State -->
+            <div class="modal-body text-center py-4">
+              <p class="fs-5 mb-0 text-secondary">Return request has been sent</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" (click)="closeReturnModal()">
+                Close
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

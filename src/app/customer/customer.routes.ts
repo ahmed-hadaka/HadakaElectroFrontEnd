@@ -13,6 +13,7 @@ import {AddressForm} from './components/address-form/address-form';
 import {AddressBook} from './components/address-book/address-book';
 import {Checkout} from './components/checkout/checkout';
 import {OrderPlaced} from './components/order-placed/order-placed';
+import {Orders} from './components/orders/orders';
 
 export const CUSTOMER_ROUTES: Routes = [
   {
@@ -76,5 +77,8 @@ export const CUSTOMER_ROUTES: Routes = [
   },{
     path:'place-order',
     component:OrderPlaced
+  },{
+    path:'orders',
+    component:Orders
   }
 ]
