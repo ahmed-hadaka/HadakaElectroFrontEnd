@@ -1,12 +1,47 @@
 .navbar {
-  padding: .75rem 1rem;
-  background-color: #b5b2b2;
+  padding: 0.7rem 1rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--line);
 }
 
-.nav-link {
-  color: #444;
+.navbar:first-child {
+  min-height: 38px;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  background: var(--ink-950);
+  border-bottom: 0;
 }
 
-.nav-link:hover {
-  color: #0d6efd;
+.navbar:first-child .nav-link {
+  color: #c8d1e4 !important;
+  font-size: 0.77rem;
+}
+
+.navbar:first-child .nav-link:hover {
+  color: #fff !important;
+}
+
+.navbar-brand img {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+
+.navbar .nav-link {
+  color: var(--ink-600) !important;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.55rem 0.7rem !important;
+  border-radius: 0.5rem;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--primary) !important;
+  background: var(--surface-soft);
+}
+
+.navbar .form-control {
+  min-width: 210px;
+  background: var(--canvas);
 }

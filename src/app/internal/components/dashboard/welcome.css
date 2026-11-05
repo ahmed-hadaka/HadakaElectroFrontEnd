@@ -1,5 +1,8 @@
 .welcome-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+  background:
+    radial-gradient(circle at 80% 10%, rgba(14, 159, 145, 0.28), transparent 32%),
+    linear-gradient(135deg, #101828 0%, #263c82 62%, #3659c9 100%);
+  box-shadow: 0 16px 34px rgba(39, 65, 145, 0.2) !important;
 }
 
 .role-badge {
@@ -22,6 +25,7 @@
   border-radius: 1rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: #ffffff;
+  border: 1px solid var(--line) !important;
 }
 
 .module-card:hover {

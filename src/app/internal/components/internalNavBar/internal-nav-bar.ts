@@ -4,8 +4,8 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Router, RouterLink} from '@angular/router';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
 import {CsrfService} from '../../../shared/services/CsrfService/csrf-service';
-import {UserService} from '../../services/UserService/user-service';
 import {environmentDev} from '../../../../environments/environment.dev';
+import {UserService} from '../../services/UserService/user-service';
 
 @Component({
   imports: [

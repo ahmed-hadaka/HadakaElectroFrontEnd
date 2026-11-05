@@ -4,7 +4,7 @@
       <h2>Categories Management</h2>
     </div>
     <div class="col-md-4 text-end">
-      <a href="/categories/new-category" class="btn btn-success">New Category</a>
+      <a [routerLink]= "['/ElectroInternal/categories/new-category']" class="btn btn-success">New Category</a>
       <button type="button" class="btn btn-info ms-2" (click)="exportToCsv()">Export CSV</button>
     </div>
   </div>

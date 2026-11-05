@@ -52,7 +52,7 @@ export class UserService {
     return this.httpClient.post<Record<string, string>>(
       saveUserUrl,
       formData
-      )
+    )
   }
 
   deleteUser(userId:number=0){

@@ -18,6 +18,7 @@ import {ViewOrderDetails} from './components/viewOrderDetails/view-order-details
 import {EditOrderDetails} from './components/edit-order-details/edit-order-details';
 import {internalRoleGuard} from './internal-role-guard';
 import {Welcome} from './components/dashboard/welcome';
+import {SalesReportComponent} from './components/sales-report/sales-report';
 
 export const INTERNAL_ROUTES: Routes = [
   {
@@ -156,6 +157,12 @@ export const INTERNAL_ROUTES: Routes = [
   {
     path:'orders/edit-order-details/:id',
     component:EditOrderDetails,
+    canActivate: [internalRoleGuard],
+    data: { roles: ['Admin','Salesperson'] }
+  },
+  {
+    path:'reports',
+    component:SalesReportComponent,
     canActivate: [internalRoleGuard],
     data: { roles: ['Admin','Salesperson'] }
   }

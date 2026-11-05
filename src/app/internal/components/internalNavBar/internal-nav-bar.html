@@ -1,10 +1,8 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <!-- START UPDATE 1: Moved navbar-brand outside collapse so logo stays visible on mobile and doesn't crowd the flex row -->
     <a class="navbar-brand me-lg-3" routerLink="/ElectroInternal/dashboard">
       <img src="/siteLogo.png" alt="SiteLogo" width="200" height="50" class="img-fluid">
     </a>
-    <!-- END UPDATE 1 -->
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01"
             aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
@@ -12,9 +10,7 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-      <!-- START UPDATE 2: Added 'flex-wrap' and 'w-100' so buttons wrap inside the navbar instead of overflowing outside -->
       <div class="d-flex flex-column flex-lg-row flex-wrap align-items-lg-center gap-2 mt-2 mt-lg-0 w-100">
-        <!-- END UPDATE 2 -->
 
         <div class="dropdown">
           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -81,7 +77,6 @@
           </button>
         </div>
 
-        <!-- START UPDATE 3: Added 'ms-lg-auto', 'text-truncate', and 'dropdown-menu-end' so long emails and the dropdown menu stay inside the screen -->
         <div class="dropdown ms-lg-auto">
           <button class="btn btn-secondary dropdown-toggle text-truncate"
                   style="max-width: 240px;"
@@ -96,7 +91,6 @@
             <li><button class="dropdown-item" type="button" (click)="logout()">Logout</button></li>
           </ul>
         </div>
-        <!-- END UPDATE 3 -->
 
       </div>
     </div>

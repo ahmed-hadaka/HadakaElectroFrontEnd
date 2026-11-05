@@ -1,4 +1,21 @@
 .product-image {
   height: 200px;
-  object-fit: cover;
+  padding: 1rem;
+  object-fit: contain;
+  background: #f8faff;
+  transition: transform 0.25s ease;
+}
+
+.card:has(.product-image) {
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:has(.product-image):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(16, 24, 40, 0.1) !important;
+}
+
+.card:has(.product-image):hover .product-image {
+  transform: scale(1.04);
 }

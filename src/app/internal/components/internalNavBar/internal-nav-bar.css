@@ -1,3 +1,45 @@
-.dropdown{
-  margin-right: 10px;
+.navbar {
+  padding: 0.75rem 1rem;
+  background: var(--ink-950) !important;
+  box-shadow: 0 4px 18px rgba(16, 24, 40, 0.16);
+}
+
+.navbar-brand img {
+  width: 168px !important;
+  height: auto !important;
+}
+
+.dropdown {
+  margin-right: 0.25rem;
+}
+
+.navbar .btn-secondary {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #edf2ff;
+  font-size: 0.82rem;
+}
+
+.navbar .btn-secondary:hover,
+.navbar .btn-secondary:focus {
+  border-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.navbar .dropdown-menu {
+  margin-top: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.14);
+}
+
+.navbar .dropdown-item {
+  padding: 0.55rem 0.85rem;
+  color: var(--ink-800);
+  font-size: 0.86rem;
+}
+
+.navbar .dropdown-item:hover {
+  background: var(--surface-soft);
+  color: var(--primary);
 }

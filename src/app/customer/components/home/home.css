@@ -1,5 +1,22 @@
 .hero {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 90% 15%, rgba(14, 159, 145, 0.14), transparent 34%),
+    linear-gradient(135deg, #ffffff 0%, #eef3ff 100%);
+  border: 0;
+  box-shadow: 0 14px 30px rgba(54, 89, 201, 0.08);
+}
+
+.hero::after {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  right: -70px;
+  bottom: -100px;
+  border-radius: 50%;
+  background: rgba(54, 89, 201, 0.1);
+  content: "";
 }
 
 .category-image {
