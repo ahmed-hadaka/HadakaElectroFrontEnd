@@ -1,59 +1,168 @@
-# HadakaElectroFrontEnd
+<div align="center">
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.6.
+# HadakaElectro Frontend
 
-## Development server
+### A polished Angular storefront and operations workspace for a full-stack electronics platform
 
-To start a local development server, run:
+<p>
+  <a href="https://github.com/ahmed-hadaka/HadakaElectroFrontEnd">
+    <img src="https://img.shields.io/github/stars/ahmed-hadaka/HadakaElectroFrontEnd?style=for-the-badge&logo=github&label=Stars" alt="GitHub stars">
+  </a>
+  <img src="https://img.shields.io/badge/Angular-22-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 22">
+  <img src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap 5.3">
+</p>
 
-```bash
-ng serve
+<p>
+  <a href="https://github.com/ahmed-hadaka/HadakaElectroBackend">Backend services</a>
+  ·
+  <a href="#run-the-application">Run locally</a>
+  ·
+  <a href="#application-structure">Application structure</a>
+</p>
+
+</div>
+
+## Product overview
+
+HadakaElectro Frontend is the Angular client for a complete electronics commerce platform. It brings two experiences into one maintainable application:
+
+- **Customer storefront** for discovery, authentication, cart management, checkout, addresses, and order history
+- **Internal operations portal** for catalog, customer, order, shipping, user, settings, and sales-report management
+
+The application is organized around real business workflows, with route-level role protection, shared HTTP services, typed models, CSRF handling, and reusable layouts.
+
+## Experience map
+
+```text
+                         HadakaElectro Frontend
+                                  │
+                ┌─────────────────┴─────────────────┐
+                │                                   │
+      /ElectroCustomer                       /ElectroInternal
+                │                                   │
+     ┌──────────▼──────────┐           ┌──────────▼──────────┐
+     │     Storefront       │           │   Operations portal   │
+     │ Browse · Cart · Buy  │           │ Manage · Fulfill     │
+     └──────────┬──────────┘           └──────────┬──────────┘
+                │                                   │
+                └───────────────┬───────────────────┘
+                                │
+                 ┌──────────────▼──────────────┐
+                 │ Spring Boot backend services │
+                 │ Customer API :8081           │
+                 │ Internal API :8080           │
+                 └──────────────────────────────┘
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Features
 
-## Code scaffolding
+### Customer storefront
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Category browsing, keyword search, and product detail pages
+- Registration, account verification, login, password reset, and Google sign-in
+- Shopping cart quantity updates, removal, and shipping-availability checks
+- Address book management
+- Checkout and order placement
+- Order history, detail views, and return requests
 
-```bash
-ng generate component component-name
+### Internal portal
+
+- Dashboard with authenticated user context and role-aware navigation
+- Role guards for `Admin`, `Editor`, `Salesperson`, `Shipper`, and `Assistant`
+- Product, category, brand, customer, user, order, and shipping-rate management
+- General settings, country/state configuration, and payment settings
+- Sales reports with date, category, and product visualizations
+- Bootstrap-based data-entry and detail workflows
+
+## Technical highlights
+
+- Angular standalone application with lazy-loaded customer and internal route trees
+- Typed TypeScript models and service-oriented API integration
+- Functional HTTP interceptors for authentication and CSRF headers
+- Session-aware customer and internal layouts
+- Google Charts integration for operational reporting
+- Bootstrap 5 UI foundation with project-specific styling
+- Unit tests colocated with components and services using Angular’s test tooling
+
+## Application structure
+
+```text
+src/app/
+├── core/
+│   └── interceptors/       # Authentication and CSRF request handling
+├── customer/
+│   ├── components/         # Storefront, account, cart, checkout, and orders
+│   ├── services/           # Customer-facing API services
+│   └── customer.routes.ts
+├── internal/
+│   ├── components/         # Admin and operations portal
+│   ├── services/           # Catalog, order, user, settings, and report APIs
+│   ├── internal-role-guard.ts
+│   └── internal.routes.ts
+└── shared/
+    ├── Models/             # Shared request and response types
+    └── services/           # Auth, CSRF, and notification services
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Run the application
+
+### Prerequisites
+
+- Node.js and npm
+- The companion [HadakaElectroBackend](https://github.com/ahmed-hadaka/HadakaElectroBackend) services running locally
+
+The development environment currently expects:
+
+| Service | URL |
+| --- | --- |
+| Customer API | `http://localhost:8081/ElectroCustomer` |
+| Internal API | `http://localhost:8080/ElectroInternal` |
+| Angular app | `http://localhost:4200` |
+
+### Install dependencies
 
 ```bash
-ng generate --help
+npm ci
 ```
 
-## Building
-
-To build the project run:
+### Start the development server
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Open [http://localhost:4200](http://localhost:4200), then choose the customer or internal application path:
 
-## Running unit tests
+```text
+http://localhost:4200/ElectroCustomer
+http://localhost:4200/ElectroInternal
+```
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Build for production
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### Run unit tests
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Configuration
 
-## Additional Resources
+Development API URLs and the Google client ID are defined in `src/environments/environment.dev.ts`. Keep environment-specific values out of source control when adapting the application for another deployment.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Backend companion
+
+This application depends on [HadakaElectroBackend](https://github.com/ahmed-hadaka/HadakaElectroBackend), a Spring Boot multi-module backend with dedicated customer and internal APIs plus shared domain code.
+
+## Why this repository stands out
+
+This is not only a generated Angular shell: it demonstrates a complete client architecture around a real commerce domain, including two user journeys, guarded permissions, stateful workflows, protected API calls, and analytics-ready operations screens.
+
+## License
+
+This project is maintained as a portfolio and learning project by [Ahmed Hadaka](https://github.com/ahmed-hadaka).
