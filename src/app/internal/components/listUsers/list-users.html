@@ -38,8 +38,8 @@
 
     @for (userDto of usersPageContent(); track userDto.id) {
       <tr>
-        <th scope="row">{{ userDto.id }}</th>
-        <td>
+        <th scope="row" data-label="User ID">{{ userDto.id }}</th>
+        <td data-label="Photo">
           @if(userDto.photo != null && userDto.photo.length > 0){
             <img [ngSrc]="userPhotoBasePath +userDto.id+'/'+ userDto.photo" alt="photo"
                  width="40"
@@ -54,21 +54,21 @@
             >
           }
         </td>
-        <td>{{ userDto.firstName }}</td>
-        <td>{{ userDto.lastName }}</td>
-        <td>
+        <td data-label="First Name">{{ userDto.firstName }}</td>
+        <td data-label="Last Name">{{ userDto.lastName }}</td>
+        <td data-label="Enabled">
           <div class="form-check form-switch">
           <input type="checkbox" [checked]="userDto.enabled"
                  class="form-check-input"
                  (change)="updateEnableStatus(userDto.id)">
           </div>
         </td>
-        <td>
+        <td data-label="Roles">
           @for (role of userDto.roles; track role.id; let last = $last) {
             <span>{{ role.name }}{{ last ? '' : ', ' }}</span>
           }
         </td>
-        <td class="action">
+        <td data-label="Actions" class="action">
           <button type="button" class="btn btn-primary" [routerLink]="['/ElectroInternal/users/user-details',userDto.id]">View / Edit</button>&nbsp;&nbsp;&nbsp;
           <button type="button" class="btn btn-danger" (click)="confirmDelete(userDto.id)">Delete</button>
         </td>

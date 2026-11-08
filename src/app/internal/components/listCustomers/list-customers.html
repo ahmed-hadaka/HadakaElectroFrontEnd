@@ -35,15 +35,15 @@
         <tbody>
           @for (customer of customers; track customer.id) {
             <tr>
-              <th scope="row">{{ customer.id }}</th>
-              <td>{{ customer.email }}</td>
-              <td>{{ customer.firstName }}</td>
-              <td>{{ customer.lastName }}</td>
-              <td>{{ customer.phoneNumber }}</td>
-              <td>{{ customer.city }}</td>
-              <td>{{ customer.state }}</td>
-              <td>{{ customer.countryId }}</td>
-              <td>
+              <th scope="row" data-label="ID">{{ customer.id }}</th>
+              <td data-label="Email">{{ customer.email }}</td>
+              <td data-label="First Name">{{ customer.firstName }}</td>
+              <td data-label="Last Name">{{ customer.lastName }}</td>
+              <td data-label="Phone">{{ customer.phoneNumber }}</td>
+              <td data-label="City">{{ customer.city }}</td>
+              <td data-label="State">{{ customer.state }}</td>
+              <td data-label="Country">{{ customer.countryId }}</td>
+              <td data-label="Enabled">
                 <div class="form-check form-switch d-flex justify-content-center">
                   <input type="checkbox"
                          class="form-check-input"
@@ -51,7 +51,7 @@
                          (change)="updateEnableStatus(customer.id)">
                 </div>
               </td>
-              <td class="action">
+              <td data-label="Actions" class="action">
                 <div class="d-flex gap-2 justify-content-center">
                   <a [routerLink]="['/ElectroInternal/customers/customer-details', customer.id]" class="btn btn-primary btn">View / Edit</a>
                   <button type="button" class="btn btn-danger btn" (click)="confirmDelete(customer.id)">Delete</button>
@@ -86,7 +86,7 @@
     }
   }
   @if (customerIdToDelete(); as customerId) {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">-->
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">

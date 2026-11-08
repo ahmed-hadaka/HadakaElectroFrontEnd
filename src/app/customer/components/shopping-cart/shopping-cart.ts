@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { DecimalPipe, NgClass } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/CartService/cart-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
@@ -10,7 +10,7 @@ import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 @Component({
   selector: 'app-shopping-cart',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, NgClass],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './shopping-cart.html',
   styleUrl: './shopping-cart.css'
 })
@@ -37,7 +37,15 @@ export class ShoppingCart implements OnInit {
   }
 
   private handleCurrencyFormating() {
-    const settings = JSON.parse(sessionStorage.getItem('siteSettings')!) as GeneralSettingDTO[];
+    let settings: GeneralSettingDTO[] = [];
+    try {
+      const storedSettings: unknown = JSON.parse(sessionStorage.getItem('siteSettings') || '[]');
+      if (Array.isArray(storedSettings)) {
+        settings = storedSettings as GeneralSettingDTO[];
+      }
+    } catch {
+      settings = [];
+    }
     const curSymbolSetting = settings
       .find(setting => setting.key === 'CURRENCY_SYMBOL');
 

@@ -38,16 +38,16 @@
         <tbody>
           @for (brand of brands; track brand.id) {
             <tr>
-              <th scope="row">{{ brand.id }}</th>
-              <td>
+              <th scope="row" data-label="Brand ID">{{ brand.id }}</th>
+              <td data-label="Logo">
                 <img [src]="getLogoPath(brand.id, brand.logo)"
                      alt="Brand Logo"
                      width="50"
                      height="50"
                      class="rounded object-fit-cover">
               </td>
-              <td>{{ brand.name }}</td>
-              <td>
+              <td data-label="Brand Name">{{ brand.name }}</td>
+              <td data-label="Categories">
                 @if (brand.categories && brand.categories.length > 0) {
                   @for (category of brand.categories; track category.id; let last = $last) {
                     <span>{{ category.name }}{{ last ? '' : ', ' }}</span>
@@ -56,7 +56,7 @@
                   <span class="text-muted">No categories</span>
                 }
               </td>
-              <td class="action">
+              <td data-label="Actions" class="action">
                 <a [routerLink]="['/ElectroInternal/brands/edit', brand.id]" class="btn  btn-primary">View / Edit</a>
                 <button type="button" class="btn btn-danger" (click)="confirmDelete(brand.id)">Delete</button>
               </td>

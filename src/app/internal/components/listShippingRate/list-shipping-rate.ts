@@ -63,6 +63,7 @@ export class ListShippingRates {
           'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
+
     });
   }
 
@@ -138,3 +139,5 @@ export class ListShippingRates {
 
   }
 }
+
+export { ListShippingRates as ShippingRate };

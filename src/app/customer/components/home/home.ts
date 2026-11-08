@@ -4,13 +4,12 @@ import { CustomerService } from '../../services/CustomerService/customer-service
 import { CategoryListDTO } from '../../../shared/Models/CategoryDTO';
 import { GeneralSettingDTO } from '../../../shared/Models/CustomerDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CustomerNavBar],
+  imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

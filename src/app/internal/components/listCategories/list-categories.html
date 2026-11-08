@@ -41,18 +41,18 @@
         <tbody>
           @for (category of categories; track category.id) {
             <tr>
-              <th scope="row">{{ category.id }}</th>
-              <td>
+              <th scope="row" data-label="Category ID">{{ category.id }}</th>
+              <td data-label="Image">
                 <img [src]="getImagePath(category.id, category.image)"
                      alt="Category"
                      width="50"
                      height="50"
                      class="rounded object-fit-cover">
               </td>
-              <td>{{ category.name }}</td>
-              <td>{{ category.alias }}</td>
-              <td>{{ category.parent?.name || 'N/A' }}</td>
-              <td>
+              <td data-label="Category Name">{{ category.name }}</td>
+              <td data-label="Alias">{{ category.alias }}</td>
+              <td data-label="Parent Category">{{ category.parent?.name || 'N/A' }}</td>
+              <td data-label="Enabled">
                 <div class="form-check form-switch">
                   <input type="checkbox"
                          class="form-check-input"
@@ -60,7 +60,7 @@
                          (change)="updateCategoryStatus(category.id)">
                 </div>
               </td>
-              <td class="action">
+              <td data-label="Actions" class="action">
                 <a [routerLink]="['/ElectroInternal/categories/edit', category.id]" class="btn  btn-primary">View / Edit</a>&nbsp; &nbsp;
                 <button type="button" class="btn  btn-danger" (click)="confirmDelete(category.id)">Delete</button>
               </td>

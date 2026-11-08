@@ -4,13 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { CountryDTO, CustomerDTO } from '../../../shared/Models/CustomerDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
-import {form} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CustomerNavBar],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })

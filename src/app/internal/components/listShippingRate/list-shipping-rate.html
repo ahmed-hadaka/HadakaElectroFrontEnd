@@ -38,25 +38,25 @@
       @if (shippingRatesPageContent(); as rates) {
         @for (rate of rates; track rate.id) {
           <tr>
-            <th scope="row">{{ rate.id }}</th>
-            <td>{{ rate.country }}</td>
-            <td>{{ rate.state }}</td>
-            <td>
+            <th scope="row" data-label="ID">{{ rate.id }}</th>
+            <td data-label="Country">{{ rate.country }}</td>
+            <td data-label="State">{{ rate.state }}</td>
+            <td data-label="Rate">
               @if(currencySymbolPosition() === 'BEFORE_PRICE'){
                 {{currencySymbol()}} {{ rate.rate | number:'1.2-2' }}
               }@else{
                 {{ rate.rate | number:'1.2-2' }} {{currencySymbol()}}
               }
             </td>
-            <td>{{ rate.days }}</td>
-            <td>
+            <td data-label="Days">{{ rate.days }}</td>
+            <td data-label="COD Supported">
               <div class="form-check form-switch">
                 <input type="checkbox" [checked]="rate.codSupported"
                        class="form-check-input"
                        (change)="updateCODStatus(rate.id)">
               </div>
             </td>
-            <td class="action">
+            <td data-label="Actions" class="action">
               <button type="button" class="btn btn-primary" [routerLink]="['/ElectroInternal/shipping-rates/rate-details', rate.id]">View / Edit</button>&nbsp;&nbsp;&nbsp;
               <button type="button" class="btn btn-danger" (click)="confirmDelete(rate.id)">Delete</button>
             </td>

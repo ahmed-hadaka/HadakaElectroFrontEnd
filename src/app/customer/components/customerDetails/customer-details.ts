@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import {CountryDTO, CustomerDTO} from '../../../shared/Models/CustomerDTO';
@@ -9,7 +8,7 @@ import {Router, RouterLink} from '@angular/router';
 @Component({
   selector: 'app-customer-details',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CustomerNavBar],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './customer-details.html',
   styleUrl: './customer-details.css'
 })

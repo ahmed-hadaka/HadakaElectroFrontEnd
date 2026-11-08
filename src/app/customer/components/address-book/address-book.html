@@ -16,7 +16,7 @@
                 Your Primary Address [Default]
               } @else {
                 Address #{{ i + 1 }}
-                <a href="javascript:void(0)" class="text-decoration-none ms-1 small text-primary" (click)="setDefault(address.id)">[Set as Default]</a>
+                <button type="button" class="btn btn-link p-0 text-decoration-none ms-1 small text-primary align-baseline" (click)="setDefault(address.id)">[Set as Default]</button>
               }
             </h5>
     </div>
@@ -26,17 +26,17 @@
                   Edit
                 </a>
 
-                <a href="javascript:void(0)"
+                <button type="button"
                    class="btn btn-sm btn-danger me-2"
                    (click)="confirmDelete(address.id)">
                   Delete
-                </a>
+                </button>
             </div>
           </div>
           <div class="card-body pt-1">
             <p class="mb-0 text-dark">
               {{ address.firstName }} {{ address.lastName }},
-              {{ address.addressLine1 }}<ng-container @if(address.addressLine2)>, {{ address.addressLine2 }}</ng-container>,
+              {{ address.addressLine1 }}@if (address.addressLine2) {, {{ address.addressLine2 }}} ,
               {{ address.city }}, {{ address.state }}, {{ address.countryName }}.
               Postal code: {{ address.postalCode }}. Phone number: {{ address.phoneNumber }}
             </p>

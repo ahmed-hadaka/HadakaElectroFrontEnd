@@ -1,7 +1,8 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 :root {
-  --ink-950: #101828;
+  /*--ink-600: #C3D8F0FF;*/
+  --ink-950: #536a84;
   --ink-800: #24324a;
   --ink-600: #667085;
   --canvas: #f7f9fc;
@@ -13,7 +14,6 @@
   --accent: #0e9f91;
   --warning: #f4a340;
   --danger: #d94f5c;
-  --mobile-table-min-width: 620px;
 }
 
 * {
@@ -180,7 +180,7 @@ footer p {
 }
 
 .table-responsive {
-  overflow-x: auto;
+  overflow: visible;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -197,24 +197,78 @@ footer p {
   }
 
   .table-responsive {
-    overflow-x: auto;
+    overflow: visible;
     margin-bottom: 16px;
     border-radius: 0.5rem;
   }
 
   .table {
-    min-width: var(--mobile-table-min-width);
-    width: max-content;
-    font-size: 0.75rem;
+    display: block;
+    width: 100%;
+    font-size: 0.86rem;
     margin: 0;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tbody,
+  .table tr,
+  .table th,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 0.65rem;
+    background: var(--surface);
+    box-shadow: 0 3px 10px rgba(16, 24, 40, 0.04);
   }
 
   .table th,
   .table td {
-    padding: 0.5rem 0.35rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.75rem;
+    text-align: right;
     white-space: normal;
+    overflow-wrap: anywhere;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .table th::before,
+  .table td::before {
+    flex: 0 0 38%;
+    color: var(--ink-600);
+    content: attr(data-label);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .table th:last-child,
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  .table td[colspan],
+  .table th[colspan] {
+    display: block;
     text-align: center;
-    vertical-align: middle;
+  }
+
+  .table td[colspan]::before,
+  .table th[colspan]::before {
+    display: none;
   }
 
   .action,
@@ -235,6 +289,10 @@ footer p {
     display: block;
     margin-right: 0;
     margin-left: 0;
+  }
+
+  .action .d-flex {
+    flex: 1;
   }
 
   .btn {

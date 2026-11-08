@@ -53,10 +53,10 @@
       </thead>
       <tbody>
       <tr *ngFor="let row of summary.chartData">
-        <td>{{ row.identifier }}</td>
-        <td>{{ row.itemCounts }}</td>
-        <td>{{ row.grossSales | currency }}</td>
-        <td>{{ row.netSales | currency }}</td>
+        <td data-label="Product">{{ row.identifier }}</td>
+        <td data-label="Quantity">{{ row.itemCounts }}</td>
+        <td data-label="Gross Sales">{{ row.grossSales | currency }}</td>
+        <td data-label="Net Sales">{{ row.netSales | currency }}</td>
       </tr>
       </tbody>
     </table>
@@ -73,10 +73,10 @@
     </thead>
     <tbody>
     <tr>
-      <td class="fs-5">{{ summary.totalGrossSales | currency }}</td>
-      <td class="fs-5">{{ summary.totalNetSales | currency }}</td>
-      <td class="fs-5">{{ summary.avgGrossSales | currency }}</td>
-      <td class="fs-5">{{ summary.totalItems }}</td>
+      <td data-label="Total Gross Sales" class="fs-5">{{ summary.totalGrossSales | currency }}</td>
+      <td data-label="Total Net Sales" class="fs-5">{{ summary.totalNetSales | currency }}</td>
+      <td data-label="Average Gross Sales" class="fs-5">{{ summary.avgGrossSales | currency }}</td>
+      <td data-label="Total Items" class="fs-5">{{ summary.totalItems }}</td>
     </tr>
     </tbody>
   </table>

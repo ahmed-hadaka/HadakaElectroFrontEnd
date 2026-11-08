@@ -1,6 +1,4 @@
 .table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   margin-bottom: 20px;
 }
 
@@ -13,38 +11,4 @@
 th, td {
   text-align: center;
   vertical-align: middle;
-}
-
-@media (max-width: 575.98px) {
-  .table-responsive {
-    overflow-x: auto;
-    border-radius: 0.5rem;
-  }
-
-  .table {
-    min-width: 620px;
-    width: max-content;
-    font-size: 0.75rem;
-    margin: 0;
-  }
-
-  .table th,
-  .table td {
-    padding: 0.5rem 0.35rem;
-    white-space: normal;
-  }
-
-  .action .d-flex {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .action .btn,
-  .action a,
-  .action button {
-    width: 100%;
-    display: block;
-    margin-right: 0;
-  }
 }

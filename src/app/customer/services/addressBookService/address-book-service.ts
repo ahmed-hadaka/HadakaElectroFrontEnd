@@ -32,3 +32,5 @@ export class AddressService {
     return this.http.delete(`${this.baseUrl}/delete/${id}`, { responseType: 'text' });
   }
 }
+
+export { AddressService as AddressBookService };

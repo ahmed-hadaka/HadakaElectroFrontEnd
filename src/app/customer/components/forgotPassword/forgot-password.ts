@@ -3,12 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CustomerNavBar],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css'
 })

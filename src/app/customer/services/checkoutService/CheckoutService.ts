@@ -17,6 +17,6 @@ export class CheckoutService {
   }
 
   placeOrder() {
-    return this.http.get<any>(`${this.baseUrl}/place-order`);
+    return this.http.post<any>(`${this.baseUrl}/place-order`,{});
   }
 }

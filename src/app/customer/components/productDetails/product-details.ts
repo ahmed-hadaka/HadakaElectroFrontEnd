@@ -4,7 +4,6 @@ import { DecimalPipe, NgClass } from '@angular/common';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import {CustomerProductDetailResponse, GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { ProductDTO } from '../../../shared/Models/ProductDTO';
 import {CartService} from '../../services/CartService/cart-service';
@@ -12,7 +11,7 @@ import {CartService} from '../../services/CartService/cart-service';
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [DecimalPipe, CustomerNavBar, NgClass, RouterLink],
+  imports: [DecimalPipe, NgClass, RouterLink],
   templateUrl: './product-details.html',
   styleUrl: './product-details.css'
 })
@@ -106,4 +105,3 @@ export class ProductDetails {
     return `${this.productImageBasePath}/${productId}/${imageName}`;
   }
 }
-

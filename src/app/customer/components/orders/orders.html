@@ -65,24 +65,24 @@
         } @else {
           @for (order of ordersPageContent(); track order.id) {
             <tr>
-              <td>{{ order.id }}</td>
-              <td>{{ order.orderTime | date:'yyyy-MM-dd HH:mm:ss' }}</td>
-              <td class="text-start">
+              <td data-label="ID">{{ order.id }}</td>
+              <td data-label="Order Time">{{ order.orderTime | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+              <td data-label="Products" class="text-start">
                 <ul class="mb-0 ps-3 product-names-list">
                   @for (prodName of order.productsNames; track prodName) {
                     <li>{{ prodName }}</li>
                   }
                 </ul>
               </td>
-              <td>
+              <td data-label="Total">
                 @if (currencySymbolPosition() === 'BEFORE_PRICE') {
                   {{ currencySymbol() }}{{ order.total | number:'1.2-2' }}
                 } @else {
                   {{ order.total | number:'1.2-2' }} {{ currencySymbol() }}
                 }
               </td>
-              <td>{{ order.status }}</td>
-              <td class="action">
+              <td data-label="Status">{{ order.status }}</td>
+              <td data-label="Actions" class="action">
                 <!-- View Order Details Button (Green File Icon) -->
                 <button
                   type="button"

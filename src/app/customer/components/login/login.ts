@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { LoginRequestDTO } from '../../../shared/Models/LoginRequestDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 import {AuthService} from '../../../shared/services/AuthService/auth-service';
 import {environmentDev} from '../../../../environments/environment.dev';
 
@@ -12,7 +11,7 @@ import {environmentDev} from '../../../../environments/environment.dev';
 declare var google: any;
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, CustomerNavBar],
+  imports: [ReactiveFormsModule, RouterLink],
   selector: 'app-login',
   standalone: true,
   styleUrl: './login.css',

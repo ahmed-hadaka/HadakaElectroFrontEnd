@@ -54,30 +54,30 @@
         <tbody>
           @for (product of products; track product.id) {
             <tr>
-              <th scope="row">{{ product.id }}</th>
-              <td>
+              <th scope="row" data-label="Product ID">{{ product.id }}</th>
+              <td data-label="Image">
                 <img [src]="getImagePath(product.id, product.mainImage)"
                      alt="Product"
                      width="50"
                      height="50"
                      class="rounded object-fit-cover">
               </td>
-              <td>
+              <td data-label="Product Name">
                 @if (isIframePicker()) {
-                  <a href="javascript:void(0)"
+                  <button type="button"
                      class="fw-semibold text-primary text-decoration-none"
                      (click)="selectProductForOrder(product.id)">
                     {{ product.name }}
-                  </a>
+                  </button>
                 } @else {
                   {{ product.name }}
                 }
               </td>
-              <td>{{ product.categoryName }}</td>
-              <td>{{ product.brandName }}</td>
+              <td data-label="Category Name">{{ product.categoryName }}</td>
+              <td data-label="Brand Name">{{ product.brandName }}</td>
 
               @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
-                <td>
+                <td data-label="Status">
                   <div class="form-check form-switch">
                     <input type="checkbox"
                            class="form-check-input"
@@ -87,7 +87,7 @@
                 </td>
               }
 
-              <td class="action">
+              <td data-label="Actions" class="action">
                 @if (isIframePicker()) {
                   <button
                     type="button"

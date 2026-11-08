@@ -6,8 +6,19 @@ export const internalRoleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const notification = inject(NotificationService);
 
-  const rawRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
-  const userRoles: string[] = rawRoles.map((r: any) => (r.authority ? r.authority : r));
+  let rawRoles: unknown = [];
+  try {
+    rawRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
+  } catch {
+    rawRoles = [];
+  }
+  const userRoles: string[] = Array.isArray(rawRoles)
+    ? rawRoles
+      .map((role: unknown) => typeof role === 'object' && role !== null && 'authority' in role
+        ? role.authority
+        : role)
+      .filter((role): role is string => typeof role === 'string')
+    : [];
 
   if (userRoles.length === 0) {
     notification.notify('Please log in to access this page.', 'warning');

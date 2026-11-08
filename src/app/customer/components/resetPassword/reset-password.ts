@@ -3,12 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
-import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CustomerNavBar],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css'
 })

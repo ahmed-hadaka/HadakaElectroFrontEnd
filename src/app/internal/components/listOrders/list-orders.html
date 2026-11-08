@@ -37,20 +37,20 @@
         <tbody>
           @for (order of orders; track order.id) {
             <tr>
-              <th scope="row">{{ order.id }}</th>
-              <td>{{ order.customerName }}</td>
-              <td>
+              <th scope="row" data-label="Order ID">{{ order.id }}</th>
+              <td data-label="Customer Name">{{ order.customerName }}</td>
+              <td data-label="Total">
                 @if(currencySymbolPosition() === 'BEFORE_PRICE'){
                   {{currencySymbol()}} {{ order.total | number:'1.2-2' }}
                 }@else{
                   {{ order.total | number:'1.2-2' }} {{currencySymbol()}}
                 }
               </td>
-              <td>{{ order.orderTime | date:'medium' }}</td>
-              <td>{{ order.destination }}</td>
-              <td>{{ order.paymentMethod }}</td>
-              <td>{{ order.status }}</td>
-              <td class="action">
+              <td data-label="Order Time">{{ order.orderTime | date:'medium' }}</td>
+              <td data-label="Destination">{{ order.destination }}</td>
+              <td data-label="Payment Method">{{ order.paymentMethod }}</td>
+              <td data-label="Status">{{ order.status }}</td>
+              <td data-label="Actions" class="action">
                 <a [routerLink]="['/ElectroInternal/orders/view-order-details', order.id]" class="btn btn-primary">View</a>
                 <a [routerLink]="['/ElectroInternal/orders/edit-order-details', order.id]" class="btn btn-primary">Edit</a>
                 <button type="button" class="btn btn-danger" (click)="confirmDelete(order.id)">Delete</button>
