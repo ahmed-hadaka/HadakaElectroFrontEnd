@@ -238,5 +238,5 @@ HadakaElectroFrontEnd/
    ```
 
 5. **Access the Portals:**
-   * **Customer Storefront:** `http://localhost:4200/`
+   * **Customer Storefront:** `http://localhost:4200/ElectroCustomer`
    * **Internal Admin Portal:** `http://localhost:4200/ElectroInternal`
