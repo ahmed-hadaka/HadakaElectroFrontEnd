@@ -2,7 +2,9 @@
 
 **Author:** [Ahmed Hadaka](https://www.linkedin.com/in/ahmed-hadaka-8a2124205/)  
 **Backend Repository:** [HadakaElectroBackEnd](https://github.com/ahmed-hadaka/HadakaElectroBackEnd)  
-**Demo Video:** [Watch the Local Demo Video Here](#) *(Link coming soon)*
+**Live:** [Customer Storefront Portal](https://hadaka-electro-front-end-blond.vercel.app/ElectroCustomer)  
+**Live:** [Internal Admin Portal](https://hadaka-electro-front-end-blond.vercel.app/ElectroInternal)  
+**Demo Video:** [Watch the Demo Video Here](#) *(Recording in progress)*
 
 ---
 
@@ -238,5 +240,5 @@ HadakaElectroFrontEnd/
    ```
 
 5. **Access the Portals:**
-   * **Customer Storefront:** `http://localhost:4200/ElectroCustomer`
-   * **Internal Admin Portal:** `http://localhost:4200/ElectroInternal`
+   * **Customer Storefront:** `https://hadaka-electro-front-end-blond.vercel.app/ElectroCustomer`
+   * **Internal Admin Portal:** `https://hadaka-electro-front-end-blond.vercel.app/ElectroInternal`
