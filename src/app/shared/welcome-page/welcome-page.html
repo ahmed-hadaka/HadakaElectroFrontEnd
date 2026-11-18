@@ -1,0 +1,96 @@
+<div class="portal-page">
+  <header class="top-navbar">
+    <div class="nav-container">
+      <a routerLink="/" class="brand-logo">
+        <span class="brand-dark">Hadaka</span><span class="brand-blue">Electro</span>
+      </a>
+      <div class="nav-pills">
+        <span class="nav-pill">Multi-Module E-Commerce Platform</span>
+      </div>
+    </div>
+  </header>
+
+  <!--  [src]="env.backendInternalBaseUrl+'/default_images/siteLogo.png'" -->
+  <main class="main-container">
+    <section class="hero-banner">
+      <div class="hero-content">
+        <div class="date-badge">
+          <span>📅 {{ today | date:'EEEE, MMMM d, y' }}</span>
+        </div>
+        <h1 class="hero-title">
+          Welcome to Hadaka <span class="bolt">⚡</span> Electro
+        </h1>
+        <p class="hero-subtitle">
+          Select an application portal below to browse the customer storefront or manage internal operations.
+        </p>
+        <div class="status-row">
+          <span class="status-label">Active Services:</span>
+          <span class="role-pill">🛍️ Customer Storefront</span>
+          <span class="role-pill">🛡️ Internal Control Panel</span>
+        </div>
+      </div>
+
+      <div class="hero-badge" aria-hidden="true">
+        <span class="hero-bolt">⚡</span>
+      </div>
+    </section>
+
+    <div class="section-header">
+      <h2 class="section-title">Select Your Portal Mode</h2>
+      <span class="section-count">2 workspaces available</span>
+    </div>
+
+    <div class="portal-grid">
+
+      <a routerLink="/ElectroCustomer" class="portal-card customer-card">
+        <div class="card-top">
+          <div class="icon-box icon-customer">
+            🛍️
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+
+        <div class="card-badge">Public Storefront</div>
+        <h3 class="card-title">Customer Shop Portal</h3>
+        <p class="card-desc">
+          Browse 30+ electronics categories, compare 100+ products, manage your shopping cart, and checkout via PayPal or Google OAuth2.
+        </p>
+
+        <div class="card-features">
+          <span class="feature-tag">📦 Product Catalog</span>
+          <span class="feature-tag">🛒 Cart &amp; Checkout</span>
+          <span class="feature-tag">🔐 Customer Auth</span>
+        </div>
+
+        <div class="card-cta customer-cta">
+          Enter Customer Storefront <span>→</span>
+        </div>
+      </a>
+
+      <a routerLink="/ElectroInternal" class="portal-card internal-card">
+        <div class="card-top">
+          <div class="icon-box icon-internal">
+            ⚡
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+
+        <div class="card-badge badge-internal">Staff &amp; Admin RBAC</div>
+        <h3 class="card-title">Internal Control Panel</h3>
+        <p class="card-desc">
+          Access workspace modules for users, categories, brands, products, orders, shipping rates, and system settings across 5 staff roles.
+        </p>
+
+        <div class="card-features">
+          <span class="feature-tag">👥 Users &amp; Roles</span>
+          <span class="feature-tag">📊 Inventory &amp; Orders</span>
+          <span class="feature-tag">⚙️ System Settings</span>
+        </div>
+
+        <div class="card-cta internal-cta">
+          Enter Internal Dashboard <span>→</span>
+        </div>
+      </a>
+    </div>
+  </main>
+</div>

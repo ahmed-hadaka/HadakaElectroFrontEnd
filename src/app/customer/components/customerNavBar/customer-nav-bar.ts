@@ -28,6 +28,8 @@ export class CustomerNavBar {
 
   //if session returns string so,first ! => !(string) = !(true) => false
   // second ! => !(false) => true;
+  protected env = environmentDev;
+
   isLoggedIn(): boolean {
     return !!sessionStorage.getItem('customerEmail');
   }

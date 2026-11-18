@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  backendInternalBaseUrl: 'https://internal-api-production-67dbfd1e.up.railway.app/ElectroInternal',
-  backendCustomerBaseUrl: 'https://customer-api-production-cc09f4b2.up.railway.app/ElectroCustomer',
+  backendInternalBaseUrl: 'https://hadaka-electro-admin-3f6edf098d93.herokuapp.com/ElectroInternal',
+  backendCustomerBaseUrl: 'https://hadaka-electro-customer-934dbe21211d.herokuapp.com/ElectroCustomer',
   googleClientId: '768333056109-uug9hjo77mhp1e9b4kusbd7esbpbd1j9.apps.googleusercontent.com'
 };

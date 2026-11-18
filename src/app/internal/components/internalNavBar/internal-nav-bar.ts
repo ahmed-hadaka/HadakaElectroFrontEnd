@@ -21,7 +21,7 @@ export class InternalNavBar {
   userEmailSignal = signal(sessionStorage.getItem('userEmail') || 'No Users');
   private notification = inject(NotificationService);
   private userService = inject(UserService);
-
+  public env = environmentDev;
   private navigate(data:Record<string, string>){
     sessionStorage.clear();
 
