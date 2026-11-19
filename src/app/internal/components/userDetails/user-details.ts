@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectorRef } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -42,6 +42,7 @@ export const atLeastOneRoleValidator: ValidatorFn = (control: AbstractControl): 
 
 
 export class UserDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private userService = inject(UserService);
@@ -94,7 +95,11 @@ export class UserDetails {
 
   private getCurUser(){
     this.isLoading = true;
-    this.userService.getCurUser().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.userService.getCurUser().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.userDtoSignal.set(data)
         // Patch values into the reactive form once data arrives
@@ -116,6 +121,7 @@ export class UserDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -129,7 +135,11 @@ export class UserDetails {
 
   private loadUser(id:number=0){
     this.isLoading = true;
-    this.userService.getUserById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.userService.getUserById(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.userDtoSignal.set(data)
         // Patch values into the reactive form once data arrives
@@ -151,6 +161,7 @@ export class UserDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -217,13 +228,18 @@ export class UserDetails {
     const userDto = this.fillPayload()
 
     this.isLoading = true;
-    this.userService.saveUser(userDto, this.photoMultipart).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.userService.saveUser(userDto, this.photoMultipart).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data['message'],'success')
         this.router.navigate(['ElectroInternal/users'])
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

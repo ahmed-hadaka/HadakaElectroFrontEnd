@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
@@ -19,6 +19,7 @@ declare var google: any;
   templateUrl: './login.html',
 })
 export class Login {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -48,7 +49,11 @@ export class Login {
     const idToken = response.credential;
 
     this.isLoading = true;
-    this.authService.googleLogin(idToken).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.authService.googleLogin(idToken).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
 
         sessionStorage.setItem('customerEmail', data['Email']);
@@ -63,6 +68,7 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -90,7 +96,11 @@ export class Login {
 
 
     this.isLoading = true;
-    this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: Record<string, string>) => {
 
         sessionStorage.setItem('customerEmail', data['Email']);
@@ -104,6 +114,7 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while login';

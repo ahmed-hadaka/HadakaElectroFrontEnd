@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
@@ -21,6 +21,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class ViewOrderDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -54,7 +55,11 @@ export class ViewOrderDetails {
 
   private loadOrder(id: number) {
     this.isLoading = true;
-    this.orderService.getOrderById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.getOrderById(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (order) => {
         // sorted from Oldest to Newest
         const sortedTracks = [...order.orderTracks].sort((a, b) => {
@@ -74,6 +79,7 @@ export class ViewOrderDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -107,7 +113,11 @@ export class ViewOrderDetails {
 
   private deleteOrder(id: number) {
     this.isLoading = true;
-    this.orderService.deleteOrder(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.deleteOrder(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.orderIdToDelete.set(null);
@@ -115,6 +125,7 @@ export class ViewOrderDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

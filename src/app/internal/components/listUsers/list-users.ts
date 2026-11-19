@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import {UserService} from '../../services/UserService/user-service';
 import {UserDTO, Page} from '../../../shared/Models/PageModel';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
@@ -19,6 +19,7 @@ import {finalize} from 'rxjs';
   templateUrl: './list-users.html',
 })
 export class ListUsers {
+  private cdr = inject(ChangeDetectorRef);
   private userService = inject(UserService);
   usersPageContent = signal<UserDTO[]|null>(null);
   userPhotoBasePath =environmentDev.backendInternalBaseUrl+ '/user_photos/';
@@ -51,8 +52,12 @@ export class ListUsers {
     const keyword:string = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
+    this.cdr.detectChanges();
     this.userService.listAllUsers(keyword,page,this.pageSize())
-      .pipe(finalize(() => this.isLoading = false)) // Unfreeze UI
+      .pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })) // Unfreeze UI
       .subscribe({
       next:(data)=>{
         this.usersPageContent.set(data.content);
@@ -61,6 +66,7 @@ export class ListUsers {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -110,7 +116,11 @@ export class ListUsers {
 
   private deleteUser(id: number=0) {
     this.isLoading = true;
-    this.userService.deleteUser(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.userService.deleteUser(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next:(data)=>{
         this.notification.notify(data.message,'success')
         this.userIdToDelete.set(null);
@@ -118,6 +128,7 @@ export class ListUsers {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -131,13 +142,18 @@ export class ListUsers {
 
   protected updateEnableStatus(id: number) {
     this.isLoading = true;
-    this.userService.updateEnableStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.userService.updateEnableStatus(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next:(data:string)=>{
         this.notification.notify(data,'success');
         this.loadUsers();
       },
       error:(err)=>{
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

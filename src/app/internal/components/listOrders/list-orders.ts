@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -21,6 +21,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class ListOrders {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private orderService = inject(OrderService);
   private fb = inject(FormBuilder);
@@ -55,7 +56,11 @@ export class ListOrders {
     const keyword: string = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
-    this.orderService.listOrders(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.listOrders(keyword, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.ordersPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
@@ -63,6 +68,7 @@ export class ListOrders {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -105,7 +111,11 @@ export class ListOrders {
 
   private deleteOrder(id: number) {
     this.isLoading = true;
-    this.orderService.deleteOrder(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.deleteOrder(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.orderIdToDelete.set(null);
@@ -113,6 +123,7 @@ export class ListOrders {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -162,7 +173,11 @@ export class ListOrders {
     if (!update) return;
 
     this.isLoading = true;
-    this.orderService.updateOrderStatus(update.orderId, update.status,update.note).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.updateOrderStatus(update.orderId, update.status,update.note).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: () => {
         this.notification.notify(
           `Order #${update.orderId} status updated to ${update.status.toString()}.`,
@@ -173,6 +188,7 @@ export class ListOrders {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

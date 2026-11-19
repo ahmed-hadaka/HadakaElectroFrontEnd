@@ -66,37 +66,52 @@ export class SalesReportComponent implements OnInit {
   loadReport() {
     if (this.activeTab === 'DATE') {
       this.isLoading = true;
-      this.reportService.getSalesByDate(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.reportService.getSalesByDate(this.startDate, this.endDate).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (data) => {
           this.setupBarChart(data);
           this.cdr.detectChanges();
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
         }
       });
     } else if (this.activeTab === 'CATEGORY') {
       this.isLoading = true;
-      this.reportService.getSalesByCategory(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.reportService.getSalesByCategory(this.startDate, this.endDate).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (data) => {
           this.setupPieChart(data);
           this.cdr.detectChanges();
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
         }
       });
     } else if (this.activeTab === 'PRODUCT') {
       this.isLoading = true;
-      this.reportService.getSalesByProduct(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.reportService.getSalesByProduct(this.startDate, this.endDate).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (data) => {
           this.setupTable(data);
           this.cdr.detectChanges();
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
         }
       });

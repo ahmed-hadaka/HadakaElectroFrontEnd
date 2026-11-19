@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/CartService/cart-service';
@@ -16,6 +16,7 @@ import { finalize } from 'rxjs';
   styleUrl: './shopping-cart.css'
 })
 export class ShoppingCart implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private cartService = inject(CartService);
   private notification = inject(NotificationService);
@@ -62,10 +63,15 @@ export class ShoppingCart implements OnInit {
 
   private checkShippingAvailability(){
     this.isLoading = true;
-    this.cartService.checkShippingAvailability().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.cartService.checkShippingAvailability().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (isShippingAvailable) => this.availableShipping.set(isShippingAvailable.message),
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to check shipping availability.')
       }
     });
@@ -73,10 +79,15 @@ export class ShoppingCart implements OnInit {
 
   private loadCart() {
     this.isLoading = true;
-    this.cartService.getCartItems().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.cartService.getCartItems().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (items) => this.cartItems.set(items),
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to load shopping cart.')
       }
     });
@@ -89,13 +100,18 @@ export class ShoppingCart implements OnInit {
     }
 
     this.isLoading = true;
-    this.cartService.updateQuantity(item.productId, newQuantity).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.cartService.updateQuantity(item.productId, newQuantity).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (res) => {
         this.notification.notify(res['message'], 'success');
         this.loadCart(); // Reload to ensure sync with backend
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to update quantity.')
       }
     });
@@ -103,13 +119,18 @@ export class ShoppingCart implements OnInit {
 
   removeProduct(productId: number) {
     this.isLoading = true;
-    this.cartService.removeProduct(productId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.cartService.removeProduct(productId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (res) => {
         this.notification.notify(res.message, 'success');
         this.loadCart();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to remove product.')
       }
     });

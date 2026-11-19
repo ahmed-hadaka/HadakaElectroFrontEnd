@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
@@ -15,6 +15,7 @@ import { finalize } from 'rxjs';
   imports: [ReactiveFormsModule, RouterLink]
 })
 export class CustomerDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -60,12 +61,17 @@ export class CustomerDetails {
 
   private loadCountries() {
     this.isLoading = true;
-    this.settingService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -78,7 +84,11 @@ export class CustomerDetails {
 
   private loadCustomer(customerId: number) {
     this.isLoading = true;
-    this.customerService.getCustomerById(customerId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCustomerById(customerId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (customer) => {
         this.customerSignal.set(customer);
         this.customerForm.patchValue({
@@ -99,6 +109,7 @@ export class CustomerDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -117,7 +128,11 @@ export class CustomerDetails {
     }
 
     this.isLoading = true;
-    this.settingService.getStates(parsedId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getStates(parsedId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (states) => {
         this.statesSignal.set(states);
         if (resetSelectedState) {
@@ -128,6 +143,7 @@ export class CustomerDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -167,13 +183,18 @@ export class CustomerDetails {
     }
 
     this.isLoading = true;
-    this.customerService.updateCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.updateCustomer(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (message) => {
         this.notification.notify(message, 'success');
         this.router.navigate(['ElectroInternal/customers']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

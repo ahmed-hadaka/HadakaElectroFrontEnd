@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
   styleUrl: './customer-details.css'
 })
 export class CustomerDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private customerService = inject(CustomerService);
@@ -59,7 +60,11 @@ export class CustomerDetails {
 
   loadCountries(){
     this.isLoading = true;
-    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countries.set(countries);
         if (countries.length > 0) {
@@ -71,6 +76,7 @@ export class CustomerDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading countries';
@@ -81,7 +87,11 @@ export class CustomerDetails {
 
   private loadCustomer(customerEmail: string) {
     this.isLoading = true;
-    this.customerService.getCustomerDetails(customerEmail).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCustomerDetails(customerEmail).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (customer) => {
         this.customer.set(customer);
         this.customerDetailsForm.patchValue({
@@ -101,6 +111,7 @@ export class CustomerDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while fetching customer';
@@ -139,13 +150,18 @@ export class CustomerDetails {
     };
 
     this.isLoading = true;
-    this.customerService.updateCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.updateCustomer(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.router.navigate(['/ElectroCustomer/']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while saving customer';

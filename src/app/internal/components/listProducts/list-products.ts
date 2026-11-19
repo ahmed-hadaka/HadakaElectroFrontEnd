@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from '../../services/ProductService/product-service';
 import { ProductListDTO } from '../../../shared/Models/ProductDTO';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -20,6 +20,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class ListProducts implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private productService = inject(ProductService);
   protected notification = inject(NotificationService);
@@ -55,7 +56,11 @@ export class ListProducts implements OnInit {
     const categoryId: number = this.searchForm.get('categoryId')?.value;
 
     this.isLoading = true;
-    this.productService.listProducts(keyword, categoryId, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.listProducts(keyword, categoryId, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.productsPageContent.set(data.products.content);
         this.categories.set(data.categories);
@@ -64,6 +69,7 @@ export class ListProducts implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -120,7 +126,11 @@ export class ListProducts implements OnInit {
 
   private deleteProduct(id: number) {
     this.isLoading = true;
-    this.productService.deleteProduct(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.deleteProduct(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.productIdToDelete.set(null);
@@ -128,6 +138,7 @@ export class ListProducts implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -140,13 +151,18 @@ export class ListProducts implements OnInit {
 
   protected updateProductStatus(id: number) {
     this.isLoading = true;
-    this.productService.updateProductStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.updateProductStatus(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadProducts(this.currentPage());
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||

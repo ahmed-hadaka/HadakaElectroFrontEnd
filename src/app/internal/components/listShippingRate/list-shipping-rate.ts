@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ShippingRateDTO } from '../../../shared/Models/ShippingRateDTO';
@@ -19,6 +19,7 @@ import { finalize } from 'rxjs';
   templateUrl: './list_shipping_rate.html',
 })
 export class ListShippingRates {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private shippingRateService = inject(ShippingRateService);
   private fb = inject(FormBuilder);
@@ -52,7 +53,11 @@ export class ListShippingRates {
     const keyword: string = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
-    this.shippingRateService.listAllShippingRates(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.shippingRateService.listAllShippingRates(keyword, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.shippingRatesPageContent.set(data.shippingRates.content || data.shippingRates);
         this.totalPages.set(data.shippingRates.totalPages || 1);
@@ -60,6 +65,7 @@ export class ListShippingRates {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -103,7 +109,11 @@ export class ListShippingRates {
 
   private deleteRate(id: number = 0) {
     this.isLoading = true;
-    this.shippingRateService.deleteShippingRate(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.shippingRateService.deleteShippingRate(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string | any) => {
         const msg = typeof data === 'string' ? data : data.message;
         this.notification.notify(msg, 'success');
@@ -112,6 +122,7 @@ export class ListShippingRates {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
@@ -120,13 +131,18 @@ export class ListShippingRates {
 
   protected updateCODStatus(id: number) {
     this.isLoading = true;
-    this.shippingRateService.updateCODStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.shippingRateService.updateCODStatus(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadRates();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }

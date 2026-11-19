@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { BrandService } from '../../services/BrandService/brand-service';
 import { BrandDTO } from '../../../shared/Models/BrandDTO';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class ListBrands {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private brandService = inject(BrandService);
   protected notification = inject(NotificationService);
@@ -47,7 +48,11 @@ export class ListBrands {
     const keyword = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
-    this.brandService.listBrands(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.brandService.listBrands(keyword, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.brandsPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
@@ -55,6 +60,7 @@ export class ListBrands {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -95,7 +101,11 @@ export class ListBrands {
 
   private deleteBrand(id: number) {
     this.isLoading = true;
-    this.brandService.deleteBrand(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.brandService.deleteBrand(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.brandIdToDelete.set(null);
@@ -103,6 +113,7 @@ export class ListBrands {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

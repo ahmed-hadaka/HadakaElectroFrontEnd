@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
@@ -13,6 +13,7 @@ import { finalize } from 'rxjs';
   styleUrl: './reset-password.css'
 })
 export class ResetPassword {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -53,10 +54,14 @@ export class ResetPassword {
     }
 
     this.isLoading = true;
+    this.cdr.detectChanges();
     this.customerService.resetPassword({
       resetPasswordToken: this.resetToken,
       password
-    }).pipe(finalize(() => this.isLoading = false)).subscribe({
+    }).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.resetPasswordForm.reset();
@@ -64,6 +69,7 @@ export class ResetPassword {
         },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while reset password';

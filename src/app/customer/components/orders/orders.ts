@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -20,6 +20,7 @@ export type OrderDetailTab = 'overview' | 'products' | 'shipping' | 'track';
   styleUrl: './orders.css',
 })
 export class Orders implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private readonly fb = inject(FormBuilder);
   private readonly orderService = inject(OrderService);
@@ -108,6 +109,7 @@ export class Orders implements OnInit {
     const keyword = this.searchForm.get('keyword')?.value ?? '';
 
     this.isLoading = true;
+    this.cdr.detectChanges();
     this.orderService
       .getCustomerOrders(
         this.currentPage(),
@@ -116,7 +118,10 @@ export class Orders implements OnInit {
         this.sortField(),
         this.sortDir()
       )
-      .pipe(finalize(() => this.isLoading = false)).subscribe({
+      .pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (pageData) => {
           this.ordersPageContent.set(pageData.content ?? []);
           this.totalPages.set(pageData.totalPages ?? 0);
@@ -126,6 +131,7 @@ export class Orders implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           this.ordersPageContent.set([]);
           this.isLoadingList.set(false);
             const message = err.error?.message || err.error?.msg ||
@@ -197,13 +203,18 @@ export class Orders implements OnInit {
     this.isLoadingDetails.set(true);
 
     this.isLoading = true;
-    this.orderService.getOrderById(orderId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.getOrderById(orderId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (CustomerOrderDTO) => {
         this.selectedOrder.set(CustomerOrderDTO);
         this.isLoadingDetails.set(false);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
           const message = err.error?.message || err.error?.msg ||
             (typeof err.error === 'string' ? err.error : null) ||
             `An unexpected error occurred while fetching order id ${orderId}`;
@@ -281,7 +292,11 @@ export class Orders implements OnInit {
     this.returnErrorMessage.set(null);
 
     this.isLoading = true;
-    this.orderService.requestOrderReturn(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.requestOrderReturn(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: () => {
         this.isSubmittingReturn.set(false);
         this.returnRequestSent.set(true);
@@ -294,6 +309,7 @@ export class Orders implements OnInit {
       },
       error: () => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.isSubmittingReturn.set(false);
         this.returnErrorMessage.set('Failed to send return request. Please try again.');
       },

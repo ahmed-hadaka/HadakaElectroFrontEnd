@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {AddressService} from '../../services/addressBookService/address-book-service';
@@ -18,6 +18,7 @@ import { finalize } from 'rxjs';
   styleUrl: './address-form.css'
 })
 export class AddressForm implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -46,13 +47,18 @@ export class AddressForm implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
-    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
         this.checkRoute();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || 'Failed to load countries.';
         this.notification.notify(message, 'danger');
         this.checkRoute();
@@ -75,7 +81,11 @@ export class AddressForm implements OnInit {
 
   private loadAddress(id: number) {
     this.isLoading = true;
-    this.addressService.getAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.addressService.getAddress(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (addr) => {
         this.form.patchValue({
           id: addr.id,
@@ -94,6 +104,7 @@ export class AddressForm implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.notification.notify('Failed to load address', 'danger')
       }
     });
@@ -145,13 +156,18 @@ export class AddressForm implements OnInit {
     };
 
     this.isLoading = true;
-    this.addressService.saveAddress(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.addressService.saveAddress(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.router.navigate(['/ElectroCustomer/address-book']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || 'An error occurred';
         this.notification.notify(message, 'danger');
       }

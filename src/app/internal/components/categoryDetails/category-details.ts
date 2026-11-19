@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder, FormControl,
   ReactiveFormsModule,
@@ -22,6 +22,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class CategoryDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private categoryService = inject(CategoryService);
@@ -68,7 +69,11 @@ export class CategoryDetails {
 
   private loadCategory(id: number) {
     this.isLoading = true;
-    this.categoryService.getEditCategoryData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.getEditCategoryData(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.categoryDtoSignal.set(data.category);
         this.parentCategoriesSignal.set(data.categories);
@@ -89,6 +94,7 @@ export class CategoryDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -99,12 +105,17 @@ export class CategoryDetails {
 
   private loadFormData() {
     this.isLoading = true;
-    this.categoryService.getNewCategoryFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.getNewCategoryFormData().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.parentCategoriesSignal.set(data);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -139,13 +150,18 @@ export class CategoryDetails {
     }
 
     this.isLoading = true;
-    this.categoryService.saveCategory(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.saveCategory(formData).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.router.navigate(['ElectroInternal/categories']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

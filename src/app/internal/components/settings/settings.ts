@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import {
@@ -22,6 +22,7 @@ type MailTemplateTabType = 'customer-verification' | 'order-confirmation' | 'cus
   imports: [ReactiveFormsModule]
 })
 export class Settings {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
@@ -113,7 +114,11 @@ export class Settings {
   // --- GENERAL SETTINGS ---
   private loadGeneralAndCurrencies() {
     this.isLoading = true;
-    this.settingService.getGeneralAndCurrencySettings().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getGeneralAndCurrencySettings().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: GeneralAndCurrencySettingsResponse) => {
         this.generalSettingsSignal.set(data.generalSettings || []);
         this.currenciesSignal.set(data.currencyList || []);
@@ -121,6 +126,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load general settings.';
         this.notification.notify(message, 'danger');
       }
@@ -179,13 +185,18 @@ export class Settings {
     const payload = this.buildSettingsPayload(this.generalSettingsSignal(), updated, 'GENERAL');
 
     this.isLoading = true;
-    this.settingService.updateGeneralSettings(payload, this.siteLogoFile).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.updateGeneralSettings(payload, this.siteLogoFile).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.loadGeneralAndCurrencies();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update general settings.';
         this.notification.notify(message, 'danger');
       }
@@ -195,7 +206,11 @@ export class Settings {
   // --- COUNTRIES ---
   private loadCountries() {
     this.isLoading = true;
-    this.settingService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries || []);
         if (this.selectedCountryForStatesSignal()) {
@@ -204,6 +219,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load countries.';
         this.notification.notify(message, 'danger');
       }
@@ -238,7 +254,11 @@ export class Settings {
     };
 
     this.isLoading = true;
-    this.settingService.saveCountry(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.saveCountry(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.countryForm.reset({ id: null, name: '', code: '' });
@@ -247,6 +267,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to save country.';
         this.notification.notify(message, 'danger');
       }
@@ -267,13 +288,18 @@ export class Settings {
     };
 
     this.isLoading = true;
-    this.settingService.saveCountry(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.saveCountry(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.loadCountries();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update country.';
         this.notification.notify(message, 'danger');
       }
@@ -288,7 +314,11 @@ export class Settings {
     }
 
     this.isLoading = true;
-    this.settingService.deleteCountry(countryId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.deleteCountry(countryId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.countryForm.reset({ id: null, name: '', code: '' });
@@ -297,6 +327,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to delete country.';
         this.notification.notify(message, 'danger');
       }
@@ -320,12 +351,17 @@ export class Settings {
     }
 
     this.isLoading = true;
-    this.settingService.getStates(countryId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getStates(countryId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (states) => {
         this.statesSignal.set(states || []);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load states.';
         this.notification.notify(message, 'danger');
       }
@@ -366,7 +402,11 @@ export class Settings {
     };
 
     this.isLoading = true;
-    this.settingService.saveState(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.saveState(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.newState();
@@ -374,6 +414,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to save state.';
         this.notification.notify(message, 'danger');
       }
@@ -388,7 +429,11 @@ export class Settings {
     }
 
     this.isLoading = true;
-    this.settingService.deleteState(stateId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.deleteState(stateId).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.newState();
@@ -396,6 +441,7 @@ export class Settings {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to delete state.';
         this.notification.notify(message, 'danger');
       }
@@ -405,13 +451,18 @@ export class Settings {
   // --- MAIL SERVER ---
   private loadMailServerSettings() {
     this.isLoading = true;
-    this.settingService.getMailServerSettings().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getMailServerSettings().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (settings) => {
         this.mailServerSettingsSignal.set(settings || []);
         this.patchMailServerForm();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load mail server settings.';
         this.notification.notify(message, 'danger');
       }
@@ -455,13 +506,18 @@ export class Settings {
     const payload = this.buildSettingsPayload(this.mailServerSettingsSignal(), updated, 'MAIL_SERVER');
 
     this.isLoading = true;
-    this.settingService.updateGeneralSettings(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.updateGeneralSettings(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.loadMailServerSettings();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update mail server settings.';
         this.notification.notify(message, 'danger');
       }
@@ -471,13 +527,18 @@ export class Settings {
   // --- MAIL TEMPLATES ---
   private loadMailTemplateSettings() {
     this.isLoading = true;
-    this.settingService.getMailTemplateSettings().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getMailTemplateSettings().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (settings) => {
         this.mailTemplatesSettingsSignal.set(settings || []);
         this.patchMailTemplateForm();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load mail templates.';
         this.notification.notify(message, 'danger');
       }
@@ -517,13 +578,18 @@ export class Settings {
     const payload = this.buildSettingsPayload(this.mailTemplatesSettingsSignal(), updated, 'MAIL_TEMPLATES');
 
     this.isLoading = true;
-    this.settingService.updateGeneralSettings(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.updateGeneralSettings(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify('Mail templates updated successfully', 'success');
         this.loadMailTemplateSettings();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update mail templates.';
         this.notification.notify(message, 'danger');
       }
@@ -535,13 +601,18 @@ export class Settings {
 
   private loadPaymentSettings() {
     this.isLoading = true;
-    this.settingService.getPaymentSettings().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getPaymentSettings().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (settings) => {
         this.paymentSettingsSignal.set(settings || []);
         this.patchPaymentForm();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to load mail templates.';
         this.notification.notify(message, 'danger');
       }
@@ -575,13 +646,18 @@ export class Settings {
     const payload = this.buildSettingsPayload(this.paymentSettingsSignal(), updated, 'PAYMENT');
 
     this.isLoading = true;
-    this.settingService.updatePaymentSettings(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.updatePaymentSettings(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify('Payment settings updated successfully', 'success');
         this.loadPaymentSettings();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'Failed to update payment settings.';
         this.notification.notify(message, 'danger');
       }

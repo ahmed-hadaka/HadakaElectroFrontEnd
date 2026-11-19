@@ -1,5 +1,5 @@
 
-import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   FormBuilder,
@@ -42,6 +42,7 @@ import { finalize } from 'rxjs';
   ],
 })
 export class EditOrderDetails implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -116,15 +117,21 @@ export class EditOrderDetails implements OnInit {
 
   private loadOrderDetails(id: number): void {
     this.isLoading.set(true);
+    this.cdr.detectChanges();
 
-    this.orderService.getOrderById(id).pipe(finalize(() => this.isLoading.set(false))).subscribe({
+    this.orderService.getOrderById(id).pipe(finalize(() => {
+      this.isLoading.set(false);
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (order) => {
         this.initForm(order);
         this.loadCountriesAndSync(order.country, order.state);
         this.isLoading.set(false);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading.set(false);
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -132,6 +139,7 @@ export class EditOrderDetails implements OnInit {
           'Failed to load order details.';
         this.notification.notify(message, 'danger');
         this.isLoading.set(false);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -233,6 +241,7 @@ export class EditOrderDetails implements OnInit {
 
     // 2. Fetch ProductDTO and ShippingRateDTO in parallel
     this.isLoading.set(true);
+    this.cdr.detectChanges();
     forkJoin({
       product: this.productService.getProductById(productId),
       shippingRate: this.shippingRateService.getShippingByCountryAndState(country, state).pipe(
@@ -244,7 +253,10 @@ export class EditOrderDetails implements OnInit {
           return of(null);
         })
       ),
-    }).pipe(finalize(() => this.isLoading.set(false))).subscribe({
+    }).pipe(finalize(() => {
+      this.isLoading.set(false);
+      this.cdr.detectChanges();
+    })).subscribe({
       next: ({ product, shippingRate }) => {
         this.isAddingProduct.set(false);
 
@@ -269,6 +281,7 @@ export class EditOrderDetails implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        this.cdr.detectChanges();
         this.isAddingProduct.set(false);
         const message =
           err.error?.message ||
@@ -331,7 +344,11 @@ export class EditOrderDetails implements OnInit {
 
   private loadCountriesAndSync(initialCountryName?: string, initialStateName?: string): void {
     this.isLoading.set(true);
-    this.settingService.getCountries().pipe(finalize(() => this.isLoading.set(false))).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getCountries().pipe(finalize(() => {
+      this.isLoading.set(false);
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countryList) => {
         this.countries.set(countryList);
 
@@ -350,6 +367,7 @@ export class EditOrderDetails implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
+        this.cdr.detectChanges();
         this.notification.notify('Failed to load countries list.', 'danger');
       },
     });
@@ -375,7 +393,11 @@ export class EditOrderDetails implements OnInit {
     this.isLoadingStates.set(true);
 
     this.isLoading.set(true);
-    this.settingService.getStates(countryId).pipe(finalize(() => this.isLoading.set(false))).subscribe({
+    this.cdr.detectChanges();
+    this.settingService.getStates(countryId).pipe(finalize(() => {
+      this.isLoading.set(false);
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (stateList) => {
         this.states.set(stateList);
         this.isLoadingStates.set(false);
@@ -393,6 +415,7 @@ export class EditOrderDetails implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
+        this.cdr.detectChanges();
         this.isLoadingStates.set(false);
         this.notification.notify('Failed to load states for the selected country.', 'danger');
       },
@@ -594,7 +617,11 @@ export class EditOrderDetails implements OnInit {
     };
 
     this.isLoading.set(true);
-    this.orderService.updateOrderDetails(payload).pipe(finalize(() => this.isLoading.set(false))).subscribe({
+    this.cdr.detectChanges();
+    this.orderService.updateOrderDetails(payload).pipe(finalize(() => {
+      this.isLoading.set(false);
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (response: string) => {
         this.isSaving.set(false);
         this.notification.notify(response || `Order id: ${payload.id} updated successfully`, 'success');
@@ -602,6 +629,7 @@ export class EditOrderDetails implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        this.cdr.detectChanges();
         this.isSaving.set(false);
         const message =
           err.error?.message ||

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
@@ -13,6 +13,7 @@ import { finalize } from 'rxjs';
   imports: [ReactiveFormsModule, RouterLink]
 })
 export class ListCustomers {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private customerService = inject(CustomerService);
   protected notification = inject(NotificationService);
@@ -41,7 +42,11 @@ export class ListCustomers {
     const keyword = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
-    this.customerService.listCustomers(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.listCustomers(keyword, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.customersPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
@@ -49,6 +54,7 @@ export class ListCustomers {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -91,7 +97,11 @@ export class ListCustomers {
 
   private deleteCustomer(id: number): void {
     this.isLoading = true;
-    this.customerService.deleteCustomer(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.deleteCustomer(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.customerIdToDelete.set(null);
@@ -99,6 +109,7 @@ export class ListCustomers {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -111,13 +122,18 @@ export class ListCustomers {
 
   protected updateEnableStatus(id: number) {
     this.isLoading = true;
-    this.customerService.toggleEnableStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.toggleEnableStatus(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadCustomers(this.currentPage());
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -128,4 +144,3 @@ export class ListCustomers {
     });
   }
 }
-

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { CategoryListDTO } from '../../../shared/Models/CategoryDTO';
@@ -15,6 +15,7 @@ import { finalize } from 'rxjs';
   styleUrl: './home.css'
 })
 export class Home {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
@@ -43,7 +44,11 @@ export class Home {
 
   private loadCategories(page:number) {
     this.isLoading = true;
-    this.customerService.getCategories(page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCategories(page, 12).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (categories) => {
         this.totalPages.set(categories.totalPages);
         this.currentPage.set(page);
@@ -51,6 +56,7 @@ export class Home {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading categories';

@@ -1,4 +1,4 @@
-import { Component,inject } from '@angular/core';
+import { Component,inject, ChangeDetectorRef } from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {LoginRequestDTO} from '../../../shared/Models/LoginRequestDTO';
 import {AuthService} from '../../../shared/services/AuthService/auth-service';
@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
 
 
 export class Login {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
@@ -38,7 +39,11 @@ export class Login {
       const loginUrl = environmentDev.backendInternalBaseUrl+'/auth/login';
 
       this.isLoading = true;
-      this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next:(data:Record<string, any>)=>{
 
           sessionStorage.setItem('userEmail',data['Email']);
@@ -54,6 +59,7 @@ export class Login {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           const message =
             err.error?.message ||
             err.error?.msg ||

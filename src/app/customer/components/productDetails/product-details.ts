@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { CustomerService } from '../../services/CustomerService/customer-service';
@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
   styleUrl: './product-details.css'
 })
 export class ProductDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
@@ -53,12 +54,17 @@ export class ProductDetails {
 
   private loadProduct(id: number) {
     this.isLoading = true;
-    this.customerService.getProductDetails(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getProductDetails(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.response.set(data);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           `An unexpected error occurred while fetching product id ${id}`;
@@ -69,12 +75,17 @@ export class ProductDetails {
 
   addToCart(productId: number) {
     this.isLoading = true;
-    this.cartService.addProduct(productId, this.quantity()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.cartService.addProduct(productId, this.quantity()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (res) => {
         this.notification.notify(res.message, 'success');
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || 'Failed to add product to cart.';
         this.notification.notify(message, 'danger');
       }

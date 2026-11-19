@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import {Router, RouterLink} from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import {SettingService} from '../../../internal/services/SettingService/setting.service';
@@ -18,6 +18,7 @@ import { finalize } from 'rxjs';
   styleUrl: './checkout.css'
 })
 export class Checkout implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private checkoutService = inject(CheckoutService);
   private settingService = inject(SettingService);
@@ -50,10 +51,15 @@ export class Checkout implements OnInit {
 
   loadCheckoutData() {
     this.isLoading = true;
-    this.checkoutService.getCheckoutInfo().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.checkoutService.getCheckoutInfo().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => this.checkoutData.set(data),
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const msg = err.error?.message || err.error?.msg || 'Failed to load checkout information.';
         this.notification.notify(msg, 'danger');
       }
@@ -62,13 +68,18 @@ export class Checkout implements OnInit {
 
   placeOrderCOD() {
    this.isLoading = true;
-   this.checkoutService.placeOrder().pipe(finalize(() => this.isLoading = false)).subscribe({
+   this.cdr.detectChanges();
+   this.checkoutService.placeOrder().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
      next:(data)=>{
        // this.notification.notify(data['message'],"success")
        this.router.navigate(['/ElectroCustomer/place-order'])
      },
      error: (err) => {
        this.isLoading = false;
+       this.cdr.detectChanges();
       const msg = err.error?.message || err.error?.msg || 'Failed to place the order.';
       this.notification.notify(msg, 'danger');
     }

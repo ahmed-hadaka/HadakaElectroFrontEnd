@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import {AddressService} from '../../services/addressBookService/address-book-service';
@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
   styleUrl: './address-book.css'
 })
 export class AddressBook implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private addressService = inject(AddressService);
   protected notification = inject(NotificationService);
@@ -27,13 +28,18 @@ export class AddressBook implements OnInit {
 
   loadAddresses() {
     this.isLoading = true;
-    this.addressService.getAddresses().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.addressService.getAddresses().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         const sorted = data.addresses.sort((a, b) => (a.defaultForShipping === b.defaultForShipping) ? 0 : a.defaultForShipping ? -1 : 1);
         this.addresses.set(sorted);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to load address book.')
       }
     });
@@ -41,13 +47,18 @@ export class AddressBook implements OnInit {
 
   setDefault(id: number) {
     this.isLoading = true;
-    this.addressService.setDefaultAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.addressService.setDefaultAddress(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.loadAddresses();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to set default address.')
       }
     });
@@ -62,7 +73,11 @@ export class AddressBook implements OnInit {
     if (!id) return;
 
     this.isLoading = true;
-    this.addressService.deleteAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.addressService.deleteAddress(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.addressIdToDelete.set(null);
@@ -70,6 +85,7 @@ export class AddressBook implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.handleError(err, 'Failed to delete address.')
       }
     });

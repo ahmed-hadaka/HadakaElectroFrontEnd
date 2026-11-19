@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder, FormControl,
   ReactiveFormsModule,
@@ -22,6 +22,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class BrandDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private brandService = inject(BrandService);
@@ -91,7 +92,11 @@ export class BrandDetails {
 
   private loadBrand(id: number) {
     this.isLoading = true;
-    this.brandService.getEditBrandData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.brandService.getEditBrandData(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.brandDtoSignal.set(data.brand);
         this.categoriesSignal.set(data.categories);
@@ -110,6 +115,7 @@ export class BrandDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -120,12 +126,17 @@ export class BrandDetails {
 
   private loadFormData() {
     this.isLoading = true;
-    this.brandService.getNewBrandFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.brandService.getNewBrandFormData().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.categoriesSignal.set(data);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -160,13 +171,18 @@ export class BrandDetails {
     }
 
     this.isLoading = true;
-    this.brandService.saveBrand(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.brandService.saveBrand(formData).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.router.navigate(['ElectroInternal//brands']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

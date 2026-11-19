@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CategoryService } from '../../services/CategoryService/category-service';
 import { CategoryListDTO } from '../../../shared/Models/CategoryDTO';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
   ]
 })
 export class ListCategories {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private categoryService = inject(CategoryService);
   protected notification = inject(NotificationService);
@@ -47,7 +48,11 @@ export class ListCategories {
     const keyword = this.searchForm.get('keyword')?.value || '';
 
     this.isLoading = true;
-    this.categoryService.listCategories(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.listCategories(keyword, page, this.pageSize()).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.categoriesPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
@@ -55,6 +60,7 @@ export class ListCategories {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -95,7 +101,11 @@ export class ListCategories {
 
   private deleteCategory(id: number) {
     this.isLoading = true;
-    this.categoryService.deleteCategory(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.deleteCategory(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.categoryIdToDelete.set(null);
@@ -103,6 +113,7 @@ export class ListCategories {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -113,13 +124,18 @@ export class ListCategories {
 
   protected updateCategoryStatus(id: number) {
     this.isLoading = true;
-    this.categoryService.updateCategoryStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.updateCategoryStatus(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadCategories(this.currentPage());
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -137,7 +153,11 @@ export class ListCategories {
 
   exportToCsv() {
     this.isLoading = true;
-    this.categoryService.exportToCsv().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.categoryService.exportToCsv().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: Blob) => {
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(data);
@@ -146,6 +166,7 @@ export class ListCategories {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || 'Failed to export categories';
         this.notification.notify(message, 'danger');
       }

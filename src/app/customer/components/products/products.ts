@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DecimalPipe, NgIf } from '@angular/common';
 import { CustomerService } from '../../services/CustomerService/customer-service';
@@ -19,6 +19,7 @@ import { finalize } from 'rxjs';
   styleUrl: './products.css'
 })
 export class Products {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
@@ -60,7 +61,11 @@ export class Products {
     if (keyword) {
       // 1. Search Mode
       this.isLoading = true;
-      this.customerService.searchProducts(keyword, page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.customerService.searchProducts(keyword, page, 12).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (data: any) => {
           this.response.set({
             parentCategories: [],
@@ -70,19 +75,25 @@ export class Products {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           this.handleError(err)
         }
       });
     } else if (id !== null) {
       // 2. Category Mode
       this.isLoading = true;
-      this.customerService.getCategoryProducts(id, page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.customerService.getCategoryProducts(id, page, 12).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (data) => {
           this.response.set(data);
           this.currentPage.set(page);
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.detectChanges();
           this.handleError(err)
         }
       });

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {ShippingRateService} from '../../services/shippingRateService/shipping-rate-service';
@@ -19,6 +19,7 @@ import { finalize } from 'rxjs';
   templateUrl: './shipping-rate-details.html',
 })
 export class ShippingRateDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -48,13 +49,18 @@ export class ShippingRateDetails {
   ngOnInit() {
     // Load countries first to evaluate whether existing records match known lists
     this.isLoading = true;
-    this.sittingService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.sittingService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
         this.checkRouteParams();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.notification.notify('Failed to load countries.', 'danger');
         this.checkRouteParams();
       }
@@ -78,7 +84,11 @@ export class ShippingRateDetails {
 
   private loadRate(id: number) {
     this.isLoading = true;
-    this.shippingRateService.getShippingRateById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.shippingRateService.getShippingRateById(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data) => {
         this.rateDtoSignal.set(data);
 
@@ -89,7 +99,11 @@ export class ShippingRateDetails {
 
           // Load states for the known country
           this.isLoading = true;
-          this.sittingService.getStates(knownCountry.id!).pipe(finalize(() => this.isLoading = false)).subscribe({
+          this.cdr.detectChanges();
+          this.sittingService.getStates(knownCountry.id!).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
             next: (states) => {
               this.statesSignal.set(states);
               const knownState = states.some(s => s.name === data.state);
@@ -106,6 +120,7 @@ export class ShippingRateDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
@@ -136,7 +151,11 @@ export class ShippingRateDetails {
     const country = this.countriesSignal().find(c => c.name === countryName);
     if (country) {
       this.isLoading = true;
-      this.sittingService.getStates(country.id!).pipe(finalize(() => this.isLoading = false)).subscribe({
+      this.cdr.detectChanges();
+      this.sittingService.getStates(country.id!).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
         next: (states) => {
           this.statesSignal.set(states);
           if (states.length === 0) {
@@ -161,7 +180,11 @@ export class ShippingRateDetails {
     }
 
     this.isLoading = true;
-    this.shippingRateService.saveShippingRate(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.shippingRateService.saveShippingRate(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (data: string | any) => {
         const msg = typeof data === 'string' ? data : data.message;
         this.notification.notify(msg, 'success');
@@ -169,6 +192,7 @@ export class ShippingRateDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }

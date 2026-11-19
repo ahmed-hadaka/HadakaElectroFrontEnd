@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
@@ -26,6 +26,7 @@ export interface ExtraImageSlot {
   styleUrls: ['./product-details.css']
 })
 export class ProductDetails {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
 
   productForm!: FormGroup;
@@ -94,13 +95,18 @@ export class ProductDetails {
   // --- Loaders ---
   private loadDropdownDataForNewProduct(): void {
     this.isLoading = true;
-    this.productService.getNewProductFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.getNewProductFormData().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (res) => {
         this.brandsSignal.set(res.brands || []);
         this.categoriesSignal.set(res.categories || []);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Failed to load new product initial data';
@@ -111,7 +117,11 @@ export class ProductDetails {
 
   private loadProductForEdit(id: number): void {
     this.isLoading = true;
-    this.productService.getEditProductData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.getEditProductData(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (res) => {
         const product = res.product;
         this.productDtoSignal.set(product);
@@ -156,6 +166,7 @@ export class ProductDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Error fetching product for editing';
@@ -166,7 +177,11 @@ export class ProductDetails {
 
   private loadProductForView(id: number): void {
     this.isLoading = true;
-    this.productService.getProductById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.getProductById(id).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (productDTO) => {
         const product = productDTO;
 
@@ -208,6 +223,7 @@ export class ProductDetails {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Error fetching product for editing';
@@ -350,18 +366,24 @@ export class ProductDetails {
     }
 
     this.isLoading = true;
-    this.productService.saveProduct(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.productService.saveProduct(formData).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (response) => {
         this.notification.notify("product saved successfully","success")
         this.router.navigate(['ElectroInternal/products']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An error occurred while saving product';
         this.notification.notify(message, 'danger');
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

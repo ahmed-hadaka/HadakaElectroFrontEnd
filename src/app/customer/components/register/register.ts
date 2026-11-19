@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
   styleUrl: './register.css'
 })
 export class Register {
+  private cdr = inject(ChangeDetectorRef);
   public isLoading = false;
   private fb = inject(FormBuilder);
   private customerService = inject(CustomerService);
@@ -43,7 +44,11 @@ export class Register {
 
   loadCountries(){
     this.isLoading = true;
-    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.getCountries().pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (countries) => {
         this.countries.set(countries);
         if (countries.length > 0) {
@@ -53,6 +58,7 @@ export class Register {
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading countries';
@@ -90,13 +96,18 @@ export class Register {
     };
 
     this.isLoading = true;
-    this.customerService.saveCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
+    this.cdr.detectChanges();
+    this.customerService.saveCustomer(payload).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.router.navigate(['/ElectroCustomer/login']);
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while saving customer';
