@@ -2,17 +2,17 @@
 
 **Author:** [Ahmed Hadaka](https://www.linkedin.com/in/ahmed-hadaka-8a2124205/)  
 **Backend Repository:** [HadakaElectroBackEnd](https://github.com/ahmed-hadaka/HadakaElectroBackEnd)  
+**Live Portal Selector:** [Hadaka Electro (Vercel)](https://hadaka-electro-front-end-blond.vercel.app/)  
 **Live:** [Customer Storefront Portal](https://hadaka-electro-front-end-blond.vercel.app/ElectroCustomer)  
 **Live:** [Internal Admin Portal](https://hadaka-electro-front-end-blond.vercel.app/ElectroInternal)  
-**Demo Video:** [Watch the Demo Video Here](#) *(Recording in progress)*
 
 ---
 
 ## 📖 Overview
 
-**HadakaElectroFrontEnd** is a modern, modular Single Page Application (SPA) built with **Angular** (Standalone Architecture) and **TypeScript**. It serves as the unified frontend client for the **Hadaka Electro** e-commerce platform, consuming both the **Customer Storefront API** (`ElectroCustomerApi`) and the **Internal Admin API** (`ElectroInternalApi`) from the multi-module Spring Boot backend.
+**HadakaElectroFrontEnd** is a modern, modular Single Page Application (SPA) built with **Angular** (Standalone Architecture) and **TypeScript**. It serves as the unified frontend client for the **Hadaka Electro** e-commerce platform, consuming both the **Customer Storefront API** (`ElectroCustomerApi`) and the **Internal Admin API** (`ElectroInternalApi`) from the multi-module Spring Boot backend deployed on **Heroku**, with media assets served from **AWS S3**.
 
-The application is architected into two isolated portals—**Customer Storefront** and **Internal Admin Backoffice**—each with its own layout, navigation bar, lazy-loaded route tree, guards, and domain services, while sharing a unified core security layer (`csrf.interceptor.ts`, `CsrfService`, `AuthService`), notification system (`NotificationService`), and strongly-typed DTO models.
+Starting from a unified **Portal Selector** landing page (`/`), the application is architected into two isolated portals—**Customer Storefront** and **Internal Admin Backoffice**—each with its own layout, navigation bar, lazy-loaded route tree, guards, and domain services, while sharing a unified core security layer (`csrf.interceptor.ts`, `CsrfService`, `AuthService`), notification system (`NotificationService`), and strongly-typed DTO models.
 
 ---
 
@@ -22,14 +22,16 @@ The application is architected into two isolated portals—**Customer Storefront
 * **Language:** TypeScript
 * **Styling:** HTML5, CSS3, Responsive Layout Design
 * **HTTP & Security:** Angular `HttpClient`, Custom CSRF HTTP Interceptor (`csrf.interceptor.ts`), Route Guards (`auth-guard.ts`, `role-guard.ts`)
-* **State & Reactive Streams:** RxJS (`Observables`)
+* **State & Reactive Streams:** RxJS (`Observables`, `finalize` loading lifecycles) & `ChangeDetectorRef`
+* **Cloud & Hosting:** Vercel (Frontend SPA), Heroku (Spring Boot Backend APIs), AWS S3 (Cloud Media Assets)
 * **Environments:** Multi-environment configuration (`environment.ts`, `environment.dev.ts`)
 
 ### System & Module Architecture Diagram
 
 <pre>
 +-----------------------------------------------------------------------------------+
-|                      HadakaElectroFrontEnd (Angular SPA)                          |
+|                 HadakaElectroFrontEnd (Angular SPA on Vercel)                     |
+|                   Root Landing Page (/): Portal Selector UI                       |
 +-----------------------------------------------------------------------------------+
                   |                                               |
                   v                                               v
@@ -60,45 +62,63 @@ The application is architected into two isolated portals—**Customer Storefront
 |                        Shared & Core Layer (src/app/core & shared)                |
 |-----------------------------------------------------------------------------------|
 | - Security: csrf.interceptor.ts, CsrfService, AuthService                         |
-| - UI Feedback: NotificationService (Global toast/alert notifications)             |
+| - UI Feedback: NotificationService & Non-Intrusive Loading Overlays (finalize)    |
 | - Shared DTOs: ProductDTO, CategoryDTO, BrandDTO, UserDTO, CustomerDTO,           |
 |   OrderDTO, OrderDetailsDTO, CartItemDTO, CheckoutDTO, AddressDTO,                |
 |   ShippingRateDTO, PageModel                                                      |
 +-----------------------------------------------------------------------------------+
                   |                                               |
-     HTTP / JSON + X-XSRF-TOKEN                      HTTP / JSON + X-XSRF-TOKEN
+     HTTPS / JSON + X-XSRF-TOKEN                     HTTPS / JSON + X-XSRF-TOKEN
        (withCredentials: true)                         (withCredentials: true)
                   |                                               |
                   v                                               v
 +-----------------------------------+           +-----------------------------------+
 |        ElectroCustomerApi         |           |        ElectroInternalApi         |
-|       (Spring Boot Backend)       |           |       (Spring Boot Backend)       |
+|  (Spring Boot on Heroku Dyno 1)   |           |  (Spring Boot on Heroku Dyno 2)   |
 +-----------------------------------+           +-----------------------------------+
+                  |                                               |
+                  +-----------------------+-----------------------+
+                                          |
+                                          v
+              +-------------------------------------------------------+
+              |  JawsDB MySQL (Heroku)  |  AWS S3 (Media)  |  SMTP    |
+              +-------------------------------------------------------+
 </pre>
 
 ---
 
 ## 🚀 Key Features by Portal
 
+### 🚪 0. Unified Portal Selector Landing Page (`/`)
+* **Mode Selection Entry Point (`portal-selector`):** Serves as the root landing page matching the Hadaka Electro design system, allowing visitors and reviewers to seamlessly choose between the **Customer Shop Portal** (`/ElectroCustomer`) and the **Internal Control Panel** (`/ElectroInternal`).
+
 ### 🛒 1. Customer Storefront (`src/app/customer`)
-* **Storefront & Catalog Browsing (`Home`, `products`, `productDetails`):** Dynamic category navigation, paginated product grids (`PageModel`), specification views, and product image galleries.
-* **Authentication & Account Lifecycle (`login`, `register`, `verify`, `forgotPassword`, `resetPassword`):** Session-based login, Google OAuth2 integration, new customer registration with email verification (`verify`), and token-based password recovery workflows.
+* **Storefront & Catalog Browsing (`Home`, `products`, `productDetails`):** Dynamic category navigation, paginated product grids (`PageModel`), specification views, and product image galleries served from **AWS S3**.
+* **Authentication & Account Lifecycle (`login`, `register`, `verify`, `forgotPassword`, `resetPassword`):** Session-based login, Google OAuth2 integration, new customer registration with Gmail SMTP email verification (`verify`), and token-based password recovery workflows.
 * **Shopping Cart (`shopping-cart`, `CartService`):** Add products to cart, increment/decrement item quantities, calculate subtotals, and manage cart items (`CartItemDTO`).
 * **Address Book Management (`address-form`, `addressBookService`):** Create, edit, and select shipping addresses (`AddressDTO`) with country/state lookups.
-* **Checkout & Order Tracking (`checkout`, `order-placed`, `orders`, `CheckoutService`, `orderService`):** Shipping rate calculation, Cash-on-Delivery (COD) order confirmation (`CheckoutDTO`), order history inspection (`OrderDTO`), and return requests.
+* **Checkout & Order Tracking (`checkout`, `order-placed`, `orders`, `CheckoutService`, `orderService`):** Shipping rate calculation, **PayPal**(still under development) and Cash-on-Delivery (COD) order confirmation (`CheckoutDTO`), order history inspection (`OrderDTO`), and return requests.
 
 ### ⚙️ 2. Internal Admin Portal (`src/app/internal`)
 * **Role-Based Access Control (`role-guard.ts`, `internal-nav-bar`):** Restricts routes and navigation actions dynamically based on the logged-in staff member's roles (`Admin`, `Salesperson`, `Editor`, `Shipper`, `Assistant`).
-* **Staff Management & Data Export (`listUsers`, `userDetails`, `UserService`):** Full CRUD for internal users (`UserDTO`), profile photo uploads, account status toggling, and one-click **CSV / PDF** export directly from the navigation bar (`exportUsersToPdf()`).
-* **Catalog Management (`listBrands`/`brandDetails`, `listCategories`/`categoryDetails`, `listProducts`/`productDetails`):** Manage multi-level categories (`CategoryDTO`), brand logos (`BrandDTO`), and products (`ProductDTO`) with multi-image uploads and inventory/pricing controls.
+* **Staff Management & Data Export (`listUsers`, `userDetails`, `UserService`):** Full CRUD for internal users (`UserDTO`), profile photo uploads to **AWS S3**, account status toggling, and one-click **CSV / Excel / PDF** export directly from the navigation bar (`exportUsersToPdf()`).
+* **Catalog Management (`listBrands`/`brandDetails`, `listCategories`/`categoryDetails`, `listProducts`/`productDetails`):** Manage multi-level categories (`CategoryDTO`), brand logos (`BrandDTO`), and products (`ProductDTO`) with multi-image **AWS S3** uploads and inventory/pricing controls.
 * **Customer & Order Fulfillment (`listCustomers`/`customerDetails`, `listOrders`/`viewOrderDetails`):** View and manage registered customers (`CustomerDTO`), inspect detailed order breakdowns (`OrderDetailsDTO`), and update order fulfillment statuses.
 * **Shipping & Global Settings (`listShippingRate`/`shippingRateDetails`, `settings`):** Configure regional shipping rates and Cash-on-Delivery support (`ShippingRateDTO`), dynamic site logos, email templates, and currency settings (`SettingService`).
-* **Sales Analytics (`sales-report`, `SalesReportService`):** Generate and visualize sales reports filtered by date ranges, categories, and products.
+* **Sales Analytics (`sales-report`, `SalesReportService`):** Generate and visualize sales reports filtered by date ranges, categories, and products using Google Charts.
 
 ### 🔐 3. Core Security & Shared Infrastructure (`src/app/core` & `src/app/shared`)
-* **CSRF Token Management (`csrf.interceptor.ts` & `CsrfService`):** Automatically intercepts state-changing HTTP requests (`POST`, `PUT`, `DELETE`, `PATCH`) and attaches the `X-XSRF-TOKEN` header alongside `withCredentials: true` for seamless Spring Security integration.
+* **CSRF Token Management (`csrf.interceptor.ts` & `CsrfService`):** Automatically intercepts state-changing HTTP requests (`POST`, `PUT`, `DELETE`, `PATCH`) and attaches the `X-XSRF-TOKEN` header alongside `withCredentials: true` for seamless cross-domain Spring Security integration between Vercel and Heroku.
 * **Route Protection (`auth-guard.ts` & `role-guard.ts`):** Prevents unauthorized access to customer checkout/account views and protects internal administrative routes according to user roles.
 * **Centralized Error & Notification Handling (`NotificationService`):** Standardized error parsing across components (`err.error?.message || err.error?.msg`) displayed via a reusable notification banner (`notification.html`).
+* **Non-Intrusive UI Loading Overlays:** Component-level `isLoading` overlays powered by RxJS `finalize()` and `ChangeDetectorRef.detectChanges()` freeze the UI during asynchronous API calls and media uploads to prevent duplicate submissions, while ensuring overlays cleanly dismiss on errors and never obscure error notifications (`z-index` layered below alerts/modals).
+
+---
+
+## ☁️ Production Cloud Deployment
+* **Frontend Hosting:** Deployed on **Vercel** with automatic builds from GitHub (`https://hadaka-electro-front-end-blond.vercel.app/`).
+* **Backend Integration:** Configured via `src/environments/environment.ts` to communicate over HTTPS with the two **Heroku** Spring Boot dynos (`ElectroCustomerApi` and `ElectroInternalApi`) using credentialed cross-domain CORS/CSRF sessions.
+* **Media Delivery:** Product galleries, category thumbnails, brand logos, and user avatars load directly via **AWS S3** URLs returned by the backend.
 
 ---
 
@@ -114,10 +134,12 @@ HadakaElectroFrontEnd/
 │   │   │   │   └── csrf.interceptor.ts         # Attaches CSRF token & credentials
 │   │   │   └── auth-guard.ts                   # Protects authenticated customer routes
 │   │   │
+│   │   ├── portal-selector/                    # Unified root (/) mode selection landing page
+│   │   │
 │   │   ├── customer/                           # Customer Storefront Module
 │   │   │   ├── components/
 │   │   │   │   ├── address-form/               # Shipping address creation/editing
-│   │   │   │   ├── checkout/                   # Order review & placement
+│   │   │   │   ├── checkout/                   # Order review & placement (PayPal / COD)
 │   │   │   │   ├── customer-layout/            # Storefront wrapper layout
 │   │   │   │   ├── customerNavBar/             # Storefront header & navigation
 │   │   │   │   ├── forgotPassword/             # Password reset request view
@@ -141,8 +163,8 @@ HadakaElectroFrontEnd/
 │   │   │
 │   │   ├── internal/                           # Internal Admin Backoffice Module
 │   │   │   ├── components/
-│   │   │   │   ├── brandDetails/               # Create/edit brand & logo upload
-│   │   │   │   ├── categoryDetails/            # Create/edit category & image
+│   │   │   │   ├── brandDetails/               # Create/edit brand & S3 logo upload
+│   │   │   │   ├── categoryDetails/            # Create/edit category & S3 image
 │   │   │   │   ├── customerDetails/            # Edit customer details
 │   │   │   │   ├── dashboard/                  # Admin welcome dashboard (welcome.ts)
 │   │   │   │   ├── internal-layout/            # Admin portal wrapper layout
@@ -154,7 +176,7 @@ HadakaElectroFrontEnd/
 │   │   │   │   ├── listProducts/               # Product catalog table & filters
 │   │   │   │   ├── listShippingRate/           # Shipping rates table
 │   │   │   │   ├── listUsers/                  # Internal staff user table
-│   │   │   │   ├── productDetails/             # Multi-tab product editor & images
+│   │   │   │   ├── productDetails/             # Multi-tab product editor & S3 images
 │   │   │   │   ├── sales-report/               # Interactive sales analytics charts
 │   │   │   │   ├── settings/                   # Store, mail & currency settings
 │   │   │   │   ├── shippingRateDetails/        # Create/edit shipping rate
@@ -193,14 +215,14 @@ HadakaElectroFrontEnd/
 │   │   │       └── Notification/               # notification-service.ts & template
 │   │   │
 │   │   ├── app.config.ts                       # Root standalone providers & HTTP config
-│   │   ├── app.routes.ts                       # Root router linking customer & internal
+│   │   ├── app.routes.ts                       # Root router linking portal selector, customer & internal
 │   │   ├── app.ts                              # Root application component
 │   │   ├── app.html
 │   │   └── app.css
 │   │
 │   ├── environments/
 │   │   ├── environment.dev.ts                  # Development API URLs
-│   │   └── environment.ts                      # Default/Production environment config
+│   │   └── environment.ts                      # Production (Heroku) environment config
 │   ├── index.html
 │   ├── main.ts                                 # Application bootstrap entry point
 │   └── styles.css                              # Global stylesheet
@@ -239,6 +261,8 @@ HadakaElectroFrontEnd/
    ng serve
    ```
 
-5. **Access the Portals:**
-   * **Customer Storefront:** `https://hadaka-electro-front-end-blond.vercel.app/ElectroCustomer`
-   * **Internal Admin Portal:** `https://hadaka-electro-front-end-blond.vercel.app/ElectroInternal`
+5. **Access the Portals Locally:**
+   * **Portal Selector:** `http://localhost:4200/`
+   * **Customer Storefront:** `http://localhost:4200/ElectroCustomer`
+   * **Internal Admin Portal:** `http://localhost:4200/ElectroInternal`
+
