@@ -1,3 +1,8 @@
+@if (isLoading) {
+  <div style="position: fixed; inset: 0; background: rgba(255, 255, 255, 0.6); z-index: 1040; display: flex; align-items: center; justify-content: center; cursor: wait;">
+    <div style="padding: 12px 24px; background: #0f172a; color: #fff; border-radius: 8px; font-weight: 600;">Loading...</div>
+  </div>
+}
 <div class="container my-4">
 
   @if(roleService.hasRole("Shipper")){

@@ -6,6 +6,7 @@ import {NotificationService} from '../../../shared/services/NotificationService/
 import {ShippingRateDTO} from '../../../shared/Models/ShippingRateDTO';
 import {SettingCountryDTO, SettingStateDTO} from '../../../shared/Models/SettingDTO';
 import {SettingService} from '../../services/SettingService/setting.service';
+import { finalize } from 'rxjs';
 
 
 @Component({
@@ -18,6 +19,7 @@ import {SettingService} from '../../services/SettingService/setting.service';
   templateUrl: './shipping-rate-details.html',
 })
 export class ShippingRateDetails {
+  public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private shippingRateService = inject(ShippingRateService);
@@ -45,12 +47,14 @@ export class ShippingRateDetails {
 
   ngOnInit() {
     // Load countries first to evaluate whether existing records match known lists
-    this.sittingService.getCountries().subscribe({
+    this.isLoading = true;
+    this.sittingService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
         this.checkRouteParams();
       },
       error: (err) => {
+        this.isLoading = false;
         this.notification.notify('Failed to load countries.', 'danger');
         this.checkRouteParams();
       }
@@ -73,7 +77,8 @@ export class ShippingRateDetails {
   }
 
   private loadRate(id: number) {
-    this.shippingRateService.getShippingRateById(id).subscribe({
+    this.isLoading = true;
+    this.shippingRateService.getShippingRateById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.rateDtoSignal.set(data);
 
@@ -83,7 +88,8 @@ export class ShippingRateDetails {
           this.showCountrySelect.set(true);
 
           // Load states for the known country
-          this.sittingService.getStates(knownCountry.id!).subscribe({
+          this.isLoading = true;
+          this.sittingService.getStates(knownCountry.id!).pipe(finalize(() => this.isLoading = false)).subscribe({
             next: (states) => {
               this.statesSignal.set(states);
               const knownState = states.some(s => s.name === data.state);
@@ -99,6 +105,7 @@ export class ShippingRateDetails {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
@@ -128,7 +135,8 @@ export class ShippingRateDetails {
 
     const country = this.countriesSignal().find(c => c.name === countryName);
     if (country) {
-      this.sittingService.getStates(country.id!).subscribe({
+      this.isLoading = true;
+      this.sittingService.getStates(country.id!).pipe(finalize(() => this.isLoading = false)).subscribe({
         next: (states) => {
           this.statesSignal.set(states);
           if (states.length === 0) {
@@ -152,13 +160,15 @@ export class ShippingRateDetails {
       payload.id = 0;
     }
 
-    this.shippingRateService.saveShippingRate(payload).subscribe({
+    this.isLoading = true;
+    this.shippingRateService.saveShippingRate(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string | any) => {
         const msg = typeof data === 'string' ? data : data.message;
         this.notification.notify(msg, 'success');
         this.router.navigate(['ElectroInternal/shipping-rates']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }

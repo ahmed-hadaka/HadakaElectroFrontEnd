@@ -7,6 +7,7 @@ import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { ProductDTO } from '../../../shared/Models/ProductDTO';
 import {CartService} from '../../services/CartService/cart-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-product-details',
@@ -16,6 +17,7 @@ import {CartService} from '../../services/CartService/cart-service';
   styleUrl: './product-details.css'
 })
 export class ProductDetails {
+  public isLoading = false;
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
@@ -50,11 +52,13 @@ export class ProductDetails {
   }
 
   private loadProduct(id: number) {
-    this.customerService.getProductDetails(id).subscribe({
+    this.isLoading = true;
+    this.customerService.getProductDetails(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.response.set(data);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           `An unexpected error occurred while fetching product id ${id}`;
@@ -64,11 +68,13 @@ export class ProductDetails {
   }
 
   addToCart(productId: number) {
-    this.cartService.addProduct(productId, this.quantity()).subscribe({
+    this.isLoading = true;
+    this.cartService.addProduct(productId, this.quantity()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (res) => {
         this.notification.notify(res.message, 'success');
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || 'Failed to add product to cart.';
         this.notification.notify(message, 'danger');
       }

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { SalesReportService, ReportChartPayload } from '../../services/SalesReportService/SalesReportService';
 import { ChartType, GoogleChartsModule } from 'angular-google-charts';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-sales-report',
@@ -14,6 +15,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
   styleUrls: ['./sales-report.css']
 })
 export class SalesReportComponent implements OnInit {
+  public isLoading = false;
   activeTab: 'DATE' | 'CATEGORY' | 'PRODUCT' = 'DATE';
   activeDateRange: string = '7days';
 
@@ -63,19 +65,40 @@ export class SalesReportComponent implements OnInit {
 
   loadReport() {
     if (this.activeTab === 'DATE') {
-      this.reportService.getSalesByDate(this.startDate, this.endDate).subscribe(data => {
-        this.setupBarChart(data);
-        this.cdr.detectChanges();
+      this.isLoading = true;
+      this.reportService.getSalesByDate(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+        next: (data) => {
+          this.setupBarChart(data);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
+        }
       });
     } else if (this.activeTab === 'CATEGORY') {
-      this.reportService.getSalesByCategory(this.startDate, this.endDate).subscribe(data => {
-        this.setupPieChart(data);
-        this.cdr.detectChanges();
+      this.isLoading = true;
+      this.reportService.getSalesByCategory(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+        next: (data) => {
+          this.setupPieChart(data);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
+        }
       });
     } else if (this.activeTab === 'PRODUCT') {
-      this.reportService.getSalesByProduct(this.startDate, this.endDate).subscribe(data => {
-        this.setupTable(data);
-        this.cdr.detectChanges();
+      this.isLoading = true;
+      this.reportService.getSalesByProduct(this.startDate, this.endDate).pipe(finalize(() => this.isLoading = false)).subscribe({
+        next: (data) => {
+          this.setupTable(data);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error(err.error?.message || err.error?.msg || 'Failed to load sales report.');
+        }
       });
     }
   }

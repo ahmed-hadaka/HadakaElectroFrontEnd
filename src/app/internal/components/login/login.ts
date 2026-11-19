@@ -6,6 +6,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Router, RouterLink} from '@angular/router';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
 import {environmentDev} from '../../../../environments/environment.dev';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -16,6 +17,7 @@ import {environmentDev} from '../../../../environments/environment.dev';
 
 
 export class Login {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -35,7 +37,8 @@ export class Login {
       const loginReqDTO :LoginRequestDTO=this.loginReqForm.value as LoginRequestDTO;
       const loginUrl = environmentDev.backendInternalBaseUrl+'/auth/login';
 
-      this.authService.login(loginReqDTO,loginUrl).subscribe({
+      this.isLoading = true;
+      this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => this.isLoading = false)).subscribe({
         next:(data:Record<string, any>)=>{
 
           sessionStorage.setItem('userEmail',data['Email']);
@@ -50,6 +53,7 @@ export class Login {
 
         },
         error: (err) => {
+          this.isLoading = false;
           const message =
             err.error?.message ||
             err.error?.msg ||

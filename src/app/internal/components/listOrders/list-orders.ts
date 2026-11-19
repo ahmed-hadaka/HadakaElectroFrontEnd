@@ -7,6 +7,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
 import {OrderListDTO, OrderStatus} from '../../../shared/Models/OrderDTO';
 import {SettingDTO} from '../../../shared/Models/SettingDTO';
 import {RoleService} from '../../services/role-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-orders',
@@ -20,6 +21,7 @@ import {RoleService} from '../../services/role-service';
   ]
 })
 export class ListOrders {
+  public isLoading = false;
   private orderService = inject(OrderService);
   private fb = inject(FormBuilder);
   protected notification = inject(NotificationService);
@@ -52,13 +54,15 @@ export class ListOrders {
   loadOrders(page: number = 0) {
     const keyword: string = this.searchForm.get('keyword')?.value || '';
 
-    this.orderService.listOrders(keyword, page, this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.orderService.listOrders(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.ordersPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -100,13 +104,15 @@ export class ListOrders {
   }
 
   private deleteOrder(id: number) {
-    this.orderService.deleteOrder(id).subscribe({
+    this.isLoading = true;
+    this.orderService.deleteOrder(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.orderIdToDelete.set(null);
         this.loadOrders(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -155,7 +161,8 @@ export class ListOrders {
     const update = this.pendingStatusUpdate();
     if (!update) return;
 
-    this.orderService.updateOrderStatus(update.orderId, update.status,update.note).subscribe({
+    this.isLoading = true;
+    this.orderService.updateOrderStatus(update.orderId, update.status,update.note).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: () => {
         this.notification.notify(
           `Order #${update.orderId} status updated to ${update.status.toString()}.`,
@@ -165,6 +172,7 @@ export class ListOrders {
         this.loadOrders(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

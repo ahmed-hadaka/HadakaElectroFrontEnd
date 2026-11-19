@@ -4,6 +4,7 @@ import { CustomerService } from '../../services/CustomerService/customer-service
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import {CountryDTO, CustomerDTO} from '../../../shared/Models/CustomerDTO';
 import {Router, RouterLink} from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-customer-details',
@@ -13,6 +14,7 @@ import {Router, RouterLink} from '@angular/router';
   styleUrl: './customer-details.css'
 })
 export class CustomerDetails {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private customerService = inject(CustomerService);
   private router = inject(Router);
@@ -56,7 +58,8 @@ export class CustomerDetails {
   }
 
   loadCountries(){
-    this.customerService.getCountries().subscribe({
+    this.isLoading = true;
+    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (countries) => {
         this.countries.set(countries);
         if (countries.length > 0) {
@@ -67,6 +70,7 @@ export class CustomerDetails {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading countries';
@@ -76,7 +80,8 @@ export class CustomerDetails {
   }
 
   private loadCustomer(customerEmail: string) {
-    this.customerService.getCustomerDetails(customerEmail).subscribe({
+    this.isLoading = true;
+    this.customerService.getCustomerDetails(customerEmail).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (customer) => {
         this.customer.set(customer);
         this.customerDetailsForm.patchValue({
@@ -95,6 +100,7 @@ export class CustomerDetails {
         this.loading.set(false);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while fetching customer';
@@ -132,12 +138,14 @@ export class CustomerDetails {
       countryId: Number(formValues.countryId || 0)
     };
 
-    this.customerService.updateCustomer(payload).subscribe({
+    this.isLoading = true;
+    this.customerService.updateCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.router.navigate(['/ElectroCustomer/']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while saving customer';

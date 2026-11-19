@@ -27,6 +27,7 @@ import {
   PaymentMethod,
 } from '../../../shared/Models/OrderDTO';
 import {ShippingRateService} from '../../services/shippingRateService/shipping-rate-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-edit-order-details',
@@ -116,13 +117,14 @@ export class EditOrderDetails implements OnInit {
   private loadOrderDetails(id: number): void {
     this.isLoading.set(true);
 
-    this.orderService.getOrderById(id).subscribe({
+    this.orderService.getOrderById(id).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (order) => {
         this.initForm(order);
         this.loadCountriesAndSync(order.country, order.state);
         this.isLoading.set(false);
       },
       error: (err) => {
+        this.isLoading.set(false);
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -230,6 +232,7 @@ export class EditOrderDetails implements OnInit {
     const state = this.orderForm.get('state')?.value || '';
 
     // 2. Fetch ProductDTO and ShippingRateDTO in parallel
+    this.isLoading.set(true);
     forkJoin({
       product: this.productService.getProductById(productId),
       shippingRate: this.shippingRateService.getShippingByCountryAndState(country, state).pipe(
@@ -241,7 +244,7 @@ export class EditOrderDetails implements OnInit {
           return of(null);
         })
       ),
-    }).subscribe({
+    }).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: ({ product, shippingRate }) => {
         this.isAddingProduct.set(false);
 
@@ -265,6 +268,7 @@ export class EditOrderDetails implements OnInit {
         this.notification.notify(`Product "${product.name}" added to order.`, 'success');
       },
       error: (err) => {
+        this.isLoading.set(false);
         this.isAddingProduct.set(false);
         const message =
           err.error?.message ||
@@ -326,7 +330,8 @@ export class EditOrderDetails implements OnInit {
 
 
   private loadCountriesAndSync(initialCountryName?: string, initialStateName?: string): void {
-    this.settingService.getCountries().subscribe({
+    this.isLoading.set(true);
+    this.settingService.getCountries().pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (countryList) => {
         this.countries.set(countryList);
 
@@ -344,6 +349,7 @@ export class EditOrderDetails implements OnInit {
         }
       },
       error: () => {
+        this.isLoading.set(false);
         this.notification.notify('Failed to load countries list.', 'danger');
       },
     });
@@ -368,7 +374,8 @@ export class EditOrderDetails implements OnInit {
   private loadStatesForCountry(countryId: number, stateNameToSelect?: string): void {
     this.isLoadingStates.set(true);
 
-    this.settingService.getStates(countryId).subscribe({
+    this.isLoading.set(true);
+    this.settingService.getStates(countryId).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (stateList) => {
         this.states.set(stateList);
         this.isLoadingStates.set(false);
@@ -385,6 +392,7 @@ export class EditOrderDetails implements OnInit {
         }
       },
       error: () => {
+        this.isLoading.set(false);
         this.isLoadingStates.set(false);
         this.notification.notify('Failed to load states for the selected country.', 'danger');
       },
@@ -585,13 +593,15 @@ export class EditOrderDetails implements OnInit {
       orderDetails: cleanedDetails,
     };
 
-    this.orderService.updateOrderDetails(payload).subscribe({
+    this.isLoading.set(true);
+    this.orderService.updateOrderDetails(payload).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (response: string) => {
         this.isSaving.set(false);
         this.notification.notify(response || `Order id: ${payload.id} updated successfully`, 'success');
         this.router.navigate(['ElectroInternal/orders']);
       },
       error: (err) => {
+        this.isLoading.set(false);
         this.isSaving.set(false);
         const message =
           err.error?.message ||

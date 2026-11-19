@@ -4,6 +4,7 @@ import { NgClass } from '@angular/common';
 import {AddressService} from '../../services/addressBookService/address-book-service';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
 import {AddressDTO} from '../../../shared/Models/AddressDTO';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-address-book',
@@ -13,6 +14,7 @@ import {AddressDTO} from '../../../shared/Models/AddressDTO';
   styleUrl: './address-book.css'
 })
 export class AddressBook implements OnInit {
+  public isLoading = false;
   private addressService = inject(AddressService);
   protected notification = inject(NotificationService);
 
@@ -24,22 +26,30 @@ export class AddressBook implements OnInit {
   }
 
   loadAddresses() {
-    this.addressService.getAddresses().subscribe({
+    this.isLoading = true;
+    this.addressService.getAddresses().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         const sorted = data.addresses.sort((a, b) => (a.defaultForShipping === b.defaultForShipping) ? 0 : a.defaultForShipping ? -1 : 1);
         this.addresses.set(sorted);
       },
-      error: (err) => this.handleError(err, 'Failed to load address book.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to load address book.')
+      }
     });
   }
 
   setDefault(id: number) {
-    this.addressService.setDefaultAddress(id).subscribe({
+    this.isLoading = true;
+    this.addressService.setDefaultAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.loadAddresses();
       },
-      error: (err) => this.handleError(err, 'Failed to set default address.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to set default address.')
+      }
     });
   }
 
@@ -51,13 +61,17 @@ export class AddressBook implements OnInit {
     const id = this.addressIdToDelete();
     if (!id) return;
 
-    this.addressService.deleteAddress(id).subscribe({
+    this.isLoading = true;
+    this.addressService.deleteAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.addressIdToDelete.set(null);
         this.loadAddresses();
       },
-      error: (err) => this.handleError(err, 'Failed to delete address.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to delete address.')
+      }
     });
   }
 

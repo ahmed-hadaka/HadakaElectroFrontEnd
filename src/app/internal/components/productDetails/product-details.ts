@@ -7,6 +7,7 @@ import {ProductService} from '../../services/ProductService/product-service';
 import {environmentDev} from '../../../../environments/environment.dev';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
 import {RoleService} from '../../services/role-service';
+import { finalize } from 'rxjs';
 
 export interface ExtraImageSlot {
   id?: number;
@@ -25,6 +26,7 @@ export interface ExtraImageSlot {
   styleUrls: ['./product-details.css']
 })
 export class ProductDetails {
+  public isLoading = false;
 
   productForm!: FormGroup;
 
@@ -81,7 +83,7 @@ export class ProductDetails {
       mainImage:['',[Validators.required]],
       discountPercent: [0.0, [Validators.min(0), Validators.max(100)]],
       shortDescription: ['', [Validators.required]],
-      fullDescription: [''],
+      fullDescription: ['',[Validators.required]],
       length: [0.0],
       width: [0.0],
       height: [0.0],
@@ -91,12 +93,14 @@ export class ProductDetails {
 
   // --- Loaders ---
   private loadDropdownDataForNewProduct(): void {
-    this.productService.getNewProductFormData().subscribe({
+    this.isLoading = true;
+    this.productService.getNewProductFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (res) => {
         this.brandsSignal.set(res.brands || []);
         this.categoriesSignal.set(res.categories || []);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Failed to load new product initial data';
@@ -106,7 +110,8 @@ export class ProductDetails {
   }
 
   private loadProductForEdit(id: number): void {
-    this.productService.getEditProductData(id).subscribe({
+    this.isLoading = true;
+    this.productService.getEditProductData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (res) => {
         const product = res.product;
         this.productDtoSignal.set(product);
@@ -150,6 +155,7 @@ export class ProductDetails {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Error fetching product for editing';
@@ -159,7 +165,8 @@ export class ProductDetails {
   }
 
   private loadProductForView(id: number): void {
-    this.productService.getProductById(id).subscribe({
+    this.isLoading = true;
+    this.productService.getProductById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (productDTO) => {
         const product = productDTO;
 
@@ -200,6 +207,7 @@ export class ProductDetails {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'Error fetching product for editing';
@@ -209,7 +217,6 @@ export class ProductDetails {
   }
 
 
-  // --- Main Image Methods ---
   protected onMainImageUpload(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -232,7 +239,6 @@ export class ProductDetails {
     return this.defaultImagePath;
   }
 
-  // --- Dynamic Extra Image Slots (Up to 5) ---
   protected addExtraImageSlot(): void {
     if (this.extraImageSlotsSignal().length < 5) {
       this.extraImageSlotsSignal.update(slots => [
@@ -278,7 +284,6 @@ export class ProductDetails {
     });
   }
 
-  // --- Dynamic Details Tab Logic ---
   protected addDetail(): void {
     this.productDetailsSignal.update(details => [...details, { name: '', value: '' }]);
   }
@@ -314,7 +319,6 @@ export class ProductDetails {
 
     const formData = new FormData();
 
-    // 1. Prepare Product DTO object
     const productDto = {
       ...this.productForm.value,
       mainImage:this.mainImageFile?.name || this.productForm.value.mainImage || 'no image',
@@ -322,16 +326,13 @@ export class ProductDetails {
       productImages:this.extraImageSlotsSignal().map(imageSlot =>{imageSlot.name})
     };
 
-    // Append Product DTO as JSON blob matching @RequestPart("product")
     const productBlob = new Blob([JSON.stringify(productDto)], { type: 'application/json' });
     formData.append('product', productBlob);
 
-    // 2. Append main image matching @RequestPart(value = "main_image")
     if (this.mainImageFile) {
       formData.append('main_image', this.mainImageFile);
     }
 
-    // 3. Append extra images matching @RequestPart(value = "extra_images")
     const extraFilesToUpload = this.extraImageSlotsSignal()
       .map(slot => slot.file)
       .filter((file): file is File => file !== undefined);
@@ -348,17 +349,19 @@ export class ProductDetails {
       }
     }
 
-    // Send HTTP POST request
-    this.productService.saveProduct(formData).subscribe({
+    this.isLoading = true;
+    this.productService.saveProduct(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (response) => {
         this.notification.notify("product saved successfully","success")
         this.router.navigate(['ElectroInternal/products']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An error occurred while saving product';
         this.notification.notify(message, 'danger');
+        this.isLoading = false;
       }
     });
   }

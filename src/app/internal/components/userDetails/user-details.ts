@@ -14,6 +14,7 @@ import {UserDTO, Role, APP_ROLES} from '../../../shared/Models/PageModel';
 import {environmentDev} from '../../../../environments/environment.dev';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
 import {RoleService} from '../../services/role-service';
+import { finalize } from 'rxjs';
 
 export const atLeastOneRoleValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const admin = control.get('admin')?.value;
@@ -41,6 +42,7 @@ export const atLeastOneRoleValidator: ValidatorFn = (control: AbstractControl): 
 
 
 export class UserDetails {
+  public isLoading = false;
   private router = inject(Router);
   private userService = inject(UserService);
   private roleService = inject(RoleService);
@@ -91,7 +93,8 @@ export class UserDetails {
   }
 
   private getCurUser(){
-    this.userService.getCurUser().subscribe({
+    this.isLoading = true;
+    this.userService.getCurUser().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.userDtoSignal.set(data)
         // Patch values into the reactive form once data arrives
@@ -112,6 +115,7 @@ export class UserDetails {
         });
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -124,7 +128,8 @@ export class UserDetails {
   }
 
   private loadUser(id:number=0){
-    this.userService.getUserById(id).subscribe({
+    this.isLoading = true;
+    this.userService.getUserById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.userDtoSignal.set(data)
         // Patch values into the reactive form once data arrives
@@ -145,6 +150,7 @@ export class UserDetails {
         });
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -210,12 +216,14 @@ export class UserDetails {
 
     const userDto = this.fillPayload()
 
-    this.userService.saveUser(userDto, this.photoMultipart).subscribe({
+    this.isLoading = true;
+    this.userService.saveUser(userDto, this.photoMultipart).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data['message'],'success')
         this.router.navigate(['ElectroInternal/users'])
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

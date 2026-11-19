@@ -6,6 +6,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
 import {ShippingRateService} from '../../services/shippingRateService/shipping-rate-service';
 import {DecimalPipe} from '@angular/common';
 import {SettingDTO} from '../../../shared/Models/SettingDTO';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [
@@ -18,6 +19,7 @@ import {SettingDTO} from '../../../shared/Models/SettingDTO';
   templateUrl: './list_shipping_rate.html',
 })
 export class ListShippingRates {
+  public isLoading = false;
   private shippingRateService = inject(ShippingRateService);
   private fb = inject(FormBuilder);
   protected notification = inject(NotificationService);
@@ -49,13 +51,15 @@ export class ListShippingRates {
   loadRates(page: number = 0) {
     const keyword: string = this.searchForm.get('keyword')?.value || '';
 
-    this.shippingRateService.listAllShippingRates(keyword, page, this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.shippingRateService.listAllShippingRates(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.shippingRatesPageContent.set(data.shippingRates.content || data.shippingRates);
         this.totalPages.set(data.shippingRates.totalPages || 1);
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -98,7 +102,8 @@ export class ListShippingRates {
   }
 
   private deleteRate(id: number = 0) {
-    this.shippingRateService.deleteShippingRate(id).subscribe({
+    this.isLoading = true;
+    this.shippingRateService.deleteShippingRate(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string | any) => {
         const msg = typeof data === 'string' ? data : data.message;
         this.notification.notify(msg, 'success');
@@ -106,6 +111,7 @@ export class ListShippingRates {
         this.loadRates();
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }
@@ -113,12 +119,14 @@ export class ListShippingRates {
   }
 
   protected updateCODStatus(id: number) {
-    this.shippingRateService.updateCODStatus(id).subscribe({
+    this.isLoading = true;
+    this.shippingRateService.updateCODStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadRates();
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || (typeof err.error === 'string' ? err.error : null) || 'An unexpected error occurred.';
         this.notification.notify(message, 'danger');
       }

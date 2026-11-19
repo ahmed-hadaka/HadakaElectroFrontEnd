@@ -6,6 +6,7 @@ import {NgOptimizedImage} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {environmentDev} from '../../../../environments/environment.dev';
 import {NotificationService, NotifyType} from '../../../shared/services/NotificationService/notification-service';
+import {finalize} from 'rxjs';
 
 @Component({
   imports: [
@@ -29,7 +30,7 @@ export class ListUsers {
   totalPages = signal(0);
 
   searchForm!: FormGroup;
-
+  public isLoading = false;
   protected notification = inject(NotificationService);
 
 
@@ -49,13 +50,17 @@ export class ListUsers {
   loadUsers(page:number = 0){
     const keyword:string = this.searchForm.get('keyword')?.value || '';
 
-    this.userService.listAllUsers(keyword,page,this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.userService.listAllUsers(keyword,page,this.pageSize())
+      .pipe(finalize(() => this.isLoading = false)) // Unfreeze UI
+      .subscribe({
       next:(data)=>{
         this.usersPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -88,12 +93,10 @@ export class ListUsers {
   }
 
 
-  // Called when clicking the "Delete" button in the table row
   confirmDelete(id: number): void {
     this.userIdToDelete.set(id);
   }
 
-  // Called when clicking "Confirm Delete" inside the modal
   executeDelete(): void {
     const id = this.userIdToDelete();
     if (!id) return;
@@ -101,19 +104,20 @@ export class ListUsers {
     this.deleteUser(id);
   }
 
-  // Called when clicking "Cancel" or backdrop
   cancelDelete(): void {
     this.userIdToDelete.set(null);
   }
 
   private deleteUser(id: number=0) {
-    this.userService.deleteUser(id).subscribe({
+    this.isLoading = true;
+    this.userService.deleteUser(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next:(data)=>{
         this.notification.notify(data.message,'success')
         this.userIdToDelete.set(null);
         this.loadUsers();//refresh
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -126,12 +130,14 @@ export class ListUsers {
   }
 
   protected updateEnableStatus(id: number) {
-    this.userService.updateEnableStatus(id).subscribe({
+    this.isLoading = true;
+    this.userService.updateEnableStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next:(data:string)=>{
         this.notification.notify(data,'success');
         this.loadUsers();
       },
       error:(err)=>{
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

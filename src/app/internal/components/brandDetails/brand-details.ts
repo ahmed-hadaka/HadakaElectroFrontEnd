@@ -10,6 +10,7 @@ import { BrandDTO } from '../../../shared/Models/BrandDTO';
 import { CategorySelectDTO } from '../../../shared/Models/CategoryDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { environmentDev } from '../../../../environments/environment.dev';
+import { finalize } from 'rxjs';
 
 
 @Component({
@@ -21,6 +22,7 @@ import { environmentDev } from '../../../../environments/environment.dev';
   ]
 })
 export class BrandDetails {
+  public isLoading = false;
   private router = inject(Router);
   private brandService = inject(BrandService);
   private route = inject(ActivatedRoute);
@@ -88,7 +90,8 @@ export class BrandDetails {
   }
 
   private loadBrand(id: number) {
-    this.brandService.getEditBrandData(id).subscribe({
+    this.isLoading = true;
+    this.brandService.getEditBrandData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.brandDtoSignal.set(data.brand);
         this.categoriesSignal.set(data.categories);
@@ -106,6 +109,7 @@ export class BrandDetails {
         });
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -115,11 +119,13 @@ export class BrandDetails {
   }
 
   private loadFormData() {
-    this.brandService.getNewBrandFormData().subscribe({
+    this.isLoading = true;
+    this.brandService.getNewBrandFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.categoriesSignal.set(data);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -153,12 +159,14 @@ export class BrandDetails {
       formData.append('imageFile', this.logoFile);
     }
 
-    this.brandService.saveBrand(formData).subscribe({
+    this.isLoading = true;
+    this.brandService.saveBrand(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.router.navigate(['ElectroInternal//brands']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

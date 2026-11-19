@@ -6,6 +6,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
 import { CartItemDTO } from '../../../shared/Models/CartItemDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
 import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -15,6 +16,7 @@ import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
   styleUrl: './shopping-cart.css'
 })
 export class ShoppingCart implements OnInit {
+  public isLoading = false;
   private cartService = inject(CartService);
   private notification = inject(NotificationService);
 
@@ -59,16 +61,24 @@ export class ShoppingCart implements OnInit {
   }
 
   private checkShippingAvailability(){
-    this.cartService.checkShippingAvailability().subscribe({
+    this.isLoading = true;
+    this.cartService.checkShippingAvailability().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (isShippingAvailable) => this.availableShipping.set(isShippingAvailable.message),
-      error: (err) => this.handleError(err, 'Failed to check shipping availability.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to check shipping availability.')
+      }
     });
   }
 
   private loadCart() {
-    this.cartService.getCartItems().subscribe({
+    this.isLoading = true;
+    this.cartService.getCartItems().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (items) => this.cartItems.set(items),
-      error: (err) => this.handleError(err, 'Failed to load shopping cart.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to load shopping cart.')
+      }
     });
   }
 
@@ -78,22 +88,30 @@ export class ShoppingCart implements OnInit {
       return;
     }
 
-    this.cartService.updateQuantity(item.productId, newQuantity).subscribe({
+    this.isLoading = true;
+    this.cartService.updateQuantity(item.productId, newQuantity).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (res) => {
         this.notification.notify(res['message'], 'success');
         this.loadCart(); // Reload to ensure sync with backend
       },
-      error: (err) => this.handleError(err, 'Failed to update quantity.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to update quantity.')
+      }
     });
   }
 
   removeProduct(productId: number) {
-    this.cartService.removeProduct(productId).subscribe({
+    this.isLoading = true;
+    this.cartService.removeProduct(productId).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (res) => {
         this.notification.notify(res.message, 'success');
         this.loadCart();
       },
-      error: (err) => this.handleError(err, 'Failed to remove product.')
+      error: (err) => {
+        this.isLoading = false;
+        this.handleError(err, 'Failed to remove product.')
+      }
     });
   }
 

@@ -8,6 +8,7 @@ import {
 } from '../../../shared/Models/OrderDTO';
 import { OrderService } from '../../services/orderService/OrderService';
 import {NotificationService} from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 export type OrderDetailTab = 'overview' | 'products' | 'shipping' | 'track';
 
@@ -19,6 +20,7 @@ export type OrderDetailTab = 'overview' | 'products' | 'shipping' | 'track';
   styleUrl: './orders.css',
 })
 export class Orders implements OnInit {
+  public isLoading = false;
   private readonly fb = inject(FormBuilder);
   private readonly orderService = inject(OrderService);
   private notification = inject(NotificationService);
@@ -105,6 +107,7 @@ export class Orders implements OnInit {
     this.isLoadingList.set(true);
     const keyword = this.searchForm.get('keyword')?.value ?? '';
 
+    this.isLoading = true;
     this.orderService
       .getCustomerOrders(
         this.currentPage(),
@@ -113,7 +116,7 @@ export class Orders implements OnInit {
         this.sortField(),
         this.sortDir()
       )
-      .subscribe({
+      .pipe(finalize(() => this.isLoading = false)).subscribe({
         next: (pageData) => {
           this.ordersPageContent.set(pageData.content ?? []);
           this.totalPages.set(pageData.totalPages ?? 0);
@@ -122,6 +125,7 @@ export class Orders implements OnInit {
           this.isLoadingList.set(false);
         },
         error: (err) => {
+          this.isLoading = false;
           this.ordersPageContent.set([]);
           this.isLoadingList.set(false);
             const message = err.error?.message || err.error?.msg ||
@@ -192,12 +196,14 @@ export class Orders implements OnInit {
     this.activeTab.set('overview');
     this.isLoadingDetails.set(true);
 
-    this.orderService.getOrderById(orderId).subscribe({
+    this.isLoading = true;
+    this.orderService.getOrderById(orderId).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (CustomerOrderDTO) => {
         this.selectedOrder.set(CustomerOrderDTO);
         this.isLoadingDetails.set(false);
       },
       error: (err) => {
+        this.isLoading = false;
           const message = err.error?.message || err.error?.msg ||
             (typeof err.error === 'string' ? err.error : null) ||
             `An unexpected error occurred while fetching order id ${orderId}`;
@@ -274,7 +280,8 @@ export class Orders implements OnInit {
     this.isSubmittingReturn.set(true);
     this.returnErrorMessage.set(null);
 
-    this.orderService.requestOrderReturn(payload).subscribe({
+    this.isLoading = true;
+    this.orderService.requestOrderReturn(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: () => {
         this.isSubmittingReturn.set(false);
         this.returnRequestSent.set(true);
@@ -286,6 +293,7 @@ export class Orders implements OnInit {
         );
       },
       error: () => {
+        this.isLoading = false;
         this.isSubmittingReturn.set(false);
         this.returnErrorMessage.set('Failed to send return request. Please try again.');
       },

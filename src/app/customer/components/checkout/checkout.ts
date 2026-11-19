@@ -7,6 +7,7 @@ import {CheckoutDataDTO} from '../../../shared/Models/CheckoutDTO';
 import {CheckoutService} from '../../services/checkoutService/CheckoutService';
 import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 import {FormsModule} from '@angular/forms';
+import { finalize } from 'rxjs';
 
 
 @Component({
@@ -17,6 +18,7 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './checkout.css'
 })
 export class Checkout implements OnInit {
+  public isLoading = false;
   private checkoutService = inject(CheckoutService);
   private settingService = inject(SettingService);
   private notification = inject(NotificationService);
@@ -47,9 +49,11 @@ export class Checkout implements OnInit {
   }
 
   loadCheckoutData() {
-    this.checkoutService.getCheckoutInfo().subscribe({
+    this.isLoading = true;
+    this.checkoutService.getCheckoutInfo().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => this.checkoutData.set(data),
       error: (err) => {
+        this.isLoading = false;
         const msg = err.error?.message || err.error?.msg || 'Failed to load checkout information.';
         this.notification.notify(msg, 'danger');
       }
@@ -57,12 +61,14 @@ export class Checkout implements OnInit {
   }
 
   placeOrderCOD() {
-   this.checkoutService.placeOrder().subscribe({
+   this.isLoading = true;
+   this.checkoutService.placeOrder().pipe(finalize(() => this.isLoading = false)).subscribe({
      next:(data)=>{
        // this.notification.notify(data['message'],"success")
        this.router.navigate(['/ElectroCustomer/place-order'])
      },
      error: (err) => {
+       this.isLoading = false;
       const msg = err.error?.message || err.error?.msg || 'Failed to place the order.';
       this.notification.notify(msg, 'danger');
     }

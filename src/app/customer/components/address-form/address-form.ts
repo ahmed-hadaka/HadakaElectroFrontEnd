@@ -8,6 +8,7 @@ import {SettingCountryDTO, SettingStateDTO} from '../../../shared/Models/Setting
 import {AddressDTO} from '../../../shared/Models/AddressDTO';
 import {CustomerService} from '../../services/CustomerService/customer-service';
 import {CountryDTO, StateDTO} from '../../../shared/Models/CustomerDTO';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-address-form',
@@ -17,6 +18,7 @@ import {CountryDTO, StateDTO} from '../../../shared/Models/CustomerDTO';
   styleUrl: './address-form.css'
 })
 export class AddressForm implements OnInit {
+  public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private addressService = inject(AddressService);
@@ -43,9 +45,16 @@ export class AddressForm implements OnInit {
     defaultForShipping: [{ value: false, disabled: true }]  });
 
   ngOnInit() {
-    this.customerService.getCountries().subscribe({
+    this.isLoading = true;
+    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
+        this.checkRoute();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const message = err.error?.message || err.error?.msg || 'Failed to load countries.';
+        this.notification.notify(message, 'danger');
         this.checkRoute();
       }
     });
@@ -65,7 +74,8 @@ export class AddressForm implements OnInit {
   }
 
   private loadAddress(id: number) {
-    this.addressService.getAddress(id).subscribe({
+    this.isLoading = true;
+    this.addressService.getAddress(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (addr) => {
         this.form.patchValue({
           id: addr.id,
@@ -82,7 +92,10 @@ export class AddressForm implements OnInit {
         });
         this.loadStatesForCountry(addr.countryId, addr.state);
       },
-      error: (err) => this.notification.notify('Failed to load address', 'danger')
+      error: (err) => {
+        this.isLoading = false;
+        this.notification.notify('Failed to load address', 'danger')
+      }
     });
   }
 
@@ -131,12 +144,14 @@ export class AddressForm implements OnInit {
       countryId: Number(formValues.countryId!)
     };
 
-    this.addressService.saveAddress(payload).subscribe({
+    this.isLoading = true;
+    this.addressService.saveAddress(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (msg) => {
         this.notification.notify(msg, 'success');
         this.router.navigate(['/ElectroCustomer/address-book']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg || 'An error occurred';
         this.notification.notify(message, 'danger');
       }

@@ -10,6 +10,7 @@ import { CategoryListDTO, CategorySelectDTO } from '../../../shared/Models/Categ
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NgIf, NgForOf } from '@angular/common';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-category-details',
@@ -21,6 +22,7 @@ import { NgIf, NgForOf } from '@angular/common';
   ]
 })
 export class CategoryDetails {
+  public isLoading = false;
   private router = inject(Router);
   private categoryService = inject(CategoryService);
   private route = inject(ActivatedRoute);
@@ -65,7 +67,8 @@ export class CategoryDetails {
   }
 
   private loadCategory(id: number) {
-    this.categoryService.getEditCategoryData(id).subscribe({
+    this.isLoading = true;
+    this.categoryService.getEditCategoryData(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.categoryDtoSignal.set(data.category);
         this.parentCategoriesSignal.set(data.categories);
@@ -85,6 +88,7 @@ export class CategoryDetails {
     } );
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -94,11 +98,13 @@ export class CategoryDetails {
   }
 
   private loadFormData() {
-    this.categoryService.getNewCategoryFormData().subscribe({
+    this.isLoading = true;
+    this.categoryService.getNewCategoryFormData().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.parentCategoriesSignal.set(data);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -132,12 +138,14 @@ export class CategoryDetails {
       formData.append('imageFile', this.imageFile);
     }
 
-    this.categoryService.saveCategory(formData).subscribe({
+    this.isLoading = true;
+    this.categoryService.saveCategory(formData).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.router.navigate(['ElectroInternal/categories']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

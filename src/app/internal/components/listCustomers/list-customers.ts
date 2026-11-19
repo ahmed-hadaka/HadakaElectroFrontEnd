@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { CustomerDTO } from '../../../shared/Models/CustomerDTO';
 import { CustomerService } from '../../services/CustomerService/customer-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-customers',
@@ -12,6 +13,7 @@ import { CustomerService } from '../../services/CustomerService/customer-service
   imports: [ReactiveFormsModule, RouterLink]
 })
 export class ListCustomers {
+  public isLoading = false;
   private customerService = inject(CustomerService);
   protected notification = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -38,13 +40,15 @@ export class ListCustomers {
   loadCustomers(page: number = 0) {
     const keyword = this.searchForm.get('keyword')?.value || '';
 
-    this.customerService.listCustomers(keyword, page, this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.customerService.listCustomers(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.customersPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -86,13 +90,15 @@ export class ListCustomers {
   }
 
   private deleteCustomer(id: number): void {
-    this.customerService.deleteCustomer(id).subscribe({
+    this.isLoading = true;
+    this.customerService.deleteCustomer(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.customerIdToDelete.set(null);
         this.loadCustomers(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -104,12 +110,14 @@ export class ListCustomers {
   }
 
   protected updateEnableStatus(id: number) {
-    this.customerService.toggleEnableStatus(id).subscribe({
+    this.isLoading = true;
+    this.customerService.toggleEnableStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadCustomers(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

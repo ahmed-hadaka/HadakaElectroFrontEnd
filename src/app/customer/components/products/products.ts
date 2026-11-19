@@ -9,6 +9,7 @@ import {
 } from '../../../shared/Models/CustomerDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -18,6 +19,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
   styleUrl: './products.css'
 })
 export class Products {
+  public isLoading = false;
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
@@ -57,7 +59,8 @@ export class Products {
 
     if (keyword) {
       // 1. Search Mode
-      this.customerService.searchProducts(keyword, page, 12).subscribe({
+      this.isLoading = true;
+      this.customerService.searchProducts(keyword, page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
         next: (data: any) => {
           this.response.set({
             parentCategories: [],
@@ -65,16 +68,23 @@ export class Products {
           });
           this.currentPage.set(page);
         },
-        error: (err) => this.handleError(err)
+        error: (err) => {
+          this.isLoading = false;
+          this.handleError(err)
+        }
       });
     } else if (id !== null) {
       // 2. Category Mode
-      this.customerService.getCategoryProducts(id, page, 12).subscribe({
+      this.isLoading = true;
+      this.customerService.getCategoryProducts(id, page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
         next: (data) => {
           this.response.set(data);
           this.currentPage.set(page);
         },
-        error: (err) => this.handleError(err)
+        error: (err) => {
+          this.isLoading = false;
+          this.handleError(err)
+        }
       });
     }
   }

@@ -8,6 +8,7 @@ import { OrderService } from '../../services/OrderService/order-service';
 import {GeneralSettingDTO} from '../../../shared/Models/CustomerDTO';
 import {SettingDTO} from '../../../shared/Models/SettingDTO';
 import {RoleService} from '../../services/role-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-order-details',
@@ -20,6 +21,7 @@ import {RoleService} from '../../services/role-service';
   ]
 })
 export class ViewOrderDetails {
+  public isLoading = false;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);
@@ -51,7 +53,8 @@ export class ViewOrderDetails {
   }
 
   private loadOrder(id: number) {
-    this.orderService.getOrderById(id).subscribe({
+    this.isLoading = true;
+    this.orderService.getOrderById(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (order) => {
         // sorted from Oldest to Newest
         const sortedTracks = [...order.orderTracks].sort((a, b) => {
@@ -70,6 +73,7 @@ export class ViewOrderDetails {
         this.orderSignal.set(order);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -102,13 +106,15 @@ export class ViewOrderDetails {
   }
 
   private deleteOrder(id: number) {
-    this.orderService.deleteOrder(id).subscribe({
+    this.isLoading = true;
+    this.orderService.deleteOrder(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.orderIdToDelete.set(null);
         this.router.navigate(['ElectroInternal/orders']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

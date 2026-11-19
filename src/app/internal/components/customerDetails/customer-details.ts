@@ -6,6 +6,7 @@ import { CustomerDTO } from '../../../shared/Models/CustomerDTO';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { SettingCountryDTO, SettingStateDTO } from '../../../shared/Models/SettingDTO';
 import { SettingService } from '../../services/SettingService/setting.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-internal-customer-details',
@@ -14,6 +15,7 @@ import { SettingService } from '../../services/SettingService/setting.service';
   imports: [ReactiveFormsModule, RouterLink]
 })
 export class CustomerDetails {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -57,11 +59,13 @@ export class CustomerDetails {
   }
 
   private loadCountries() {
-    this.settingService.getCountries().subscribe({
+    this.isLoading = true;
+    this.settingService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (countries) => {
         this.countriesSignal.set(countries);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -73,7 +77,8 @@ export class CustomerDetails {
   }
 
   private loadCustomer(customerId: number) {
-    this.customerService.getCustomerById(customerId).subscribe({
+    this.isLoading = true;
+    this.customerService.getCustomerById(customerId).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (customer) => {
         this.customerSignal.set(customer);
         this.customerForm.patchValue({
@@ -93,6 +98,7 @@ export class CustomerDetails {
         this.onCountryChange(customer.countryId,customer.state, false);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -110,7 +116,8 @@ export class CustomerDetails {
       return;
     }
 
-    this.settingService.getStates(parsedId).subscribe({
+    this.isLoading = true;
+    this.settingService.getStates(parsedId).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (states) => {
         this.statesSignal.set(states);
         if (resetSelectedState) {
@@ -120,6 +127,7 @@ export class CustomerDetails {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -158,12 +166,14 @@ export class CustomerDetails {
       payload.password = password;
     }
 
-    this.customerService.updateCustomer(payload).subscribe({
+    this.isLoading = true;
+    this.customerService.updateCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (message) => {
         this.notification.notify(message, 'success');
         this.router.navigate(['ElectroInternal/customers']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -174,4 +184,3 @@ export class CustomerDetails {
     });
   }
 }
-

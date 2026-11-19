@@ -5,6 +5,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-brands',
@@ -16,6 +17,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
   ]
 })
 export class ListBrands {
+  public isLoading = false;
   private brandService = inject(BrandService);
   protected notification = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -44,13 +46,15 @@ export class ListBrands {
   loadBrands(page: number = 0) {
     const keyword = this.searchForm.get('keyword')?.value || '';
 
-    this.brandService.listBrands(keyword, page, this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.brandService.listBrands(keyword, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.brandsPageContent.set(data.content);
         this.totalPages.set(data.totalPages);
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';
@@ -90,13 +94,15 @@ export class ListBrands {
   }
 
   private deleteBrand(id: number) {
-    this.brandService.deleteBrand(id).subscribe({
+    this.isLoading = true;
+    this.brandService.deleteBrand(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.brandIdToDelete.set(null);
         this.loadBrands(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred.';

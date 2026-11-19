@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { CountryDTO, CustomerDTO } from '../../../shared/Models/CustomerDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -13,6 +14,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
   styleUrl: './register.css'
 })
 export class Register {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private customerService = inject(CustomerService);
   private router = inject(Router);
@@ -40,7 +42,8 @@ export class Register {
   }
 
   loadCountries(){
-    this.customerService.getCountries().subscribe({
+    this.isLoading = true;
+    this.customerService.getCountries().pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (countries) => {
         this.countries.set(countries);
         if (countries.length > 0) {
@@ -49,6 +52,7 @@ export class Register {
         }
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading countries';
@@ -85,12 +89,14 @@ export class Register {
       countryId: Number(formValues.countryId || 0)
     };
 
-    this.customerService.saveCustomer(payload).subscribe({
+    this.isLoading = true;
+    this.customerService.saveCustomer(payload).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.router.navigate(['/ElectroCustomer/login']);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while saving customer';

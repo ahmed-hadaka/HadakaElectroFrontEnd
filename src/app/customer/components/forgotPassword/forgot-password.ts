@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
@@ -12,6 +13,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
   styleUrl: './forgot-password.css'
 })
 export class ForgotPassword {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
@@ -27,12 +29,14 @@ export class ForgotPassword {
     }
 
     const email = this.forgotPasswordForm.value.email || '';
-    this.customerService.requestPasswordReset(email).subscribe({
+    this.isLoading = true;
+    this.customerService.requestPasswordReset(email).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (message) => {
         this.notification.notify(message['message'], 'success');
         this.forgotPasswordForm.reset();
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while request reset password';

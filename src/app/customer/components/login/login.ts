@@ -6,6 +6,7 @@ import { LoginRequestDTO } from '../../../shared/Models/LoginRequestDTO';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import {AuthService} from '../../../shared/services/AuthService/auth-service';
 import {environmentDev} from '../../../../environments/environment.dev';
+import { finalize } from 'rxjs';
 
 // 1. Declare the google object loaded by the external script
 declare var google: any;
@@ -18,6 +19,7 @@ declare var google: any;
   templateUrl: './login.html',
 })
 export class Login {
+  public isLoading = false;
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private notification = inject(NotificationService);
@@ -45,7 +47,8 @@ export class Login {
   private handleGoogleCredential(response: any) {
     const idToken = response.credential;
 
-    this.authService.googleLogin(idToken).subscribe({
+    this.isLoading = true;
+    this.authService.googleLogin(idToken).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
 
         sessionStorage.setItem('customerEmail', data['Email']);
@@ -59,6 +62,7 @@ export class Login {
         })
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -85,7 +89,8 @@ export class Login {
     const loginUrl = environmentDev.backendCustomerBaseUrl+'/auth/login';
 
 
-    this.authService.login(loginReqDTO,loginUrl).subscribe({
+    this.isLoading = true;
+    this.authService.login(loginReqDTO,loginUrl).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: Record<string, string>) => {
 
         sessionStorage.setItem('customerEmail', data['Email']);
@@ -98,6 +103,7 @@ export class Login {
         })
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while login';

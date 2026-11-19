@@ -7,6 +7,7 @@ import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { CategorySelectDTO } from '../../../shared/Models/CategoryDTO';
 import {RoleService} from '../../services/role-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-products',
@@ -19,6 +20,7 @@ import {RoleService} from '../../services/role-service';
   ]
 })
 export class ListProducts implements OnInit {
+  public isLoading = false;
   private productService = inject(ProductService);
   protected notification = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -52,7 +54,8 @@ export class ListProducts implements OnInit {
     const keyword: string = this.searchForm.get('keyword')?.value || '';
     const categoryId: number = this.searchForm.get('categoryId')?.value;
 
-    this.productService.listProducts(keyword, categoryId, page, this.pageSize()).subscribe({
+    this.isLoading = true;
+    this.productService.listProducts(keyword, categoryId, page, this.pageSize()).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.productsPageContent.set(data.products.content);
         this.categories.set(data.categories);
@@ -60,6 +63,7 @@ export class ListProducts implements OnInit {
         this.currentPage.set(page);
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -115,13 +119,15 @@ export class ListProducts implements OnInit {
   }
 
   private deleteProduct(id: number) {
-    this.productService.deleteProduct(id).subscribe({
+    this.isLoading = true;
+    this.productService.deleteProduct(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data) => {
         this.notification.notify(data, 'success');
         this.productIdToDelete.set(null);
         this.loadProducts(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||
@@ -133,12 +139,14 @@ export class ListProducts implements OnInit {
   }
 
   protected updateProductStatus(id: number) {
-    this.productService.updateProductStatus(id).subscribe({
+    this.isLoading = true;
+    this.productService.updateProductStatus(id).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (data: string) => {
         this.notification.notify(data, 'success');
         this.loadProducts(this.currentPage());
       },
       error: (err) => {
+        this.isLoading = false;
         const message =
           err.error?.message ||
           err.error?.msg ||

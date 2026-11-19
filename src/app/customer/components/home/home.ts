@@ -5,6 +5,7 @@ import { CategoryListDTO } from '../../../shared/Models/CategoryDTO';
 import { GeneralSettingDTO } from '../../../shared/Models/CustomerDTO';
 import { environmentDev } from '../../../../environments/environment.dev';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
   styleUrl: './home.css'
 })
 export class Home {
+  public isLoading = false;
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
 
@@ -40,13 +42,15 @@ export class Home {
 
 
   private loadCategories(page:number) {
-    this.customerService.getCategories(page, 12).subscribe({
+    this.isLoading = true;
+    this.customerService.getCategories(page, 12).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (categories) => {
         this.totalPages.set(categories.totalPages);
         this.currentPage.set(page);
         this.categories.set(categories.content);
       },
       error: (err) => {
+        this.isLoading = false;
         const message = err.error?.message || err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while loading categories';

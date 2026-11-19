@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/CustomerService/customer-service';
 import { NotificationService } from '../../../shared/services/NotificationService/notification-service';
 import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-verify',
@@ -12,6 +13,7 @@ import { CustomerNavBar } from '../customerNavBar/customer-nav-bar';
   styleUrl: './verify.css'
 })
 export class Verify {
+  public isLoading = false;
   private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
   private notification = inject(NotificationService);
@@ -26,13 +28,15 @@ export class Verify {
       return;
     }
 
-    this.customerService.verifyCustomer(code).subscribe({
+    this.isLoading = true;
+    this.customerService.verifyCustomer(code).pipe(finalize(() => this.isLoading = false)).subscribe({
       next: (response) => {
         this.success.set(true);
         this.message.set(response['message']);
         this.notification.notify(response['message'], 'success');
       },
       error: (err) => {
+        this.isLoading = false;
         const response = err.error?.message||err.error?.msg ||
           (typeof err.error === 'string' ? err.error : null) ||
           'An unexpected error occurred while verifying';
