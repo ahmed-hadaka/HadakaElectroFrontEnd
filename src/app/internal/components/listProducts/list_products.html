@@ -1,0 +1,241 @@
+<div class="container-fluid px-3 px-md-4 mt-4">
+  @if (!isIframePicker()) {
+    <div class="row align-items-center g-2 mb-4">
+      <div class="col-12 col-md-8">
+        <h2 class="mb-0">Products Management</h2>
+      </div>
+      @if (roleService.hasRole('Admin') || roleService.hasRole('Editor')) {
+        <div class="col-12 col-md-4 d-flex justify-content-md-end">
+          <a [routerLink]="['/ElectroInternal/products/new-product']" class="btn btn-success w-100 w-md-auto">New Product</a>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Search & Filter Section -->
+  <div class="row mb-3">
+    <div class="col-12 col-lg-9">
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="row g-2">
+        <div class="col-12 col-md-6">
+          <input type="text" class="form-control" formControlName="keyword" placeholder="By id, name, alias and short-full desc">
+        </div>
+        <div class="col-12 col-sm-7 col-md-4">
+          <select class="form-select" formControlName="categoryId" (change)="onCategoryChange()">
+            <option [ngValue]="null">All Categories</option>
+            @for (category of categories(); track category.id) {
+              <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-sm-5 col-md-2">
+          <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Products Content -->
+  @if (productsPageContent(); as products) {
+    <!-- Desktop View (lg and up): Standard Table -->
+    <div class="d-none d-lg-block">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle products-table mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Product ID</th>
+              <th scope="col">Image</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Category Name</th>
+              <th scope="col">Brand Name</th>
+              @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
+                <th scope="col">Status</th>
+              }
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of products; track product.id) {
+              <tr>
+                <th scope="row">{{ product.id }}</th>
+                <td>
+                  <img [src]="getImagePath(product.id, product.mainImage)"
+                       alt="Product"
+                       width="50"
+                       height="50"
+                       class="rounded object-fit-cover">
+                </td>
+                <td class="text-break">
+                  @if (isIframePicker()) {
+                    <button type="button"
+                       class="btn btn-link p-0 fw-semibold text-primary text-decoration-none text-start"
+                       (click)="selectProductForOrder(product.id)">
+                      {{ product.name }}
+                    </button>
+                  } @else {
+                    {{ product.name }}
+                  }
+                </td>
+                <td class="text-break">{{ product.categoryName }}</td>
+                <td class="text-break">{{ product.brandName }}</td>
+
+                @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
+                  <td>
+                    <div class="form-check form-switch d-flex justify-content-center mb-0">
+                      <input type="checkbox"
+                             class="form-check-input"
+                             [checked]="product.enabled"
+                             (change)="updateProductStatus(product.id)">
+                    </div>
+                  </td>
+                }
+
+                <td class="action">
+                  <div class="d-flex justify-content-center flex-wrap gap-1">
+                    @if (isIframePicker()) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-success"
+                        (click)="selectProductForOrder(product.id)">
+                        Select
+                      </button>
+                    } @else {
+                      @if (roleService.hasRole('Admin') || roleService.hasRole('Editor') || roleService.hasRole('Salesperson')) {
+                        <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary btn-sm">View/Edit</a>
+                      }
+                      @if (roleService.hasRole('Admin') || roleService.hasRole('Editor')) {
+                        <button type="button" class="btn btn-danger btn-sm" (click)="confirmDelete(product.id)">Delete</button>
+                      }
+                      @if (roleService.hasRole('Shipper')) {
+                        <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary btn-sm">View</a>
+                      }
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile & Tablet View (360px to <992px): Responsive Stacked Cards -->
+    <div class="d-lg-none">
+      <div class="row g-3">
+        @for (product of products; track product.id) {
+          <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm product-card">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center gap-2 py-2">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                  <img [src]="getImagePath(product.id, product.mainImage)"
+                       alt="Product"
+                       width="42"
+                       height="42"
+                       class="rounded object-fit-cover flex-shrink-0">
+                  <div class="min-w-0">
+                    @if (isIframePicker()) {
+                      <button type="button"
+                         class="btn btn-link p-0 fw-semibold text-primary text-decoration-none text-start text-break"
+                         (click)="selectProductForOrder(product.id)">
+                        {{ product.name }}
+                      </button>
+                    } @else {
+                      <span class="fw-semibold text-break d-block">{{ product.name }}</span>
+                    }
+                  </div>
+                </div>
+                @if (!isIframePicker() && !roleService.hasRole("Shipper")) {
+                  <div class="form-check form-switch mb-0 flex-shrink-0">
+                    <input type="checkbox"
+                           class="form-check-input"
+                           [checked]="product.enabled"
+                           aria-label="Status"
+                           (change)="updateProductStatus(product.id)">
+                  </div>
+                }
+              </div>
+
+              <div class="card-body py-2 px-3">
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Product ID</span>
+                  <span class="item-detail-value">#{{ product.id }}</span>
+                </div>
+
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Category</span>
+                  <span class="item-detail-value text-break">{{ product.categoryName }}</span>
+                </div>
+
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Brand</span>
+                  <span class="item-detail-value text-break">{{ product.brandName }}</span>
+                </div>
+              </div>
+
+              <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3">
+                <div class="d-flex flex-wrap gap-2">
+                  @if (isIframePicker()) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success flex-fill"
+                      (click)="selectProductForOrder(product.id)">
+                      Select
+                    </button>
+                  } @else {
+                    @if (roleService.hasRole('Admin') || roleService.hasRole('Editor') || roleService.hasRole('Salesperson')) {
+                      <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary btn-sm flex-fill">View/Edit</a>
+                    }
+                    @if (roleService.hasRole('Admin') || roleService.hasRole('Editor')) {
+                      <button type="button" class="btn btn-danger btn-sm flex-fill" (click)="confirmDelete(product.id)">Delete</button>
+                    }
+                    @if (roleService.hasRole('Shipper')) {
+                      <a [routerLink]="['/ElectroInternal/products/edit', product.id]" class="btn btn-primary btn-sm flex-fill">View</a>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-controls d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() === 0"
+                (click)="previousPage()">
+          Previous
+        </button>
+        <span class="small text-secondary">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() >= totalPages() - 1"
+                (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Confirmation Modal -->
+  @if (productIdToDelete(); as productId) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete product <strong>{{ productId }}</strong>?</p>
+            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

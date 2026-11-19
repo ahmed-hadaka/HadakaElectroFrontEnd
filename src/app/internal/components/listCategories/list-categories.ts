@@ -8,7 +8,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
 
 @Component({
   selector: 'app-list-categories',
-  templateUrl: './list-categories.html',
+  templateUrl: './list_categories.html',
   styleUrl: './list-categories.css',
   imports: [
     ReactiveFormsModule,

@@ -1,120 +1,179 @@
-<div class="container-fluid mt-4">
-  <div class="row mb-4">
-    <div class="col-md-8">
-      <h2>Users Management</h2>
+<div class="container-fluid px-3 px-md-4 mt-4">
+  <div class="row align-items-center g-2 mb-4">
+    <div class="col-12 col-md-8">
+      <h2 class="mb-0">Users Management</h2>
     </div>
-    <div class="col-md-4 text-end">
-      <a [routerLink]="['/ElectroInternal/users/user-details',0]" class="btn btn-success">New User</a>
+    <div class="col-12 col-md-4 d-flex justify-content-md-end">
+      <a [routerLink]="['/ElectroInternal/users/user-details', 0]" class="btn btn-success w-100 w-md-auto">New User</a>
     </div>
   </div>
 
   <!-- Search & Filter Section -->
   <div class="row mb-3">
-    <div class="col-md-8">
+    <div class="col-12 col-lg-8">
       <form [formGroup]="searchForm" class="row g-2">
-        <div class="col-md-6">
+        <div class="col-12 col-sm-8 col-md-9">
           <input type="text" class="form-control" formControlName="keyword" placeholder="By id,first-last name and, email">
         </div>
-        <div class="col-md-2">
+        <div class="col-12 col-sm-4 col-md-3">
           <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
         </div>
       </form>
     </div>
   </div>
 
-<table class="table table-striped">
-  <thead>
-  <tr>
-    <th scope="col">UserId</th>
-    <th scope="col">Photo</th>
-    <th scope="col">First Name</th>
-    <th scope="col">Last Name</th>
-    <th scope="col">Enabled</th>
-    <th scope="col">Roles</th>
-    <th scope="col">Actions</th>
-  </tr>
-  </thead>
-  <tbody>
-
-    @for (userDto of usersPageContent(); track userDto.id) {
-      <tr>
-        <th scope="row" data-label="User ID">{{ userDto.id }}</th>
-        <td data-label="Photo">
-          @if(userDto.photo != null && userDto.photo.length > 0){
-            <img [ngSrc]="userPhotoBasePath +userDto.id+'/'+ userDto.photo" alt="photo"
-                 width="40"
-                 height="40"
-                 class="rounded-circle object-fit-cover"
-            >
-          }@else{
-            <img [ngSrc]="defaultUserPhotoBasePath +'default-user.png'" alt="photo"
-                 width="40"
-                 height="40"
-                 class="rounded-circle object-fit-cover"
-            >
+  <!-- Desktop View (lg and up): Standard Table -->
+  <div class="d-none d-lg-block">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle users-table mb-0">
+        <thead class="table-light">
+        <tr>
+          <th scope="col">UserId</th>
+          <th scope="col">Photo</th>
+          <th scope="col">First Name</th>
+          <th scope="col">Last Name</th>
+          <th scope="col">Enabled</th>
+          <th scope="col">Roles</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (userDto of usersPageContent(); track userDto.id) {
+            <tr>
+              <th scope="row">{{ userDto.id }}</th>
+              <td>
+                @if (userDto.photo != null && userDto.photo.length > 0) {
+                  <img [ngSrc]="userPhotoBasePath + userDto.id + '/' + userDto.photo" alt="photo"
+                       width="40"
+                       height="40"
+                       class="rounded-circle object-fit-cover">
+                } @else {
+                  <img [ngSrc]="defaultUserPhotoBasePath + 'default-user.png'" alt="photo"
+                       width="40"
+                       height="40"
+                       class="rounded-circle object-fit-cover">
+                }
+              </td>
+              <td class="text-break">{{ userDto.firstName }}</td>
+              <td class="text-break">{{ userDto.lastName }}</td>
+              <td>
+                <div class="form-check form-switch d-flex justify-content-center mb-0">
+                  <input type="checkbox" [checked]="userDto.enabled"
+                         class="form-check-input"
+                         (change)="updateEnableStatus(userDto.id)">
+                </div>
+              </td>
+              <td class="text-break">
+                @for (role of userDto.roles; track role.id; let last = $last) {
+                  <span>{{ role.name }}{{ last ? '' : ', ' }}</span>
+                }
+              </td>
+              <td class="action">
+                <div class="d-flex justify-content-center flex-wrap gap-1">
+                  <button type="button" class="btn btn-primary btn-sm" [routerLink]="['/ElectroInternal/users/user-details', userDto.id]">View / Edit</button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="confirmDelete(userDto.id)">Delete</button>
+                </div>
+              </td>
+            </tr>
           }
-        </td>
-        <td data-label="First Name">{{ userDto.firstName }}</td>
-        <td data-label="Last Name">{{ userDto.lastName }}</td>
-        <td data-label="Enabled">
-          <div class="form-check form-switch">
-          <input type="checkbox" [checked]="userDto.enabled"
-                 class="form-check-input"
-                 (change)="updateEnableStatus(userDto.id)">
-          </div>
-        </td>
-        <td data-label="Roles">
-          @for (role of userDto.roles; track role.id; let last = $last) {
-            <span>{{ role.name }}{{ last ? '' : ', ' }}</span>
-          }
-        </td>
-        <td data-label="Actions" class="action">
-          <button type="button" class="btn btn-primary" [routerLink]="['/ElectroInternal/users/user-details',userDto.id]">View / Edit</button>&nbsp;&nbsp;&nbsp;
-          <button type="button" class="btn btn-danger" (click)="confirmDelete(userDto.id)">Delete</button>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
-
-
-<!-- Pagination -->
-@if (totalPages() > 1) {
-  <div class="d-flex justify-content-between align-items-center mt-4">
-    <button class="btn btn-outline-primary"
-            [disabled]="currentPage() === 0"
-            (click)="previousPage()">
-      Previous
-    </button>
-    <span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
-    <button class="btn btn-outline-primary"
-            [disabled]="currentPage() >= totalPages() - 1"
-            (click)="nextPage()">
-      Next
-    </button>
+        </tbody>
+      </table>
+    </div>
   </div>
-}
 
+  <!-- Mobile & Tablet View (360px to <992px): Responsive Stacked Cards -->
+  <div class="d-lg-none">
+    <div class="row g-3">
+      @for (userDto of usersPageContent(); track userDto.id) {
+        <div class="col-12 col-md-6">
+          <div class="card h-100 shadow-sm user-card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center gap-2 py-2">
+              <div class="d-flex align-items-center gap-2 min-w-0">
+                @if (userDto.photo != null && userDto.photo.length > 0) {
+                  <img [ngSrc]="userPhotoBasePath + userDto.id + '/' + userDto.photo" alt="photo"
+                       width="40"
+                       height="40"
+                       class="rounded-circle object-fit-cover flex-shrink-0">
+                } @else {
+                  <img [ngSrc]="defaultUserPhotoBasePath + 'default-user.png'" alt="photo"
+                       width="40"
+                       height="40"
+                       class="rounded-circle object-fit-cover flex-shrink-0">
+                }
+                <span class="fw-semibold text-break">{{ userDto.firstName }} {{ userDto.lastName }}</span>
+              </div>
+              <div class="form-check form-switch mb-0 flex-shrink-0">
+                <input type="checkbox" [checked]="userDto.enabled"
+                       class="form-check-input"
+                       aria-label="Enabled"
+                       (change)="updateEnableStatus(userDto.id)">
+              </div>
+            </div>
 
-<!-- Bootstrap Confirmation Modal -->
-@if (userIdToDelete(); as userId) {
-  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm Deletion</h5>
-          <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+            <div class="card-body py-2 px-3">
+              <div class="item-detail-row">
+                <span class="item-detail-label">User ID</span>
+                <span class="item-detail-value">#{{ userDto.id }}</span>
+              </div>
+
+              <div class="item-detail-row">
+                <span class="item-detail-label">Roles</span>
+                <span class="item-detail-value text-break">
+                  @for (role of userDto.roles; track role.id; let last = $last) {
+                    <span>{{ role.name }}{{ last ? '' : ', ' }}</span>
+                  }
+                </span>
+              </div>
+            </div>
+
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3">
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary btn-sm flex-fill" [routerLink]="['/ElectroInternal/users/user-details', userDto.id]">View / Edit</button>
+                <button type="button" class="btn btn-danger btn-sm flex-fill" (click)="confirmDelete(userDto.id)">Delete</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="modal-body">
-          <p>Are you sure you want to delete user <strong>{{ userId }}</strong>?</p>
-          <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
-          <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+      }
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+    <div class="pagination-controls d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+      <button class="btn btn-outline-primary btn-sm"
+              [disabled]="currentPage() === 0"
+              (click)="previousPage()">
+        Previous
+      </button>
+      <span class="small text-secondary">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+      <button class="btn btn-outline-primary btn-sm"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="nextPage()">
+        Next
+      </button>
+    </div>
+  }
+
+  <!-- Bootstrap Confirmation Modal -->
+  @if (userIdToDelete(); as userId) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete user <strong>{{ userId }}</strong>?</p>
+            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-}
+  }
 </div>

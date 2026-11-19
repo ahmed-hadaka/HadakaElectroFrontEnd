@@ -1,0 +1,158 @@
+<div class="container-fluid px-3 px-md-4 mt-4">
+  <div class="row align-items-center g-2 mb-4">
+    <div class="col-12 col-md-8">
+      <h2 class="mb-0">Brands Management</h2>
+    </div>
+    <div class="col-12 col-md-4 d-flex justify-content-md-end">
+      <a [routerLink]="['/ElectroInternal/brands/edit', 0]" class="btn btn-success w-100 w-md-auto">New Brand</a>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="row mb-3">
+    <div class="col-12 col-lg-8">
+      <form [formGroup]="searchForm" class="row g-2">
+        <div class="col-12 col-sm-8 col-md-9">
+          <input type="text" class="form-control" formControlName="keyword" placeholder="Search by brand name">
+        </div>
+        <div class="col-12 col-sm-4 col-md-3">
+          <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Brands Content -->
+  @if (brandsPageContent(); as brands) {
+    <!-- Desktop View (lg and up): Standard Table -->
+    <div class="d-none d-lg-block">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle brands-table mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Brand ID</th>
+              <th scope="col">Logo</th>
+              <th scope="col">Brand Name</th>
+              <th scope="col">Categories</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (brand of brands; track brand.id) {
+              <tr>
+                <th scope="row">{{ brand.id }}</th>
+                <td>
+                  <img [src]="getLogoPath(brand.id, brand.logo)"
+                       alt="Brand Logo"
+                       width="50"
+                       height="50"
+                       class="rounded object-fit-cover">
+                </td>
+                <td class="text-break">{{ brand.name }}</td>
+                <td class="text-break">
+                  @if (brand.categories && brand.categories.length > 0) {
+                    @for (category of brand.categories; track category.id; let last = $last) {
+                      <span>{{ category.name }}{{ last ? '' : ', ' }}</span>
+                    }
+                  } @else {
+                    <span class="text-muted">No categories</span>
+                  }
+                </td>
+                <td class="action">
+                  <div class="d-flex justify-content-center flex-wrap gap-1">
+                    <a [routerLink]="['/ElectroInternal/brands/edit', brand.id]" class="btn btn-primary btn-sm">View / Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm" (click)="confirmDelete(brand.id)">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile & Tablet View (360px to <992px): Responsive Stacked Cards -->
+    <div class="d-lg-none">
+      <div class="row g-3">
+        @for (brand of brands; track brand.id) {
+          <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm brand-card">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center gap-2 py-2">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                  <img [src]="getLogoPath(brand.id, brand.logo)"
+                       alt="Brand Logo"
+                       width="40"
+                       height="40"
+                       class="rounded object-fit-cover flex-shrink-0">
+                  <span class="fw-semibold text-break">{{ brand.name }}</span>
+                </div>
+                <span class="badge text-bg-secondary flex-shrink-0">#{{ brand.id }}</span>
+              </div>
+
+              <div class="card-body py-2 px-3">
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Categories</span>
+                  <span class="item-detail-value text-break">
+                    @if (brand.categories && brand.categories.length > 0) {
+                      @for (category of brand.categories; track category.id; let last = $last) {
+                        <span>{{ category.name }}{{ last ? '' : ', ' }}</span>
+                      }
+                    } @else {
+                      <span class="text-muted">No categories</span>
+                    }
+                  </span>
+                </div>
+              </div>
+
+              <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3">
+                <div class="d-flex flex-wrap gap-2">
+                  <a [routerLink]="['/ElectroInternal/brands/edit', brand.id]" class="btn btn-primary btn-sm flex-fill">View / Edit</a>
+                  <button type="button" class="btn btn-danger btn-sm flex-fill" (click)="confirmDelete(brand.id)">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-controls d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() === 0"
+                (click)="previousPage()">
+          Previous
+        </button>
+        <span class="small text-secondary">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() >= totalPages() - 1"
+                (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Confirmation Modal -->
+  @if (brandIdToDelete(); as brandId) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete brand <strong>{{ brandId }}</strong>?</p>
+            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

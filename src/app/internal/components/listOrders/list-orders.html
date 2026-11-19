@@ -1,111 +1,179 @@
-<div class="container-fluid mt-4">
+<div class="container-fluid px-3 px-md-4 mt-4">
   <div class="row mb-4">
-    <div class="col-md-8">
-      <h2>Orders Management</h2>
+    <div class="col-12 col-md-8">
+      <h2 class="mb-0">Orders Management</h2>
     </div>
   </div>
 
-  @if(roleService.hasRole('Admin')){
-  <div class="row mb-3">
-    <div class="col-md-8">
-      <form [formGroup]="searchForm" class="row g-2">
-        <div class="col-md-6">
-          <input type="text" class="form-control" formControlName="keyword" placeholder="Search by order, customer or destination">
-        </div>
-        <div class="col-md-2">
-          <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
-        </div>
-      </form>
+  @if (roleService.hasRole('Admin')) {
+    <div class="row mb-3">
+      <div class="col-12 col-lg-8">
+        <form [formGroup]="searchForm" class="row g-2">
+          <div class="col-12 col-sm-8 col-md-7">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="keyword"
+              placeholder="Search by order, customer or destination">
+          </div>
+          <div class="col-12 col-sm-4 col-md-3">
+            <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  @if (ordersPageContent(); as orders) {
-    <div class="table-responsive">
-      <table class="table table-striped table-hover">
-        <thead class="table-light">
-        <tr>
-          <th scope="col">Order ID</th>
-          <th scope="col">Customer Name</th>
-          <th scope="col">Total</th>
-          <th scope="col">Order Time</th>
-          <th scope="col">Destination</th>
-          <th scope="col">Payment Method</th>
-          <th scope="col">Status</th>
-          <th scope="col">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (order of orders; track order.id) {
+    @if (ordersPageContent(); as orders) {
+      <!-- Desktop View (lg and up): Standard Table -->
+      <div class="d-none d-lg-block">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle orders-table mb-0">
+            <thead class="table-light">
             <tr>
-              <th scope="row" data-label="Order ID">{{ order.id }}</th>
-              <td data-label="Customer Name">{{ order.customerName }}</td>
-              <td data-label="Total">
-                @if(currencySymbolPosition() === 'BEFORE_PRICE'){
-                  {{currencySymbol()}} {{ order.total | number:'1.2-2' }}
-                }@else{
-                  {{ order.total | number:'1.2-2' }} {{currencySymbol()}}
-                }
-              </td>
-              <td data-label="Order Time">{{ order.orderTime | date:'medium' }}</td>
-              <td data-label="Destination">{{ order.destination }}</td>
-              <td data-label="Payment Method">{{ order.paymentMethod }}</td>
-              <td data-label="Status">{{ order.status }}</td>
-              <td data-label="Actions" class="action">
-                <a [routerLink]="['/ElectroInternal/orders/view-order-details', order.id]" class="btn btn-primary">View</a>
-                <a [routerLink]="['/ElectroInternal/orders/edit-order-details', order.id]" class="btn btn-primary">Edit</a>
-                <button type="button" class="btn btn-danger" (click)="confirmDelete(order.id)">Delete</button>
-              </td>
+              <th scope="col">Order ID</th>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Total</th>
+              <th scope="col">Order Time</th>
+              <th scope="col">Destination</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+            </thead>
+            <tbody>
+              @for (order of orders; track order.id) {
+                <tr>
+                  <th scope="row">{{ order.id }}</th>
+                  <td class="text-break">{{ order.customerName }}</td>
+                  <td class="text-nowrap">
+                    @if (currencySymbolPosition() === 'BEFORE_PRICE') {
+                      {{ currencySymbol() }} {{ order.total | number:'1.2-2' }}
+                    } @else {
+                      {{ order.total | number:'1.2-2' }} {{ currencySymbol() }}
+                    }
+                  </td>
+                  <td>{{ order.orderTime | date:'medium' }}</td>
+                  <td class="text-break">{{ order.destination }}</td>
+                  <td>{{ order.paymentMethod }}</td>
+                  <td>
+                    <span class="badge text-bg-secondary">{{ order.status }}</span>
+                  </td>
+                  <td class="action">
+                    <div class="d-flex justify-content-center flex-wrap gap-1">
+                      <a [routerLink]="['/ElectroInternal/orders/view-order-details', order.id]" class="btn btn-primary btn-sm">View</a>
+                      <a [routerLink]="['/ElectroInternal/orders/edit-order-details', order.id]" class="btn btn-primary btn-sm">Edit</a>
+                      <button type="button" class="btn btn-danger btn-sm" (click)="confirmDelete(order.id)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-    @if (totalPages() > 1) {
-      <div class="d-flex justify-content-between align-items-center mt-4">
-        <button class="btn btn-outline-primary"
-                [disabled]="currentPage() === 0"
-                (click)="previousPage()">
-          Previous
-        </button>
-        <span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
-        <button class="btn btn-outline-primary"
-                [disabled]="currentPage() >= totalPages() - 1"
-                (click)="nextPage()">
-          Next
-        </button>
+      <!-- Mobile & Tablet View (360px to <992px): Responsive Stacked Cards (No Overflow) -->
+      <div class="d-lg-none">
+        <div class="row g-3">
+          @for (order of orders; track order.id) {
+            <div class="col-12 col-md-6">
+              <div class="card h-100 shadow-sm order-card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2 py-2">
+                  <span class="fw-semibold">Order #{{ order.id }}</span>
+                  <span class="badge text-bg-secondary">{{ order.status }}</span>
+                </div>
+
+                <div class="card-body py-2 px-3">
+                  <div class="order-detail-row">
+                    <span class="order-detail-label">Customer</span>
+                    <span class="order-detail-value text-break">{{ order.customerName }}</span>
+                  </div>
+
+                  <div class="order-detail-row">
+                    <span class="order-detail-label">Total</span>
+                    <span class="order-detail-value fw-semibold">
+                      @if (currencySymbolPosition() === 'BEFORE_PRICE') {
+                        {{ currencySymbol() }} {{ order.total | number:'1.2-2' }}
+                      } @else {
+                        {{ order.total | number:'1.2-2' }} {{ currencySymbol() }}
+                      }
+                    </span>
+                  </div>
+
+                  <div class="order-detail-row">
+                    <span class="order-detail-label">Order Time</span>
+                    <span class="order-detail-value">{{ order.orderTime | date:'medium' }}</span>
+                  </div>
+
+                  <div class="order-detail-row">
+                    <span class="order-detail-label">Destination</span>
+                    <span class="order-detail-value text-break">{{ order.destination }}</span>
+                  </div>
+
+                  <div class="order-detail-row">
+                    <span class="order-detail-label">Payment</span>
+                    <span class="order-detail-value">{{ order.paymentMethod }}</span>
+                  </div>
+                </div>
+
+                <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3">
+                  <div class="d-flex flex-wrap gap-2">
+                    <a [routerLink]="['/ElectroInternal/orders/view-order-details', order.id]" class="btn btn-primary btn-sm flex-fill">View</a>
+                    <a [routerLink]="['/ElectroInternal/orders/edit-order-details', order.id]" class="btn btn-primary btn-sm flex-fill">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm flex-fill" (click)="confirmDelete(order.id)">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-controls d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+          <button class="btn btn-outline-primary btn-sm"
+                  [disabled]="currentPage() === 0"
+                  (click)="previousPage()">
+            Previous
+          </button>
+          <span class="small text-secondary">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+          <button class="btn btn-outline-primary btn-sm"
+                  [disabled]="currentPage() >= totalPages() - 1"
+                  (click)="nextPage()">
+            Next
+          </button>
+        </div>
+      }
+    }
+
+    @if (orderIdToDelete(); as orderId) {
+      <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm Deletion</h5>
+              <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete order <strong>{{ orderId }}</strong>?</p>
+              <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+              <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+            </div>
+          </div>
+        </div>
       </div>
     }
-  }
-
-  @if (orderIdToDelete(); as orderId) {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirm Deletion</h5>
-            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete order <strong>{{ orderId }}</strong>?</p>
-            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
-            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
   } @else if (roleService.hasRole('Shipper')) {
     <div class="row mb-3">
-      <div class="col-md-8">
+      <div class="col-12 col-lg-8">
         <form [formGroup]="searchForm" class="row g-2">
-          <div class="col-md-6">
+          <div class="col-12 col-sm-8 col-md-7">
             <input type="text" class="form-control" formControlName="keyword" placeholder="Search by orderId,recipient's address">
           </div>
-          <div class="col-md-2">
+          <div class="col-12 col-sm-4 col-md-3">
             <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
           </div>
         </form>
@@ -133,18 +201,18 @@
 
               <!-- Card Body: Recipient Info & COD -->
               <div class="card-body">
-                <div class="mb-2">
+                <div class="mb-2 text-break">
                   <span class="me-2 text-dark">&#128100;</span>
-                  <strong>{{order.customerName}}</strong>
+                  <strong>{{ order.customerName }}</strong>
                 </div>
 
-                <div class="mb-2 text-secondary small">
+                <div class="mb-2 text-secondary small text-break">
                   <span class="me-2 text-dark">&#127968;</span>
                   <span>{{ $any(order).fullAddress || order.destination }}</span>
                 </div>
 
                 @if ($any(order).recipientPhoneNumber) {
-                  <div class="mb-2 text-secondary small">
+                  <div class="mb-2 text-secondary small text-break">
                     <span class="me-2 text-dark">&#128222;</span>
                     <span>{{ $any(order).recipientPhoneNumber }}</span>
                   </div>

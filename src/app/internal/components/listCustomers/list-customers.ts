@@ -7,7 +7,7 @@ import { CustomerService } from '../../services/CustomerService/customer-service
 
 @Component({
   selector: 'app-list-customers',
-  templateUrl: './list-customers.html',
+  templateUrl: './list_customers.html',
   styleUrl: './list-customers.css',
   imports: [ReactiveFormsModule, RouterLink]
 })

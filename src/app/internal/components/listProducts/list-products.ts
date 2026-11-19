@@ -11,7 +11,7 @@ import {RoleService} from '../../services/role-service';
 @Component({
   selector: 'app-list-products',
   standalone: true,
-  templateUrl: './list-products.html',
+  templateUrl: './list_products.html',
   styleUrl: './list-products.css',
   imports: [
     ReactiveFormsModule,

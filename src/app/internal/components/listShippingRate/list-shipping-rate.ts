@@ -15,7 +15,7 @@ import {SettingDTO} from '../../../shared/Models/SettingDTO';
   ],
   selector: 'app-list-shipping-rates',
   styleUrl: './list-shipping-rate.css',
-  templateUrl: './list-shipping-rate.html',
+  templateUrl: './list_shipping_rate.html',
 })
 export class ListShippingRates {
   private shippingRateService = inject(ShippingRateService);

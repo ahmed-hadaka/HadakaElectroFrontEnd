@@ -1,0 +1,170 @@
+<div class="container-fluid px-3 px-md-4 mt-4">
+  <div class="row align-items-center g-2 mb-4">
+    <div class="col-12 col-md-7">
+      <h2 class="mb-0">Categories Management</h2>
+    </div>
+    <div class="col-12 col-md-5 d-flex flex-wrap gap-2 justify-content-md-end">
+      <a [routerLink]="['/ElectroInternal/categories/new-category']" class="btn btn-success flex-fill flex-md-grow-0">New Category</a>
+      <button type="button" class="btn btn-info flex-fill flex-md-grow-0" (click)="exportToCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="row mb-3">
+    <div class="col-12 col-lg-8">
+      <form [formGroup]="searchForm" class="row g-2">
+        <div class="col-12 col-sm-8 col-md-9">
+          <input type="text" class="form-control" formControlName="keyword" placeholder="Search by category name">
+        </div>
+        <div class="col-12 col-sm-4 col-md-3">
+          <button type="button" class="btn btn-primary w-100" (click)="onSearch()">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Categories Content -->
+  @if (categoriesPageContent(); as categories) {
+    <!-- Desktop View (lg and up): Standard Table -->
+    <div class="d-none d-lg-block">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle categories-table mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Category ID</th>
+              <th scope="col">Image</th>
+              <th scope="col">Category Name</th>
+              <th scope="col">Alias</th>
+              <th scope="col">Parent Category</th>
+              <th scope="col">Enabled</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (category of categories; track category.id) {
+              <tr>
+                <th scope="row">{{ category.id }}</th>
+                <td>
+                  <img [src]="getImagePath(category.id, category.image)"
+                       alt="Category"
+                       width="50"
+                       height="50"
+                       class="rounded object-fit-cover">
+                </td>
+                <td class="text-break">{{ category.name }}</td>
+                <td class="text-break">{{ category.alias }}</td>
+                <td class="text-break">{{ category.parent?.name || 'N/A' }}</td>
+                <td>
+                  <div class="form-check form-switch d-flex justify-content-center mb-0">
+                    <input type="checkbox"
+                           class="form-check-input"
+                           [checked]="category.enabled"
+                           (change)="updateCategoryStatus(category.id)">
+                  </div>
+                </td>
+                <td class="action">
+                  <div class="d-flex justify-content-center flex-wrap gap-1">
+                    <a [routerLink]="['/ElectroInternal/categories/edit', category.id]" class="btn btn-primary btn-sm">View / Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm" (click)="confirmDelete(category.id)">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile & Tablet View (360px to <992px): Responsive Stacked Cards -->
+    <div class="d-lg-none">
+      <div class="row g-3">
+        @for (category of categories; track category.id) {
+          <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm category-card">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center gap-2 py-2">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                  <img [src]="getImagePath(category.id, category.image)"
+                       alt="Category"
+                       width="40"
+                       height="40"
+                       class="rounded object-fit-cover flex-shrink-0">
+                  <span class="fw-semibold text-break">{{ category.name }}</span>
+                </div>
+                <div class="form-check form-switch mb-0 flex-shrink-0">
+                  <input type="checkbox"
+                         class="form-check-input"
+                         [checked]="category.enabled"
+                         aria-label="Enabled"
+                         (change)="updateCategoryStatus(category.id)">
+                </div>
+              </div>
+
+              <div class="card-body py-2 px-3">
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Category ID</span>
+                  <span class="item-detail-value">#{{ category.id }}</span>
+                </div>
+
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Alias</span>
+                  <span class="item-detail-value text-break">{{ category.alias }}</span>
+                </div>
+
+                <div class="item-detail-row">
+                  <span class="item-detail-label">Parent Category</span>
+                  <span class="item-detail-value text-break">{{ category.parent?.name || 'N/A' }}</span>
+                </div>
+              </div>
+
+              <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3">
+                <div class="d-flex flex-wrap gap-2">
+                  <a [routerLink]="['/ElectroInternal/categories/edit', category.id]" class="btn btn-primary btn-sm flex-fill">View / Edit</a>
+                  <button type="button" class="btn btn-danger btn-sm flex-fill" (click)="confirmDelete(category.id)">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-controls d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() === 0"
+                (click)="previousPage()">
+          Previous
+        </button>
+        <span class="small text-secondary">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+        <button class="btn btn-outline-primary btn-sm"
+                [disabled]="currentPage() >= totalPages() - 1"
+                (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Confirmation Modal -->
+  @if (categoryIdToDelete(); as categoryId) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete category <strong>{{ categoryId }}</strong>?</p>
+            <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()">Confirm Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
